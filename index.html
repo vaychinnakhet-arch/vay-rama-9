@@ -697,11 +697,11 @@
                         </div>
                     </div>
 
-                    <div id="tiling-view-toggle" class="flex items-center gap-3 hidden ml-4 border-l border-slate-200 pl-4">
+                    <div id="category-view-toggle" class="flex items-center gap-3 hidden ml-4 border-l border-slate-200 pl-4">
                          <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">รูปแบบ</span>
                         <div class="bg-slate-100 p-1 rounded-lg text-slate-600 text-sm font-medium flex">
-                            <button id="view-tiling-summary-btn" class="view-toggle-btn px-4 py-1.5 rounded-md active">สรุป</button>
-                            <button id="view-tiling-detailed-btn" class="view-toggle-btn px-4 py-1.5 rounded-md">ละเอียด</button>
+                            <button id="view-category-summary-btn" class="view-toggle-btn px-4 py-1.5 rounded-md active">สรุป</button>
+                            <button id="view-category-detailed-btn" class="view-toggle-btn px-4 py-1.5 rounded-md">ละเอียด</button>
                         </div>
                     </div>
                 </div>
@@ -1025,6 +1025,13 @@
                 GEMINI_API_MODEL: 'gemini-2.5-flash',
             };
 
+            const hasBedroomDoor = (floor, room) => {
+                if (floor === 2) return [2, 7, 18].includes(room);
+                if (floor >= 3 && floor <= 7) return [4, 9, 20].includes(room);
+                if (floor === 8) return [8, 19, 23].includes(room);
+                return false;
+            };
+
             const taskDefinitions = {
                 skimAndPaint: { name: 'งานสกิม/ทาสี', reportName: 'งานสกิมและทาสีห้องพัก', reportEmoji: '🎨', title: 'STATUS งานสกิม / ทาสี', type: 'progress', tasks: [ { name: 'สกิม', color: 'bg-stone-400', textColor: 'text-white' }, { name: 'ทาสี', color: 'bg-sky-500', textColor: 'text-white' } ] },
                 topping: { name: 'งานเท TOPPING', reportName: 'งานเทปรับระดับพื้นห้องพัก', reportEmoji: '🛠️', title: 'STATUS งานเท TOPPING', type: 'progress', tasks: [ { name: 'จับปุ่ม/ขังน้ำ', color: 'bg-orange-400', textColor: 'text-white' }, { name: 'เท Topping', color: 'bg-stone-500', textColor: 'text-white' } ] },
@@ -1040,7 +1047,7 @@
                 wetWork: { name: 'คะแนน WET WORK', reportName: 'WET WORK', reportEmoji: '💧', title: 'STATUS งาน WET WORK', type: 'inspection', tasks: [ { name: 'CM WW', color: 'bg-orange-400', textColor: 'text-white' }, { name: 'QC WW', color: 'bg-yellow-400', textColor: 'text-black' } ] },
                 furniture: { name: 'งานติดตั้งเฟอร์นิเจอร์', reportName: 'งานติดตั้งเฟอร์นิเจอร์', reportEmoji: '🛋️', title: 'STATUS งานติดตั้งเฟอร์นิเจอร์', type: 'progress', tasks: [ { name: 'ติดตั้งชุดครัว', color: 'bg-amber-500', textColor: 'text-white' }, { name: 'ติดตั้งเฟอร์นิเจอร์', color: 'bg-amber-700', textColor: 'text-white' }, ] },
                 laminate: { name: 'งานปูพื้นไม้ลามิเนต', reportName: 'งานปูพื้นไม้ลามิเนต', reportEmoji: '🌲', title: 'STATUS งานปูพื้นไม้ลามิเนต', type: 'progress', tasks: [ { name: 'ตรวจรับพื้นที่', color: 'bg-yellow-400', textColor: 'text-black' }, { name: 'ปูพื้นไม้', color: 'bg-amber-800', textColor: 'text-white' }, ] },
-                door: { name: 'งานติดตั้งประตูไม้', reportName: 'งานติดตั้งประตูไม้', reportEmoji: '🚪', title: 'STATUS งานติดตั้งประตูไม้', type: 'multi-progress', tasks: [ { name: 'ประตูหน้า', key: 'front', shortName: 'หน้า', color: 'bg-amber-600', textColor: 'text-white' }, { name: 'ประตูห้องน้ำ', key: 'bathroom', shortName: 'น้ำ', color: 'bg-blue-400', textColor: 'text-white' }, { name: 'อุปกรณ์ประตู', key: 'hardware', shortName: 'อปก.', color: 'bg-slate-500', textColor: 'text-white' } ] },
+                door: { name: 'งานติดตั้งประตูไม้', reportName: 'งานติดตั้งประตูไม้', reportEmoji: '🚪', title: 'STATUS งานติดตั้งประตูไม้', type: 'multi-progress', hasDetailedView: true, tasks: [ { name: 'ประตูหน้า', key: 'front', shortName: 'หน้า', color: 'bg-amber-600', textColor: 'text-white' }, { name: 'ประตูห้องนอน', key: 'bedroom', shortName: 'นอน', color: 'bg-emerald-600', textColor: 'text-white', condition: (f, r) => hasBedroomDoor(f, r) }, { name: 'ประตูห้องน้ำ', key: 'bathroom', shortName: 'น้ำ', color: 'bg-blue-400', textColor: 'text-white' }, { name: 'อุปกรณ์ประตู', key: 'hardware', shortName: 'อปก.', color: 'bg-slate-500', textColor: 'text-white' } ] },
                 showerScreen: { name: 'งาน SHOWER SCREEN', reportName: 'งาน SHOWER SCREEN', reportEmoji: '🚿', title: 'STATUS งาน SHOWER SCREEN', type: 'progress', tasks: [ { name: 'ติดตั้ง', color: 'bg-sky-500', textColor: 'text-white' }, { name: 'เก็บงาน', color: 'bg-teal-400', textColor: 'text-white' } ] },
                 endProduct: { name: 'คะแนน END PRODUCT', reportName: 'END PRODUCT', reportEmoji: '✅', title: 'STATUS งาน END PRODUCT', type: 'inspection', tasks: [ { name: 'CM End', color: 'bg-rose-300', textColor: 'text-black' }, { name: 'QC End', color: 'bg-emerald-400', textColor: 'text-black' }, ] },
             };
@@ -1230,16 +1237,21 @@
                             const unitData = projectData[catKey]?.[floor]?.[room] || {};
                             if (catDef.type === 'progress') {
                                 // A simple progress from 0-100 for the entire task category
-                                const taskProg = (unitData.progress || 0) / catDef.tasks.length;
-                                const completedTasksProgress = (unitData.taskIndex || 0) * (100 / catDef.tasks.length);
+                                const applicableTasks = catDef.tasks.filter(t => !t.condition || t.condition(floor, room));
+                                const taskCount = applicableTasks.length;
+                                const taskProg = (unitData.progress || 0) / taskCount;
+                                const completedTasksProgress = (unitData.taskIndex || 0) * (100 / taskCount);
                                 catTotalProgressPoints += taskProg + completedTasksProgress;
                                 catTotalMaxPoints += 100;
                             } else if (catDef.type === 'multi-progress') {
                                 let subTaskTotal = 0;
+                                let applicableTaskCount = 0;
                                 catDef.tasks.forEach(task => {
+                                    if (task.condition && !task.condition(floor, room)) return;
+                                    applicableTaskCount++;
                                     subTaskTotal += (unitData[`progress_${task.key}`] || 0);
                                 });
-                                catTotalProgressPoints += subTaskTotal / catDef.tasks.length;
+                                catTotalProgressPoints += applicableTaskCount > 0 ? subTaskTotal / applicableTaskCount : 0;
                                 catTotalMaxPoints += 100;
                             } else if (catDef.type === 'inspection') {
                                 const score = unitData.qcScore > 0 ? unitData.qcScore : (unitData.cmScore || 0);
@@ -1673,9 +1685,9 @@
                                     progress = taskData.progress || 0;
                                 } else if (taskDef.type === 'multi-progress') {
                                     // Average of sub-tasks
-                                    const subTasks = taskDef.tasks || [];
-                                    const totalProgress = subTasks.reduce((sum, st) => sum + (taskData[`progress_${st.key}`] || 0), 0);
-                                    progress = subTasks.length > 0 ? totalProgress / subTasks.length : 0;
+                                    const applicableSubTasks = (taskDef.tasks || []).filter(t => !t.condition || t.condition(floor, room));
+                                    const totalProgress = applicableSubTasks.reduce((sum, st) => sum + (taskData[`progress_${st.key}`] || 0), 0);
+                                    progress = applicableSubTasks.length > 0 ? totalProgress / applicableSubTasks.length : 0;
                                 } else if (taskDef.type === 'inspection') {
                                     const score = taskData.qcScore > 0 ? taskData.qcScore : (taskData.cmScore || 0);
                                     scoreToShow = score;
@@ -2116,6 +2128,7 @@
                             const unitData = projectData[currentCategory]?.[floor]?.[room] || {};
                             let isRoomComplete = true;
                             detailedTasks.forEach(task => {
+                                if (task.condition && !task.condition(floor, room)) return;
                                 if ((unitData[`progress_${task.key}`] || 0) < 100) isRoomComplete = false;
                             });
                             if (isRoomComplete) floorCompletedCount++;
@@ -2130,11 +2143,20 @@
                             row.innerHTML += `<td class="border p-1 text-left font-semibold bg-slate-50 text-slate-600 text-[11px]">${task.name}</td>`;
 
                             for (let room = 1; room <= CONFIG.MAX_ROOMS; room++) {
-                                if (room > CONFIG.getRoomsOnFloor(floor)) {
-                                    row.innerHTML += `<td class="border p-2 bg-slate-200"></td>`;
+                            if (room > CONFIG.getRoomsOnFloor(floor)) {
+                                const emptyCell = document.createElement('td');
+                                emptyCell.className = 'border p-2 bg-slate-200';
+                                row.appendChild(emptyCell);
+                                continue;
+                            }
+                                const unitData = projectData[currentCategory]?.[floor]?.[room] || {};
+                                if (task.condition && !task.condition(floor, room)) {
+                                    const naCell = document.createElement('td');
+                                    naCell.className = 'border p-2 bg-slate-100 text-slate-400 text-center text-[10px]';
+                                    naCell.textContent = 'N/A';
+                                    row.appendChild(naCell);
                                     continue;
                                 }
-                                const unitData = projectData[currentCategory]?.[floor]?.[room] || {};
                                 const progress = unitData[`progress_${task.key}`] || 0;
                                 const styleClasses = getProgressColor(progress, task.color);
                                 const cell = document.createElement('td');
@@ -2146,7 +2168,10 @@
                             }
 
                             if (taskIndex === 0) {
-                                row.innerHTML += `<td class="border-y separator-cell" rowspan="${detailedTasks.length}"></td>`;
+                                const separator = document.createElement('td');
+                                separator.className = 'border-y separator-cell';
+                                separator.rowSpan = detailedTasks.length;
+                                row.appendChild(separator);
                                 let floorTaskCountsHTML = '<div class="flex flex-col p-1 space-y-0.5 text-xs text-left">';
                                 detailedTasks.forEach((task, index) => {
                                     let startedCount = 0;
@@ -2159,18 +2184,39 @@
                                 });
                                 floorTaskCountsHTML += '</div>';
                                 const topBorderClass = (floor === CONFIG.FLOORS[0]) ? '' : 'border-t-slate-300 border-t-2';
-                                row.innerHTML += `<td class="border ${topBorderClass} p-0 summary-cell align-top" rowspan="${detailedTasks.length}">${floorTaskCountsHTML}</td>`;
-                                row.innerHTML += `<td class="border ${topBorderClass} p-2 text-green-700 font-semibold summary-cell align-middle" rowspan="${detailedTasks.length}"><span>${floorCompletedCount}</span></td>`;
-                                row.innerHTML += `<td class="border ${topBorderClass} p-2 text-red-700 font-semibold summary-cell align-middle" rowspan="${detailedTasks.length}"><span>${roomsOnThisFloor - floorCompletedCount}</span></td>`;
+                                
+                                const summaryCell = document.createElement('td');
+                                summaryCell.className = `border ${topBorderClass} p-0 summary-cell align-top`;
+                                summaryCell.rowSpan = detailedTasks.length;
+                                summaryCell.innerHTML = floorTaskCountsHTML;
+                                row.appendChild(summaryCell);
+
+                                const completedCell = document.createElement('td');
+                                completedCell.className = `border ${topBorderClass} p-2 text-green-700 font-semibold summary-cell align-middle`;
+                                completedCell.rowSpan = detailedTasks.length;
+                                completedCell.innerHTML = `<span>${floorCompletedCount}</span>`;
+                                row.appendChild(completedCell);
+
+                                const remainingCell = document.createElement('td');
+                                remainingCell.className = `border ${topBorderClass} p-2 text-red-700 font-semibold summary-cell align-middle`;
+                                remainingCell.rowSpan = detailedTasks.length;
+                                remainingCell.innerHTML = `<span>${roomsOnThisFloor - floorCompletedCount}</span>`;
+                                row.appendChild(remainingCell);
                             }
                             tbody.appendChild(row);
                         });
                     } else {
                         const row = document.createElement('tr');
-                        row.innerHTML = `<td class="border p-2 font-bold bg-slate-100"><span>${floor}</span></td>`;
+                        const floorCell = document.createElement('td');
+                        floorCell.className = 'border p-2 font-bold bg-slate-100';
+                        floorCell.innerHTML = `<span>${floor}</span>`;
+                        row.appendChild(floorCell);
+
                         for (let room = 1; room <= CONFIG.MAX_ROOMS; room++) {
                             if (room > CONFIG.getRoomsOnFloor(floor)) {
-                                row.innerHTML += `<td class="border p-2 bg-slate-200"></td>`;
+                                const emptyCell = document.createElement('td');
+                                emptyCell.className = 'border p-2 bg-slate-200';
+                                row.appendChild(emptyCell);
                                 continue;
                             }
                             const unitData = projectData[currentCategory]?.[floor]?.[room] || {};
@@ -2211,13 +2257,16 @@
                                 }
                             } else if (isMultiProgress) {
                                  let totalProgress = 0;
+                                 let applicableTaskCount = 0;
                                  const activeTasks = [];
                                  categoryDef.tasks.forEach(task => {
+                                     if (task.condition && !task.condition(floor, room)) return;
+                                     applicableTaskCount++;
                                      const progress = unitData[`progress_${task.key}`] || 0;
                                      totalProgress += progress;
                                      if (progress > 0) activeTasks.push(task.shortName);
                                  });
-                                 const avgProgress = totalProgress / categoryTasks.length;
+                                 const avgProgress = applicableTaskCount > 0 ? totalProgress / applicableTaskCount : 0;
                                  styleClasses = avgProgress >= 100 ? 'bg-teal-500 text-white' : (avgProgress > 0 ? getProgressColor(avgProgress, 'bg-sky-500') : 'bg-white text-black');
                                  cellText = `${avgProgress.toFixed(0)}%`;
                                  if (activeTasks.length > 0) {
@@ -2258,7 +2307,11 @@
                             cell.dataset.room = room;
                             row.appendChild(cell);
                         }
-                        row.innerHTML += `<td class="border-y separator-cell"></td>`;
+
+                        const separator = document.createElement('td');
+                        separator.className = 'border-y separator-cell';
+                        row.appendChild(separator);
+
                         let floorCompleted = 0;
                         if (isInspection) {
                             let floorSubmitted = 0, floorPassed = 0, floorFailed = 0;
@@ -2278,9 +2331,22 @@
                                 }
                             }
                             floorCompleted = floorPassed;
-                            row.innerHTML += `<td class="border p-2 summary-cell"><span>${floorSubmitted}</span></td>`;
-                            row.innerHTML += `<td class="border p-2 summary-cell bg-teal-50"><span>${floorPassed}</span></td>`;
-                            row.innerHTML += `<td class="border p-2 summary-cell bg-rose-50"><span>${floorFailed}</span></td>`;
+                            
+                            const submittedCell = document.createElement('td');
+                            submittedCell.className = 'border p-2 summary-cell';
+                            submittedCell.innerHTML = `<span>${floorSubmitted}</span>`;
+                            row.appendChild(submittedCell);
+
+                            const passedCell = document.createElement('td');
+                            passedCell.className = 'border p-2 summary-cell bg-teal-50';
+                            passedCell.innerHTML = `<span>${floorPassed}</span>`;
+                            row.appendChild(passedCell);
+
+                            const failedCell = document.createElement('td');
+                            failedCell.className = 'border p-2 summary-cell bg-rose-50';
+                            failedCell.innerHTML = `<span>${floorFailed}</span>`;
+                            row.appendChild(failedCell);
+
                             totals[0] += floorSubmitted;
                             totals[1] += floorPassed;
                             totals[2] += floorFailed;
@@ -2290,6 +2356,7 @@
                                  const unitData = projectData[currentCategory]?.[floor]?.[room] || {};
                                  let isRoomComplete = true;
                                  categoryDef.tasks.forEach((task, index) => {
+                                     if (task.condition && !task.condition(floor, room)) return;
                                      const progress = unitData[`progress_${task.key}`] || 0;
                                      if (progress > 0) floorCounts[index]++;
                                      if(progress < 100) isRoomComplete = false;
@@ -2297,7 +2364,10 @@
                                   if (isRoomComplete) floorCompleted++;
                              }
                                floorCounts.forEach((count, i) => {
-                                 row.innerHTML += `<td class="border p-2 summary-cell"><span>${count}</span></td>`;
+                                 const countCell = document.createElement('td');
+                                 countCell.className = 'border p-2 summary-cell';
+                                 countCell.innerHTML = `<span>${count}</span>`;
+                                 row.appendChild(countCell);
                                  totals[i] += count;
                                });
                         } else {
@@ -2314,13 +2384,25 @@
                                 if ((unitData.taskIndex || 0) === categoryTasks.length - 1 && unitData.progress >= 100) floorCompleted++;
                             }
                             floorCounts.forEach((count, i) => {
-                                row.innerHTML += `<td class="border p-2 summary-cell"><span>${count}</span></td>`;
+                                const countCell = document.createElement('td');
+                                countCell.className = 'border p-2 summary-cell';
+                                countCell.innerHTML = `<span>${count}</span>`;
+                                row.appendChild(countCell);
                                 totals[i] += count;
                             });
                         }
                         const floorRemaining = roomsOnThisFloor - floorCompleted;
-                        row.innerHTML += `<td class="border p-2 text-green-700 font-semibold summary-cell"><span>${floorCompleted}</span></td>`;
-                        row.innerHTML += `<td class="border p-2 text-red-700 font-semibold summary-cell"><span>${floorRemaining}</span></td>`;
+                        
+                        const completedCell = document.createElement('td');
+                        completedCell.className = 'border p-2 text-green-700 font-semibold summary-cell';
+                        completedCell.innerHTML = `<span>${floorCompleted}</span>`;
+                        row.appendChild(completedCell);
+
+                        const remainingCell = document.createElement('td');
+                        remainingCell.className = 'border p-2 text-red-700 font-semibold summary-cell';
+                        remainingCell.innerHTML = `<span>${floorRemaining}</span>`;
+                        row.appendChild(remainingCell);
+
                         totalCompleted += floorCompleted;
                         tbody.appendChild(row);
                     }
@@ -2328,8 +2410,9 @@
                 mainTable.appendChild(tbody);
 
                 const tfoot = document.createElement('tfoot');
+                const totalRemaining = CONFIG.TOTAL_UNITS - totalCompleted;
+
                 if (isDetailedView) {
-                    const totalRemaining = CONFIG.TOTAL_UNITS - totalCompleted;
                     let summaryHTML = '<div class="flex flex-col p-1 space-y-0.5 text-xs text-left">';
                     categoryTasks.forEach((task, index) => {
                          const borderClass = index === categoryTasks.length - 1 ? '' : 'border-b border-slate-200';
@@ -2337,31 +2420,64 @@
                     });
                     summaryHTML += '</div>';
 
-                    let footerHTML = `<tr class="font-bold bg-slate-200">
-                        <td class="border p-2" colspan="2"><span>TOTAL ( ${CONFIG.TOTAL_UNITS} UNIT )</span></td>
-                        <td class="border" colspan="${CONFIG.MAX_ROOMS}"></td>
-                        <td class="border-y separator-cell"></td>
-                        <td class="border p-0 bg-slate-100 align-top"><span>${summaryHTML}</span></td>
-                        <td class="border p-2 bg-teal-100"><span>${totalCompleted}</span></td>
-                        <td class="border p-2 bg-rose-100"><span>${totalRemaining}</span></td>
-                    </tr>`;
-                    tfoot.innerHTML = footerHTML;
+                    const row = document.createElement('tr');
+                    row.className = 'font-bold bg-slate-200';
+                    
+                    const totalCell = document.createElement('td');
+                    totalCell.className = 'border p-2';
+                    totalCell.colSpan = CONFIG.MAX_ROOMS + 3;
+                    totalCell.innerHTML = `<span>TOTAL ( ${CONFIG.TOTAL_UNITS} UNIT )</span>`;
+                    row.appendChild(totalCell);
+                    
+                    const summaryCell = document.createElement('td');
+                    summaryCell.className = 'border p-0 bg-slate-100 align-top';
+                    summaryCell.innerHTML = `<span>${summaryHTML}</span>`;
+                    row.appendChild(summaryCell);
+                    
+                    const completedCell = document.createElement('td');
+                    completedCell.className = 'border p-2 bg-teal-100';
+                    completedCell.innerHTML = `<span>${totalCompleted}</span>`;
+                    row.appendChild(completedCell);
+                    
+                    const remainingCell = document.createElement('td');
+                    remainingCell.className = 'border p-2 bg-rose-100';
+                    remainingCell.innerHTML = `<span>${totalRemaining}</span>`;
+                    row.appendChild(remainingCell);
+                    
+                    tfoot.appendChild(row);
                 } else {
-                    const totalRemaining = CONFIG.TOTAL_UNITS - totalCompleted;
-                    let footerHTML = `<tr class="font-bold bg-slate-200">
-                        <td class="border p-2" colspan="${CONFIG.MAX_ROOMS + 1}"><span>TOTAL ( ${CONFIG.TOTAL_UNITS} UNIT )</span></td>
-                        <td class="border-y separator-cell"></td>`;
+                    const row = document.createElement('tr');
+                    row.className = 'font-bold bg-slate-200';
+                    
+                    const totalCell = document.createElement('td');
+                    totalCell.className = 'border p-2';
+                    totalCell.colSpan = CONFIG.MAX_ROOMS + 2;
+                    totalCell.innerHTML = `<span>TOTAL ( ${CONFIG.TOTAL_UNITS} UNIT )</span>`;
+                    row.appendChild(totalCell);
+                    
                     totals.forEach((total, index) => {
                         let bgColor = 'bg-slate-100';
                         if (isInspection) {
                             if (index === 1) bgColor = 'bg-teal-100';
                             if (index === 2) bgColor = 'bg-rose-100';
                         }
-                        footerHTML += `<td class="border p-2 ${bgColor}"><span>${total}</span></td>`;
+                        const cell = document.createElement('td');
+                        cell.className = `border p-2 ${bgColor}`;
+                        cell.innerHTML = `<span>${total}</span>`;
+                        row.appendChild(cell);
                     });
-                    footerHTML += `<td class="border p-2 bg-teal-100"><span>${totalCompleted}</span></td>`;
-                    footerHTML += `<td class="border p-2 bg-rose-100"><span>${totalRemaining}</span></td></tr>`;
-                    tfoot.innerHTML = footerHTML;
+                    
+                    const completedCell = document.createElement('td');
+                    completedCell.className = 'border p-2 bg-teal-100';
+                    completedCell.innerHTML = `<span>${totalCompleted}</span>`;
+                    row.appendChild(completedCell);
+                    
+                    const remainingCell = document.createElement('td');
+                    remainingCell.className = 'border p-2 bg-rose-100';
+                    remainingCell.innerHTML = `<span>${totalRemaining}</span>`;
+                    row.appendChild(remainingCell);
+                    
+                    tfoot.appendChild(row);
                 }
                 mainTable.appendChild(tfoot);
             }
@@ -2545,13 +2661,13 @@
                 }
                 document.getElementById('status-title').textContent = title;
                 
-                const tilingToggle = document.getElementById('tiling-view-toggle');
+                const categoryToggle = document.getElementById('category-view-toggle');
                 if (categoryDef && categoryDef.hasDetailedView && !isCommonView && !isQCSummaryView && currentView !== 'summaryReport') {
-                    tilingToggle.classList.remove('hidden');
-                    document.getElementById('view-tiling-summary-btn').classList.toggle('active', currentDetailedView === 'summary');
-                    document.getElementById('view-tiling-detailed-btn').classList.toggle('active', currentDetailedView === 'detailed');
+                    categoryToggle.classList.remove('hidden');
+                    document.getElementById('view-category-summary-btn').classList.toggle('active', currentDetailedView === 'summary');
+                    document.getElementById('view-category-detailed-btn').classList.toggle('active', currentDetailedView === 'detailed');
                 } else {
-                    tilingToggle.classList.add('hidden');
+                    categoryToggle.classList.add('hidden');
                 }
 
                 document.getElementById('update-date').textContent = new Date().toLocaleDateString('th-TH', {
@@ -2657,7 +2773,6 @@
                     content.innerHTML += createBadge('bg-sky-300', 'คืบหน้า (31-60%)');
                     content.innerHTML += createBadge('bg-sky-500', 'คืบหน้ามาก (61-99%)');
                     content.innerHTML += createBadge('bg-emerald-500', 'เสร็จสมบูรณ์ (100%)');
-                    content.innerHTML += createBadge('', 'แสดงงานย่อยที่เริ่มทำแล้ว', '<div class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-600 border border-black">ย่อ</div>');
                 } else {
                     // Sequential flow
                     categoryDef.tasks.forEach((task, index) => {
@@ -3225,6 +3340,14 @@
                     const isMultiSelect = selectedCells.size > 1;
                     view.innerHTML = '';
                     categoryDef.tasks.forEach(task => {
+                        let isApplicable = false;
+                        selectedCells.forEach(cell => {
+                            if (!task.condition || task.condition(parseInt(cell.dataset.floor), parseInt(cell.dataset.room))) {
+                                isApplicable = true;
+                            }
+                        });
+                        if (!isApplicable) return;
+
                         const progress = isMultiSelect ? '' : (unitData[`progress_${task.key}`] || 0);
                         view.innerHTML += `
                             <div class="mb-4">
@@ -3246,6 +3369,14 @@
                     const renderTaskButtons = (selectedIndex) => {
                         taskButtonsContainer.innerHTML = '';
                         categoryTasks.forEach((task, index) => {
+                            let isApplicable = false;
+                            selectedCells.forEach(cell => {
+                                if (!task.condition || task.condition(parseInt(cell.dataset.floor), parseInt(cell.dataset.room))) {
+                                    isApplicable = true;
+                                }
+                            });
+                            if (!isApplicable) return;
+
                             const isSelected = index === selectedIndex;
                             const isPrevious = index < selectedIndex;
                             
@@ -3285,6 +3416,12 @@
                         let progressToShow = unitData.progress || 0;
                         if (progressToShow >= 100 && taskToShowIndex < categoryTasks.length - 1) {
                             taskToShowIndex++;
+                            // Skip conditional tasks that don't apply
+                            while (taskToShowIndex < categoryTasks.length - 1 && 
+                                   categoryTasks[taskToShowIndex].condition && 
+                                   !categoryTasks[taskToShowIndex].condition(parseInt(floor), parseInt(room))) {
+                                taskToShowIndex++;
+                            }
                             progressToShow = 0;
                         }
                         taskSelect.value = taskToShowIndex;
@@ -3428,6 +3565,8 @@
                             if (valueStr !== '') {
                                 const value = parseInt(valueStr, 10);
                                 if (!isNaN(value) && value >= 0 && value <= 100) {
+                                    const task = categoryDef.tasks.find(t => t.key === input.dataset.key);
+                                    if (task && task.condition && !task.condition(parseInt(floor), parseInt(room))) return;
                                     unitData[`progress_${input.dataset.key}`] = value;
                                 }
                             }
@@ -3558,6 +3697,7 @@
                     
                     if (catDef.type === 'progress') {
                         catDef.tasks.forEach((task, index) => {
+                             if (task.condition && !task.condition(parseInt(floor), parseInt(room))) return;
                              const isCompleted = (unitData.taskIndex || 0) > index || ((unitData.taskIndex || 0) === index && (unitData.progress || 0) >= 100);
                              const btnProgress = isCompleted ? 100 : ((unitData.taskIndex || 0) === index ? (unitData.progress || 0) : 0);
                              
@@ -3568,6 +3708,7 @@
                         });
                     } else if (catDef.type === 'multi-progress') {
                          catDef.tasks.forEach(task => {
+                             if (task.condition && !task.condition(parseInt(floor), parseInt(room))) return;
                              const progress = unitData[`progress_${task.key}`] || 0;
                               html += `<div class="ios-table-cell" data-catkey="${catKey}" data-taskkey="${task.key}">
                                         <p class="task-name">${task.name}</p>
@@ -3647,6 +3788,7 @@
                     // Logic to update other sub-tasks in the same category
                     if (progress === 100) { // If completing this task
                         for (let i=0; i < taskIndex; i++) { // complete all previous tasks
+                            if (catDef.tasks[i].condition && !catDef.tasks[i].condition(parseInt(floor), parseInt(room))) continue;
                             if ((updatedData[catKey][floor][room].taskIndex || 0) <= i) {
                                 updatedData[catKey][floor][room].taskIndex = i;
                                 updatedData[catKey][floor][room].progress = 100;
@@ -3654,6 +3796,7 @@
                         }
                     } else if (progress === 0) { // If clearing this task
                          for (let i = catDef.tasks.length - 1; i >= taskIndex; i--) { // clear this and all subsequent tasks
+                            if (catDef.tasks[i].condition && !catDef.tasks[i].condition(parseInt(floor), parseInt(room))) continue;
                             if ((updatedData[catKey][floor][room].taskIndex || 0) >= i) {
                                 updatedData[catKey][floor][room].taskIndex = i;
                                 updatedData[catKey][floor][room].progress = 0;
@@ -5149,12 +5292,12 @@
                     renderTable();
                 });
 
-                document.getElementById('view-tiling-summary-btn').addEventListener('click', () => {
+                document.getElementById('view-category-summary-btn').addEventListener('click', () => {
                     if (currentDetailedView === 'summary') return;
                     currentDetailedView = 'summary';
                     renderTable();
                 });
-                document.getElementById('view-tiling-detailed-btn').addEventListener('click', () => {
+                document.getElementById('view-category-detailed-btn').addEventListener('click', () => {
                     if (currentDetailedView === 'detailed') return;
                     currentDetailedView = 'detailed';
                     renderTable();
