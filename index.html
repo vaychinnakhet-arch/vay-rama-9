@@ -31,6 +31,7 @@
             overflow: hidden;
         }
         /* Style for LINE capture mode */
+        html.is-line-capturing,
         body.is-line-capturing {
             background-color: #ffffff;
             padding: 0 !important;
@@ -42,16 +43,30 @@
             width: max-content !important; /* Let it expand to content width */
             max-width: none !important;
             display: inline-block; /* Crucial for width calculation */
-            margin: 0;
+            margin: 0 !important;
             box-shadow: none;
             border: none;
             border-radius: 0;
             overflow: visible !important;
+            transform: none !important;
         }
         .is-line-capturing main {
             overflow: visible !important;
             width: max-content !important;
             max-width: none !important;
+        }
+        .is-line-capturing #main-app-container {
+            width: max-content !important;
+            max-width: none !important;
+            overflow: visible !important;
+        }
+        .is-line-capturing #main-table {
+            width: max-content !important;
+            min-width: max-content !important;
+        }
+        .is-line-capturing header {
+            overflow: visible !important;
+            width: 100% !important;
         }
         .is-line-capturing #controls-area,
         .is-line-capturing #action-buttons-container,
@@ -114,6 +129,11 @@
             box-shadow: inset 0 0 0 3px #FACC15 !important; /* yellow-400 */
             position: relative;
             z-index: 10;
+        }
+        .is-line-capturing #legend {
+            margin: 1rem 0 0 0 !important;
+            width: 100% !important;
+            box-sizing: border-box;
         }
         .is-line-capturing #legend > div {
             display: flex !important;
@@ -3990,20 +4010,46 @@
 
                 captureBtn.innerHTML = 'กำลังแคปเจอร์...';
                 captureBtn.disabled = true;
+                
+                // Save scroll position
+                const scrollX = window.scrollX || window.pageXOffset;
+                const scrollY = window.scrollY || window.pageYOffset;
+                
+                // Scroll to top-left to avoid html2canvas clipping issues on mobile
+                window.scrollTo(0, 0);
+                
+                document.documentElement.classList.add('is-line-capturing');
                 document.body.classList.add('is-line-capturing');
+                
+                const table = document.getElementById('main-table');
+                const fullWidth = Math.max(table.scrollWidth, table.offsetWidth);
+                
+                // Force inline widths to prevent clipping
+                const originalCaptureAreaWidth = captureArea.style.width;
+                const originalBodyWidth = document.body.style.width;
+                const originalHtmlWidth = document.documentElement.style.width;
+                const mainAppContainer = document.getElementById('main-app-container');
+                const originalMainAppWidth = mainAppContainer.style.width;
+                
+                captureArea.style.width = fullWidth + 'px';
+                document.body.style.width = fullWidth + 'px';
+                document.documentElement.style.width = fullWidth + 'px';
+                mainAppContainer.style.width = fullWidth + 'px';
 
                 setTimeout(() => {
-                    const width = captureArea.scrollWidth;
-                    const height = captureArea.scrollHeight;
+                    const finalWidth = captureArea.scrollWidth;
+                    const finalHeight = captureArea.scrollHeight;
 
                     html2canvas(captureArea, {
                         scale: 3, // Increased quality
                         useCORS: true,
                         backgroundColor: '#ffffff',
-                        width: width,
-                        height: height,
-                        windowWidth: width,
-                        windowHeight: height
+                        width: finalWidth,
+                        height: finalHeight,
+                        windowWidth: finalWidth,
+                        windowHeight: finalHeight,
+                        scrollX: 0,
+                        scrollY: 0
                     }).then(canvas => {
                         const link = document.createElement('a');
                         link.download = `line-update-${Date.now()}.png`;
@@ -4013,9 +4059,19 @@
                         console.error('Capture failed:', err);
                         showNotificationModal('เกิดข้อผิดพลาด', 'ไม่สามารถสร้างไฟล์ภาพได้');
                     }).finally(() => {
+                        document.documentElement.classList.remove('is-line-capturing');
                         document.body.classList.remove('is-line-capturing');
+                        
+                        // Restore inline widths
+                        captureArea.style.width = originalCaptureAreaWidth;
+                        document.body.style.width = originalBodyWidth;
+                        document.documentElement.style.width = originalHtmlWidth;
+                        mainAppContainer.style.width = originalMainAppWidth;
+                        
                         captureBtn.innerHTML = originalBtnHTML;
                         captureBtn.disabled = false;
+                        // Restore scroll position
+                        window.scrollTo(scrollX, scrollY);
                     });
                 }, 500); // Increased timeout to ensure rendering
             }
@@ -5349,13 +5405,16 @@
 
                 document.getElementById('captureBtn').addEventListener('click', captureForLine);
                 document.getElementById('toggleCaptureModeBtn').addEventListener('click', () => {
+                    document.documentElement.classList.add('is-line-capturing');
                     document.body.classList.add('is-line-capturing');
                 });
                 document.getElementById('exitCaptureModeFloatingBtn').addEventListener('click', () => {
+                    document.documentElement.classList.remove('is-line-capturing');
                     document.body.classList.remove('is-line-capturing');
                 });
                 document.addEventListener('keydown', (e) => {
                     if (e.key === 'Escape' && document.body.classList.contains('is-line-capturing')) {
+                        document.documentElement.classList.remove('is-line-capturing');
                         document.body.classList.remove('is-line-capturing');
                     }
                 });
