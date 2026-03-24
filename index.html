@@ -35,14 +35,23 @@
             background-color: #ffffff;
             padding: 0 !important;
             margin: 0 !important;
+            width: max-content !important;
+            min-width: 100vw !important;
         }
         .is-line-capturing #capture-area {
-            width: auto !important; /* Let it expand to content width */
+            width: max-content !important; /* Let it expand to content width */
+            max-width: none !important;
             display: inline-block; /* Crucial for width calculation */
             margin: 0;
             box-shadow: none;
             border: none;
             border-radius: 0;
+            overflow: visible !important;
+        }
+        .is-line-capturing main {
+            overflow: visible !important;
+            width: max-content !important;
+            max-width: none !important;
         }
         .is-line-capturing #controls-area,
         .is-line-capturing #action-buttons-container,
