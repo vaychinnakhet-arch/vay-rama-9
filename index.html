@@ -4260,13 +4260,11 @@
 
                 const orientation = document.querySelector('input[name="pdf-orientation"]:checked').value;
                 const isLandscape = orientation === 'landscape';
+                const useDetailedGrid = document.getElementById('report-detailed-grid')?.checked || false;
                 
                 // A4 size in pixels (at 96 DPI approx)
-                // Landscape: 1123px width, Portrait: 794px width
-                // We use a higher scale for quality, but the container width defines the layout.
-                const pageWidth = isLandscape ? 1400 : 1000; // Slightly larger for better fit
+                const pageWidth = isLandscape ? 1400 : 1000; 
                 
-                // Create a temporary container for PDF generation
                 let pdfContainer = document.getElementById('pdf-generation-container');
                 if (!pdfContainer) {
                     pdfContainer = document.createElement('div');
@@ -4279,7 +4277,7 @@
                     pdfContainer.style.padding = '40px';
                     document.body.appendChild(pdfContainer);
                 }
-                pdfContainer.innerHTML = ''; // Clear previous content
+                pdfContainer.innerHTML = ''; 
 
                 // Header
                 const today = new Date();
@@ -4307,105 +4305,210 @@
                     `;
                     pdfContainer.innerHTML += categoryTitle;
 
-                    // Create Table
-                    const table = document.createElement('table');
-                    table.className = 'w-full border-collapse border border-slate-300 text-sm mb-8 break-inside-avoid shadow-sm';
-                    
-                    // Table Header
-                    let theadHTML = '<thead class="bg-slate-100 text-slate-700">';
-                    theadHTML += '<tr>';
-                    theadHTML += '<th class="border border-slate-300 p-2 w-16 text-center">ชั้น</th>';
-                    theadHTML += `<th class="border border-slate-300 p-2 text-center" colspan="${CONFIG.MAX_ROOMS}">ROOM No.</th>`;
-                    theadHTML += '<th class="border border-slate-300 p-2 w-24 text-center">สรุป</th>';
-                    theadHTML += '</tr>';
-                    
-                    // Room Numbers Row
-                    theadHTML += '<tr>';
-                    theadHTML += '<th class="border border-slate-300 p-1"></th>'; // Empty for floor
-                    for (let i = 1; i <= CONFIG.MAX_ROOMS; i++) {
-                        theadHTML += `<th class="border border-slate-300 p-1 text-center text-xs text-slate-500">${i}</th>`;
-                    }
-                    theadHTML += '<th class="border border-slate-300 p-1"></th>'; // Empty for summary
-                    theadHTML += '</tr></thead>';
-                    table.innerHTML = theadHTML;
-
-                    // Table Body
-                    const tbody = document.createElement('tbody');
-                    floors.forEach(floor => {
-                        const roomsOnThisFloor = CONFIG.getRoomsOnFloor(floor);
+                    if (useDetailedGrid && catDef.type === 'multi-progress') {
+                        // RENDER DETAILED GRID (LIKE THE IMAGE)
+                        const table = document.createElement('table');
+                        table.className = 'w-full border-collapse border border-slate-400 text-[10px] mb-8 break-inside-avoid shadow-sm';
                         
-                        // For each selected subtask in this category
-                        tasks[catKey].forEach(taskIndex => {
-                            const task = catDef.tasks[taskIndex];
-                            const row = document.createElement('tr');
+                        // Header
+                        let theadHTML = `<thead class="bg-slate-100 text-slate-800 font-bold">
+                            <tr>
+                                <th class="border border-slate-400 p-1 w-8" rowspan="2">ชั้น</th>
+                                <th class="border border-slate-400 p-1 w-24" rowspan="2">รายการ</th>
+                                <th class="border border-slate-400 p-1" colspan="${CONFIG.MAX_ROOMS}">ROOM No.</th>
+                                <th class="border border-slate-400 p-1 w-16" rowspan="2">จำนวน</th>
+                                <th class="border border-slate-400 p-1 w-12" rowspan="2">เสร็จ</th>
+                                <th class="border border-slate-400 p-1 w-12" rowspan="2">คงเหลือ</th>
+                            </tr>
+                            <tr>`;
+                        for (let i = 1; i <= CONFIG.MAX_ROOMS; i++) {
+                            theadHTML += `<th class="border border-slate-400 p-0.5 text-center w-6">${i}</th>`;
+                        }
+                        theadHTML += `</tr></thead>`;
+                        table.innerHTML = theadHTML;
+
+                        const tbody = document.createElement('tbody');
+                        floors.forEach(floor => {
+                            const roomsOnThisFloor = CONFIG.getRoomsOnFloor(floor);
+                            const selectedSubtasks = tasks[catKey].map(idx => catDef.tasks[idx]);
                             
-                            // Floor Cell
-                            row.innerHTML += `<td class="border border-slate-300 p-2 font-bold text-center bg-slate-50">${floor}</td>`;
-                            
-                            let completedCount = 0;
-                            
-                            // Room Cells
+                            // Calculate floor summary
+                            let floorFinishedCount = 0;
                             for (let room = 1; room <= CONFIG.MAX_ROOMS; room++) {
-                                if (floor === 2 && room > CONFIG.getRoomsOnFloor(2)) {
-                                    row.innerHTML += `<td class="border border-slate-300 p-1 bg-slate-100"></td>`;
-                                    continue;
-                                }
+                                if (room > roomsOnThisFloor) continue;
                                 
                                 const unitData = projectData[catKey]?.[floor]?.[room] || {};
-                                let cellContent = '';
-                                let cellClass = 'bg-white';
+                                let allDone = true;
+                                selectedSubtasks.forEach(task => {
+                                    if (task.condition && !task.condition(floor, room)) return;
+                                    if ((unitData[`progress_${task.key}`] || 0) < 100) allDone = false;
+                                });
+                                if (allDone) floorFinishedCount++;
+                            }
+
+                            selectedSubtasks.forEach((task, sIdx) => {
+                                const row = document.createElement('tr');
                                 
-                                if (catDef.type === 'inspection') {
-                                    const score = unitData.qcScore || unitData.cmScore || 0;
-                                    const isDefect = unitData.qcHasMajorDefect || unitData.cmHasMajorDefect;
-                                    if (score > 0) {
-                                        if (score >= 85) {
-                                            cellClass = isDefect ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'; // Pass but defect vs Pass Clean
-                                            cellContent = isDefect ? '!' : '✓';
-                                            completedCount++;
-                                        } else {
-                                            cellClass = 'bg-red-100 text-red-800';
-                                            cellContent = '✗';
-                                        }
-                                    }
-                                } else if (catDef.type === 'multi-progress') {
-                                    const progress = unitData[`progress_${task.key}`] || 0;
-                                    if (progress >= 100) {
-                                        cellClass = 'bg-green-500 text-white';
-                                        cellContent = '100%';
-                                        completedCount++;
-                                    } else if (progress > 0) {
-                                        cellClass = 'bg-blue-100 text-blue-800';
-                                        cellContent = `${progress}%`;
-                                    }
-                                } else {
-                                    // Sequential
-                                    const currentTaskIndex = unitData.taskIndex || 0;
-                                    const progress = unitData.progress || 0;
-                                    
-                                    if (currentTaskIndex > taskIndex || (currentTaskIndex === taskIndex && progress >= 100)) {
-                                        cellClass = 'bg-green-500 text-white';
-                                        cellContent = '100%';
-                                        completedCount++;
-                                    } else if (currentTaskIndex === taskIndex && progress > 0) {
-                                        cellClass = 'bg-blue-100 text-blue-800';
-                                        cellContent = `${progress}%`;
-                                    }
+                                // Floor Cell (Merged)
+                                if (sIdx === 0) {
+                                    row.innerHTML += `<td class="border border-slate-400 p-1 font-bold text-center bg-slate-50" rowspan="${selectedSubtasks.length}">${floor}</td>`;
                                 }
                                 
-                                row.innerHTML += `<td class="border border-slate-300 p-1 text-center text-[10px] ${cellClass}">${cellContent}</td>`;
-                            }
-                            
-                            // Summary Cell
-                            const totalRooms = roomsOnThisFloor;
-                            const percent = Math.round((completedCount / totalRooms) * 100);
-                            row.innerHTML += `<td class="border border-slate-300 p-2 text-center font-bold text-slate-700">${percent}%</td>`;
-                            
-                            tbody.appendChild(row);
+                                // Task Name
+                                row.innerHTML += `<td class="border border-slate-400 p-1 bg-white">${task.name}</td>`;
+                                
+                                let taskCompletedCount = 0;
+                                
+                                // Room Cells
+                                for (let room = 1; room <= CONFIG.MAX_ROOMS; room++) {
+                                    if (room > roomsOnThisFloor) {
+                                        row.innerHTML += `<td class="border border-slate-400 p-0.5 bg-slate-100"></td>`;
+                                        continue;
+                                    }
+                                    
+                                    const unitData = projectData[catKey]?.[floor]?.[room] || {};
+                                    let cellContent = '';
+                                    let cellClass = 'bg-white';
+                                    
+                                    if (task.condition && !task.condition(floor, room)) {
+                                        cellClass = 'bg-slate-50 text-slate-300';
+                                        cellContent = 'N/A';
+                                    } else {
+                                        const progress = unitData[`progress_${task.key}`] || 0;
+                                        if (progress >= 100) {
+                                            cellClass = 'bg-emerald-500 text-white';
+                                            cellContent = '100%';
+                                            taskCompletedCount++;
+                                        } else if (progress > 0) {
+                                            cellClass = 'bg-cyan-100 text-cyan-800';
+                                            cellContent = `${progress}%`;
+                                        }
+                                    }
+                                    row.innerHTML += `<td class="border border-slate-400 p-0.5 text-center ${cellClass}">${cellContent}</td>`;
+                                }
+                                
+                                // Task Summary (จำนวน)
+                                row.innerHTML += `<td class="border border-slate-400 p-1 text-center font-bold">${taskCompletedCount}</td>`;
+                                
+                                // Floor Summary (เสร็จ / คงเหลือ) - Merged
+                                if (sIdx === 0) {
+                                    const remaining = roomsOnThisFloor - floorFinishedCount;
+                                    row.innerHTML += `<td class="border border-slate-400 p-1 text-center font-bold text-emerald-600 bg-emerald-50" rowspan="${selectedSubtasks.length}">${floorFinishedCount}</td>`;
+                                    row.innerHTML += `<td class="border border-slate-400 p-1 text-center font-bold text-rose-600 bg-rose-50" rowspan="${selectedSubtasks.length}">${remaining}</td>`;
+                                }
+                                
+                                tbody.appendChild(row);
+                            });
                         });
-                    });
-                    table.appendChild(tbody);
-                    pdfContainer.appendChild(table);
+                        table.appendChild(tbody);
+                        pdfContainer.appendChild(table);
+
+                    } else {
+                        // STANDARD TABLE
+                        const table = document.createElement('table');
+                        table.className = 'w-full border-collapse border border-slate-300 text-sm mb-8 break-inside-avoid shadow-sm';
+                        
+                        // Table Header
+                        let theadHTML = '<thead class="bg-slate-100 text-slate-700">';
+                        theadHTML += '<tr>';
+                        theadHTML += '<th class="border border-slate-300 p-2 w-16 text-center">ชั้น</th>';
+                        theadHTML += `<th class="border border-slate-300 p-2 text-center" colspan="${CONFIG.MAX_ROOMS}">ROOM No.</th>`;
+                        theadHTML += '<th class="border border-slate-300 p-2 w-24 text-center">สรุป</th>';
+                        theadHTML += '</tr>';
+                        
+                        // Room Numbers Row
+                        theadHTML += '<tr>';
+                        theadHTML += '<th class="border border-slate-300 p-1"></th>'; // Empty for floor
+                        for (let i = 1; i <= CONFIG.MAX_ROOMS; i++) {
+                            theadHTML += `<th class="border border-slate-300 p-1 text-center text-xs text-slate-500">${i}</th>`;
+                        }
+                        theadHTML += '<th class="border border-slate-300 p-1"></th>'; // Empty for summary
+                        theadHTML += '</tr></thead>';
+                        table.innerHTML = theadHTML;
+
+                        // Table Body
+                        const tbody = document.createElement('tbody');
+                        floors.forEach(floor => {
+                            const roomsOnThisFloor = CONFIG.getRoomsOnFloor(floor);
+                            
+                            // For each selected subtask in this category
+                            tasks[catKey].forEach(taskIndex => {
+                                const task = catDef.tasks[taskIndex];
+                                const row = document.createElement('tr');
+                                
+                                // Floor Cell
+                                row.innerHTML += `<td class="border border-slate-300 p-2 font-bold text-center bg-slate-50">${floor} (${task.shortName || task.name})</td>`;
+                                
+                                let completedCount = 0;
+                                
+                                // Room Cells
+                                for (let room = 1; room <= CONFIG.MAX_ROOMS; room++) {
+                                    if (floor === 2 && room > CONFIG.getRoomsOnFloor(2)) {
+                                        row.innerHTML += `<td class="border border-slate-300 p-1 bg-slate-100"></td>`;
+                                        continue;
+                                    }
+                                    
+                                    const unitData = projectData[catKey]?.[floor]?.[room] || {};
+                                    let cellContent = '';
+                                    let cellClass = 'bg-white';
+                                    
+                                    if (catDef.type === 'inspection') {
+                                        const score = unitData.qcScore || unitData.cmScore || 0;
+                                        const isDefect = unitData.qcHasMajorDefect || unitData.cmHasMajorDefect;
+                                        if (score > 0) {
+                                            if (score >= 85) {
+                                                cellClass = isDefect ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'; // Pass but defect vs Pass Clean
+                                                cellContent = isDefect ? '!' : '✓';
+                                                completedCount++;
+                                            } else {
+                                                cellClass = 'bg-red-100 text-red-800';
+                                                cellContent = '✗';
+                                            }
+                                        }
+                                    } else if (catDef.type === 'multi-progress') {
+                                        if (task.condition && !task.condition(floor, room)) {
+                                            cellClass = 'bg-slate-50 text-slate-300';
+                                            cellContent = 'N/A';
+                                        } else {
+                                            const progress = unitData[`progress_${task.key}`] || 0;
+                                            if (progress >= 100) {
+                                                cellClass = 'bg-green-500 text-white';
+                                                cellContent = '100%';
+                                                completedCount++;
+                                            } else if (progress > 0) {
+                                                cellClass = 'bg-blue-100 text-blue-800';
+                                                cellContent = `${progress}%`;
+                                            }
+                                        }
+                                    } else {
+                                        // Sequential
+                                        const currentTaskIndex = unitData.taskIndex || 0;
+                                        const progress = unitData.progress || 0;
+                                        
+                                        if (currentTaskIndex > taskIndex || (currentTaskIndex === taskIndex && progress >= 100)) {
+                                            cellClass = 'bg-green-500 text-white';
+                                            cellContent = '100%';
+                                            completedCount++;
+                                        } else if (currentTaskIndex === taskIndex && progress > 0) {
+                                            cellClass = 'bg-blue-100 text-blue-800';
+                                            cellContent = `${progress}%`;
+                                        }
+                                    }
+                                    
+                                    row.innerHTML += `<td class="border border-slate-300 p-1 text-center text-[10px] ${cellClass}">${cellContent}</td>`;
+                                }
+                                
+                                // Summary Cell
+                                const totalRooms = roomsOnThisFloor;
+                                const percent = Math.round((completedCount / totalRooms) * 100);
+                                row.innerHTML += `<td class="border border-slate-300 p-2 text-center font-bold text-slate-700">${percent}%</td>`;
+                                
+                                tbody.appendChild(row);
+                            });
+                        });
+                        table.appendChild(tbody);
+                        pdfContainer.appendChild(table);
+                    }
                 });
 
                 // Generate PDF
@@ -4680,6 +4783,15 @@
                              </label>
                          </div>
                     </div>
+                    <div id="detailed-grid-option-container" class="border-t border-slate-100 pt-4 mt-2 hidden">
+                         <h4 class="font-semibold text-slate-800 mb-3">รูปแบบตารางละเอียด</h4>
+                         <div>
+                             <input type="checkbox" id="report-detailed-grid" class="hidden">
+                             <label for="report-detailed-grid" class="report-selection-label text-slate-700 font-medium flex items-center cursor-pointer">
+                                  <span class="box bg-white border-2 border-slate-300 rounded-md w-5 h-5 flex items-center justify-center mr-3 transition-colors">${checkIconSVG}</span><span>ใช้ตารางแบบละเอียด (Grid) สำหรับงานประตู/กระเบื้อง</span>
+                             </label>
+                         </div>
+                    </div>
                 </div>`;
                 
                  document.querySelectorAll('.report-main-task-checkbox').forEach(checkbox => {
@@ -4695,6 +4807,7 @@
                              subtaskCheckboxes.forEach(cb => cb.checked = false);
                          }
                          updateRoomSummaryVisibility();
+                         updateDetailedGridVisibility();
                      });
                  });
 
@@ -4723,6 +4836,8 @@
                          }
                      }
                  });
+                 updateDetailedGridVisibility();
+                 updateRoomSummaryVisibility();
             }
 
             function updateRoomSummaryVisibility() {
@@ -4730,6 +4845,13 @@
                 const isInspectionSelected = Array.from(document.querySelectorAll('.report-main-task-checkbox:checked'))
                     .some(cb => taskDefinitions[cb.dataset.catkey].type === 'inspection');
                 container.classList.toggle('hidden', !isInspectionSelected);
+            }
+
+            function updateDetailedGridVisibility() {
+                const container = document.getElementById('detailed-grid-option-container');
+                const isMultiProgressSelected = Array.from(document.querySelectorAll('.report-main-task-checkbox:checked'))
+                    .some(cb => taskDefinitions[cb.dataset.catkey].type === 'multi-progress');
+                container.classList.toggle('hidden', !isMultiProgressSelected);
             }
 
             function getDragAfterElement(container, y) {
@@ -5862,10 +5984,10 @@
                     // Handle Combined Views
                     if (subKey === 'combined-detailed') {
                         currentReportType = 'detailed';
-                        catDef.title = `สรุปงาน${baseDef.name} (ตารางละเอียด)`;
+                        catDef.title = `สรุปงาน${baseDef.name}`;
                     } else if (subKey === 'combined-summary') {
                         currentReportType = 'summary';
-                        catDef.title = `สรุปงาน${baseDef.name} (ตารางสรุป)`;
+                        catDef.title = `สรุปงาน${baseDef.name}`;
                     } else if (subKey && baseDef.detailedViews && baseDef.detailedViews[subKey]) {
                         const subDef = baseDef.detailedViews[subKey];
                         catDef.name = `${baseDef.name} - ${subDef.name}`;
