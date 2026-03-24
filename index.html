@@ -5706,6 +5706,35 @@
                         `;
                         taskListContainer.appendChild(mainItem);
 
+                        // Add "Combined" options
+                        const combinedDetailedItem = document.createElement('div');
+                        combinedDetailedItem.className = 'flex items-center gap-2 p-2 bg-blue-50/50 hover:bg-blue-100/50 rounded-lg transition-all border border-blue-200 shadow-sm group cursor-default ml-6 border-l-4 border-l-blue-600';
+                        combinedDetailedItem.dataset.id = `${taskKey}:combined-detailed`;
+                        combinedDetailedItem.innerHTML = `
+                            <div class="drag-handle cursor-grab active:cursor-grabbing text-slate-300 group-hover:text-blue-400 p-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="19" r="1"/></svg>
+                            </div>
+                            <label class="flex-1 flex items-center gap-3 cursor-pointer py-1">
+                                <input type="checkbox" value="${taskKey}:combined-detailed" class="pdf-task-checkbox text-blue-600 rounded focus:ring-blue-500 w-4 h-4">
+                                <span class="text-sm font-bold text-blue-700 truncate">แบบรวม (ตารางละเอียด)</span>
+                            </label>
+                        `;
+                        taskListContainer.appendChild(combinedDetailedItem);
+
+                        const combinedSummaryItem = document.createElement('div');
+                        combinedSummaryItem.className = 'flex items-center gap-2 p-2 bg-blue-50/50 hover:bg-blue-100/50 rounded-lg transition-all border border-blue-200 shadow-sm group cursor-default ml-6 border-l-4 border-l-blue-600';
+                        combinedSummaryItem.dataset.id = `${taskKey}:combined-summary`;
+                        combinedSummaryItem.innerHTML = `
+                            <div class="drag-handle cursor-grab active:cursor-grabbing text-slate-300 group-hover:text-blue-400 p-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="19" r="1"/></svg>
+                            </div>
+                            <label class="flex-1 flex items-center gap-3 cursor-pointer py-1">
+                                <input type="checkbox" value="${taskKey}:combined-summary" class="pdf-task-checkbox text-blue-600 rounded focus:ring-blue-500 w-4 h-4">
+                                <span class="text-sm font-bold text-blue-700 truncate">แบบรวม (ตารางสรุป)</span>
+                            </label>
+                        `;
+                        taskListContainer.appendChild(combinedSummaryItem);
+
                         // Add sub-tasks from detailedViews
                         Object.entries(taskDef.detailedViews).forEach(([subKey, subDef]) => {
                             const subItem = document.createElement('div');
@@ -5784,10 +5813,25 @@
                     if (!baseDef) return;
                     
                     let catDef = { ...baseDef };
-                    if (subKey && baseDef.detailedViews && baseDef.detailedViews[subKey]) {
+                    let currentReportType = reportType;
+
+                    // Handle Combined Views
+                    if (subKey === 'combined-detailed') {
+                        currentReportType = 'detailed';
+                        catDef.title = `สรุปงาน${baseDef.name} (ตารางละเอียด)`;
+                    } else if (subKey === 'combined-summary') {
+                        currentReportType = 'summary';
+                        catDef.title = `สรุปงาน${baseDef.name} (ตารางสรุป)`;
+                    } else if (subKey && baseDef.detailedViews && baseDef.detailedViews[subKey]) {
                         const subDef = baseDef.detailedViews[subKey];
                         catDef.name = `${baseDef.name} - ${subDef.name}`;
                         catDef.title = subDef.title || `${baseDef.title} (${subDef.name})`;
+                        
+                        // Filter tasks to only show the selected sub-task for individual reports
+                        const taskMatch = baseDef.tasks.find(t => t.key === subKey);
+                        if (taskMatch) {
+                            catDef.tasks = [taskMatch];
+                        }
                     }
                     
                     const pageContainer = document.createElement('div');
@@ -5826,7 +5870,7 @@
                     let taskTotals = Array(taskCount).fill(0);
                     let taskInProgressTotals = Array(taskCount).fill(0);
 
-                    if (reportType === 'detailed') {
+                    if (currentReportType === 'detailed') {
                         // --- DETAILED GRID VIEW ---
                         html += `
                             <div class="border-2 border-slate-800 rounded-xl shadow-md overflow-hidden">
@@ -5865,7 +5909,7 @@
                                 }
                                 
                                 const rawUnitData = projectData[mainKey]?.[floor]?.[room] || {};
-                                const unitData = subKey ? (rawUnitData[subKey] || {}) : rawUnitData;
+                                const unitData = (catDef.type === 'multi-progress' || subKey?.startsWith('combined-')) ? rawUnitData : (subKey ? (rawUnitData[subKey] || {}) : rawUnitData);
                                 let cellContent = room;
                                 let cellClass = "bg-white text-slate-400 font-medium";
                                 let isFullyDone = false;
@@ -6012,7 +6056,7 @@
 
                             for (let room = 1; room <= roomsOnThisFloor; room++) {
                                 const rawUnitData = projectData[mainKey]?.[floor]?.[room] || {};
-                                const unitData = subKey ? (rawUnitData[subKey] || {}) : rawUnitData;
+                                const unitData = (catDef.type === 'multi-progress' || subKey?.startsWith('combined-')) ? rawUnitData : (subKey ? (rawUnitData[subKey] || {}) : rawUnitData);
                                 let isFullyDone = false;
                                 let hasAnyProgress = false;
                                 if (catDef.type === 'multi-progress') {
@@ -6118,7 +6162,7 @@
                         let fCompleted = 0;
                         for (let room = 1; room <= roomsOnThisFloor; room++) {
                             const rawUnitData = projectData[mainKey]?.[floor]?.[room] || {};
-                            const unitData = subKey ? (rawUnitData[subKey] || {}) : rawUnitData;
+                            const unitData = (catDef.type === 'multi-progress' || subKey?.startsWith('combined-')) ? rawUnitData : (subKey ? (rawUnitData[subKey] || {}) : rawUnitData);
                             let isFullyDone = false;
                             if (catDef.type === 'multi-progress') {
                                 let doneCount = 0;
