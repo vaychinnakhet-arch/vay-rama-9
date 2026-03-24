@@ -1024,7 +1024,10 @@
                 </div>
                 
                 <div id="summaryPlanHistoryContainer" class="mt-4 pt-4 border-t border-slate-100">
-                    <label class="block text-sm font-semibold text-slate-700 mb-2">ประวัติการอัพเดทแผน</label>
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="text-sm font-semibold text-slate-700">ประวัติการอัพเดทแผน</label>
+                        <button id="clearSummaryPlanHistoryBtn" class="text-xs text-rose-600 hover:text-rose-800 font-medium">ลบทั้งหมด</button>
+                    </div>
                     <div id="summaryPlanHistoryList" class="space-y-2 max-h-40 overflow-y-auto pr-1">
                         <!-- History items will be injected here -->
                     </div>
@@ -3066,6 +3069,13 @@
 
             let currentSummaryPlanData = { floor: null, room: null, taskKey: null };
 
+            function getTaskName(key) {
+                if (key === 'kitchenOnly') return 'งานติดตั้งชุดครัว';
+                if (key === 'paintOnly') return 'งานสี';
+                if (key === 'skimOnly') return 'งานสกิม';
+                return taskDefinitions[key]?.reportName || taskDefinitions[key]?.name || key;
+            }
+
             function openSummaryPlanModal(floor, room, taskKey) {
                 let isMultiSelect = false;
                 
@@ -3120,10 +3130,17 @@
                 
                 const modalTitle = document.getElementById('summaryPlanModalTitle');
                 if (isMultiSelect) {
-                    modalTitle.textContent = `อัพเดทแผนงาน (${selectedCells.size} รายการ)`;
-                    progressContainer.classList.add('hidden');
+                    const allSameTask = Array.from(selectedCells).every(c => c.dataset.taskkey === taskKey);
+                    const taskName = allSameTask ? getTaskName(taskKey) : 'หลายงาน';
+                    modalTitle.textContent = `อัพเดท ${taskName} (${selectedCells.size} รายการ)`;
+                    progressContainer.classList.remove('hidden'); // Show progress for bulk update
                     historyContainer.classList.add('hidden');
                     addDateBtn.classList.add('hidden');
+                    
+                    // Reset progress for bulk update
+                    progressSlider.value = 0;
+                    progressValue.textContent = 0;
+                    completedCheckbox.checked = false;
                 } else {
                     modalTitle.textContent = `อัพเดทแผนงาน`;
                 }
@@ -3263,6 +3280,24 @@
                 });
             }
 
+            window.clearSummaryPlanHistory = function() {
+                if (!currentSummaryPlanData) return;
+                const { floor, room, taskKey } = currentSummaryPlanData;
+                
+                showConfirmModal(
+                    'ยืนยันการล้างประวัติ',
+                    'คุณแน่ใจหรือไม่ว่าต้องการล้างประวัติแผนงานทั้งหมดของรายการนี้?',
+                    async () => {
+                        if (projectData.plans?.[floor]?.[room]?.[taskKey]) {
+                            delete projectData.plans[floor][room][taskKey];
+                            saveProgress();
+                            renderSummaryPlanHistory();
+                            renderTable();
+                        }
+                    }
+                );
+            }
+
             window.deleteSummaryPlanDate = function(timestamp) {
                 const { floor, room, taskKey } = currentSummaryPlanData;
                 if (!projectData.plans || !projectData.plans[floor] || !projectData.plans[floor][room]) return;
@@ -3368,7 +3403,8 @@
                 
                 const newDateStr = dateInput.value;
                 const isCompleted = completedCheckbox.checked;
-                const newProgress = parseInt(progressSlider.value, 10);
+                let newProgress = parseInt(progressSlider.value, 10);
+                if (isCompleted) newProgress = 100;
                 
                 const cellsToUpdate = currentSummaryPlanData.isMultiSelect ? Array.from(selectedCells) : [{
                     dataset: {
@@ -3413,10 +3449,9 @@
                         projectData.plans[floor][room][taskKey] = planData;
                     }
 
-                    // Update Progress (only if single select, or if we want to apply to all)
-                    // For multi-select, we only apply progress if the slider was touched, but it's safer to just apply it if it's visible.
-                    // Since we hide progress for multi-select, we should skip progress update if multi-select.
-                    if (!currentSummaryPlanData.isMultiSelect) {
+                    // Update Progress
+                    // For multi-select, we apply progress if it's marked as completed or if progress > 0
+                    if (!currentSummaryPlanData.isMultiSelect || isCompleted || newProgress > 0) {
                         let category = taskDefinitions[taskKey] ? taskKey : (taskKey === 'paintOnly' ? 'paintOnly' : (taskKey === 'skimOnly' ? 'skimOnly' : (taskKey === 'kitchenOnly' ? 'kitchenOnly' : null)));
                         if (category) {
                             if (category === 'paintOnly') {
@@ -3465,9 +3500,16 @@
                                 const unitData = projectData[category][floor][room];
                                 
                                 if (taskDefinitions[category].type === 'multi-progress') {
-                                    document.querySelectorAll('.subtask-slider').forEach(slider => {
-                                        unitData[`progress_${slider.dataset.key}`] = parseInt(slider.value, 10);
-                                    });
+                                    if (isCompleted) {
+                                        const subTasks = taskDefinitions[category].tasks || [];
+                                        subTasks.forEach(st => {
+                                            unitData[`progress_${st.key}`] = 100;
+                                        });
+                                    } else {
+                                        document.querySelectorAll('.subtask-slider').forEach(slider => {
+                                            unitData[`progress_${slider.dataset.key}`] = parseInt(slider.value, 10);
+                                        });
+                                    }
                                 } else if (taskDefinitions[category].type === 'progress') {
                                     unitData.progress = newProgress;
                                     if (newProgress >= 100) {
@@ -5509,6 +5551,8 @@
                 document.getElementById('closeSummaryPlanModalBtn').addEventListener('click', () => closeModal('summaryPlanModal'));
                 document.getElementById('cancelSummaryPlanBtn').addEventListener('click', () => closeModal('summaryPlanModal'));
                 document.getElementById('saveSummaryPlanBtn').addEventListener('click', saveSummaryPlan);
+                document.getElementById('addSummaryPlanDateBtn').addEventListener('click', addSummaryPlanDate);
+                document.getElementById('clearSummaryPlanHistoryBtn').addEventListener('click', clearSummaryPlanHistory);
                 document.getElementById('summaryPlanDateInput').addEventListener('input', updateSummaryPlanDelayInfo);
 
                 document.getElementById('captureBtn').addEventListener('click', captureForLine);
