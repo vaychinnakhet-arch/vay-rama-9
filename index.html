@@ -6042,19 +6042,19 @@
                             <div class="border-2 border-slate-800 rounded-xl shadow-md overflow-hidden">
                                 <table class="w-full border-collapse text-[9px] table-fixed">
                                     <thead>
-                                        <tr class="bg-slate-800 text-white">
-                                            <th class="border-r border-slate-700 w-10 py-3 font-black uppercase tracking-tighter" rowspan="2">Floor</th>
-                                            <th class="border-r border-slate-700 py-3 font-black uppercase tracking-widest" colspan="${CONFIG.MAX_ROOMS}">Room Units / Progress Status</th>
-                                            <th class="border-r border-slate-700 py-1 font-black uppercase tracking-tighter bg-slate-700" colspan="${taskCount}">Breakdown</th>
-                                            <th class="border-r border-slate-700 w-10 py-3 font-black uppercase tracking-tighter bg-slate-600" rowspan="2">Tasks</th>
-                                            <th class="border-r border-slate-700 w-10 py-3 font-black uppercase tracking-tighter bg-emerald-700" rowspan="2">Done</th>
-                                            <th class="w-10 py-3 font-black uppercase tracking-tighter bg-rose-700" rowspan="2">Rem.</th>
+                                        <tr class="text-white">
+                                            <th class="bg-slate-800 border-r border-slate-700 w-10 py-3 font-black uppercase tracking-tighter" rowspan="2">Floor</th>
+                                            <th class="bg-slate-800 border-r border-slate-700 py-3 font-black uppercase tracking-widest" colspan="${CONFIG.MAX_ROOMS}">Room Units / Progress Status</th>
+                                            <th class="bg-slate-700 border-r border-slate-700 py-1 font-black uppercase tracking-tighter" colspan="${taskCount}">Breakdown</th>
+                                            <th class="bg-slate-600 border-r border-slate-700 w-10 py-3 font-black uppercase tracking-tighter" rowspan="2">Tasks</th>
+                                            <th class="bg-emerald-700 border-r border-slate-700 w-10 py-3 font-black uppercase tracking-tighter" rowspan="2">Done</th>
+                                            <th class="bg-rose-700 w-10 py-3 font-black uppercase tracking-tighter" rowspan="2">Rem.</th>
                                         </tr>
-                                        <tr class="bg-slate-100 text-slate-600">
+                                        <tr class="text-slate-600">
                         `;
                         
-                        for (let i = 1; i <= CONFIG.MAX_ROOMS; i++) html += `<th class="border border-slate-400 py-1 w-6">${i}</th>`;
-                        catDef.tasks.forEach(t => html += `<th class="border border-slate-400 py-1 text-[8px] font-bold">${t.shortName || t.name}</th>`);
+                        for (let i = 1; i <= CONFIG.MAX_ROOMS; i++) html += `<th class="bg-slate-100 border border-slate-400 py-1 w-6">${i}</th>`;
+                        catDef.tasks.forEach(t => html += `<th class="bg-slate-100 border border-slate-400 py-1 text-[8px] font-bold">${t.shortName || t.name}</th>`);
                         
                         html += `</tr></thead><tbody class="bg-white">`;
                         
@@ -6065,7 +6065,7 @@
                             let fTaskCount = 0;
                             let fSubTaskCounts = Array(taskCount).fill(0);
                             
-                            html += `<tr class="border-b border-slate-200 hover:bg-slate-50 transition-colors">`;
+                            html += `<tr class="border-b border-slate-200">`;
                             html += `<td class="border-r border-slate-300 text-center font-black text-slate-900 bg-slate-100 py-1.5 text-sm">${floor}</td>`;
                             
                             for (let room = 1; room <= CONFIG.MAX_ROOMS; room++) {
@@ -6184,12 +6184,12 @@
                         html += `
                                     </tbody>
                                     <tfoot>
-                                        <tr class="bg-slate-100 border-t-2 border-slate-800">
-                                            <td class="border-r border-slate-300 text-center font-black py-3 uppercase text-[10px]" colspan="${CONFIG.MAX_ROOMS + 1}">Grand Total (All Floors)</td>
-                                            ${taskTotals.map(total => `<td class="border-r border-slate-200 text-center font-bold text-slate-800 bg-slate-200/30">${total}</td>`).join('')}
-                                            <td class="border-r border-slate-300 text-center font-black text-slate-900 text-xs">${totalRoomsAll}</td>
-                                            <td class="border-r border-slate-300 text-center font-black text-emerald-800 text-xs bg-emerald-100/50">${totalCompletedAll}</td>
-                                            <td class="text-center font-black text-rose-800 text-xs bg-rose-100/50">${totalRoomsAll - totalCompletedAll}</td>
+                                        <tr class="border-t-2 border-slate-800">
+                                            <td class="bg-slate-100 border-r border-slate-300 text-center font-black py-3 uppercase text-[10px]" colspan="${CONFIG.MAX_ROOMS + 1}">Grand Total (All Floors)</td>
+                                            ${taskTotals.map(total => `<td class="bg-slate-200/30 border-r border-slate-200 text-center font-bold text-slate-800">${total}</td>`).join('')}
+                                            <td class="bg-slate-100 border-r border-slate-300 text-center font-black text-slate-900 text-xs">${totalRoomsAll}</td>
+                                            <td class="bg-emerald-100/50 border-r border-slate-300 text-center font-black text-emerald-800 text-xs">${totalCompletedAll}</td>
+                                            <td class="bg-rose-100/50 text-center font-black text-rose-800 text-xs">${totalRoomsAll - totalCompletedAll}</td>
                                         </tr>
                                     </tfoot>
                                 </table>
@@ -6202,13 +6202,13 @@
                             <div class="border-2 border-slate-800 rounded-xl shadow-md overflow-hidden">
                                 <table class="w-full border-collapse text-center">
                                     <thead>
-                                        <tr class="bg-slate-800 text-white font-black uppercase tracking-widest text-[10px]">
-                                            <th class="border-r border-slate-700 py-4 px-4 w-16">Floor</th>
-                                            <th class="border-r border-slate-700 py-4 px-4 w-24">Total Units</th>
-                                            ${catDef.tasks.map(t => `<th class="border-r border-slate-700 py-4 px-4 text-[9px]">${t.name}</th>`).join('')}
-                                            <th class="border-r border-slate-700 py-4 px-4 bg-emerald-700 w-24">Completed</th>
-                                            <th class="border-r border-slate-700 py-4 px-4 bg-rose-700 w-24">Remaining</th>
-                                            <th class="py-4 px-4 w-48">Progress Visualization</th>
+                                        <tr class="text-white font-black uppercase tracking-widest text-[10px]">
+                                            <th class="bg-slate-800 border-r border-slate-700 py-4 px-4 w-16">Floor</th>
+                                            <th class="bg-slate-800 border-r border-slate-700 py-4 px-4 w-24">Total Units</th>
+                                            ${catDef.tasks.map(t => `<th class="bg-slate-800 border-r border-slate-700 py-4 px-4 text-[9px]">${t.name}</th>`).join('')}
+                                            <th class="bg-emerald-700 border-r border-slate-700 py-4 px-4 w-24">Completed</th>
+                                            <th class="bg-rose-700 border-r border-slate-700 py-4 px-4 w-24">Remaining</th>
+                                            <th class="bg-slate-800 py-4 px-4 w-48">Progress Visualization</th>
                                         </tr>
                                     </thead>
                                     <tbody class="bg-white text-xs">
@@ -6276,7 +6276,7 @@
 
                             const fProgress = Math.round((fCompleted / roomsOnThisFloor) * 100);
                             html += `
-                                <tr class="border-b border-slate-200 hover:bg-slate-50 transition-colors">
+                                <tr class="border-b border-slate-200">
                                     <td class="border-r border-slate-300 py-3 font-black bg-slate-100 text-slate-900">${floor}</td>
                                     <td class="border-r border-slate-200 py-3 font-bold text-slate-600">${roomsOnThisFloor}</td>
                                     ${fTaskCounts.map(count => `<td class="border-r border-slate-100 py-3 font-medium text-slate-700">${count}</td>`).join('')}
@@ -6301,12 +6301,12 @@
                         html += `
                                 </tbody>
                                 <tfoot>
-                                    <tr class="bg-slate-800 text-white font-black text-sm">
-                                        <td class="py-4 border-r border-slate-700 uppercase tracking-widest" colspan="2">Project Totals</td>
-                                        ${taskTotals.map(total => `<td class="py-4 border-r border-slate-700">${total}</td>`).join('')}
-                                        <td class="py-4 border-r border-slate-700 bg-emerald-700">${totalCompletedAll}</td>
-                                        <td class="py-4 border-r border-slate-700 bg-rose-700">${totalRoomsAll - totalCompletedAll}</td>
-                                        <td class="py-4 bg-blue-700">
+                                    <tr class="text-white font-black text-sm">
+                                        <td class="bg-slate-800 py-4 border-r border-slate-700 uppercase tracking-widest" colspan="2">Project Totals</td>
+                                        ${taskTotals.map(total => `<td class="bg-slate-800 py-4 border-r border-slate-700">${total}</td>`).join('')}
+                                        <td class="bg-emerald-700 py-4 border-r border-slate-700">${totalCompletedAll}</td>
+                                        <td class="bg-rose-700 py-4 border-r border-slate-700">${totalRoomsAll - totalCompletedAll}</td>
+                                        <td class="bg-blue-700 py-4">
                                             <div class="flex items-center justify-center gap-2">
                                                 <span class="text-[10px] opacity-70">OVERALL:</span>
                                                 <span>${totalRoomsAll > 0 ? Math.round((totalCompletedAll / totalRoomsAll) * 100) : 0}%</span>
