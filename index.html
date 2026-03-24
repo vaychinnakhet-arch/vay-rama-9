@@ -746,6 +746,10 @@
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                         ดูแบบแคปเจอร์
                     </button>
+                    <button id="openPdfReportModeBtn" class="action-btn px-4 py-2 bg-white border border-rose-200 text-rose-700 rounded-lg shadow-sm hover:bg-rose-50 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-2 text-sm font-medium inline-flex items-center gap-2 transition-all">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                        รายงาน PDF
+                    </button>
                     <button id="openReportModalBtn" class="action-btn px-4 py-2 bg-white border border-indigo-200 text-indigo-700 rounded-lg shadow-sm hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 text-sm font-medium inline-flex items-center gap-2 transition-all">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
                         ทำรายงาน
@@ -924,6 +928,79 @@
         <main id="quick-update-task-list">
              <!-- JS Generated Task List -->
         </main>
+    </div>
+
+    <!-- PDF Report Mode Container -->
+    <div id="pdf-report-mode-container" class="hidden fixed inset-0 bg-slate-100 z-50 flex flex-col">
+        <!-- Header -->
+        <header class="bg-[#1e3a8a] text-white p-4 flex justify-between items-center shadow-md shrink-0">
+            <div class="flex items-center gap-4">
+                <button id="pdf-report-home-btn" class="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors" title="กลับหน้าหลัก">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                </button>
+                <h1 class="text-xl font-bold">สร้างรายงาน PDF (แยกตามงาน)</h1>
+            </div>
+            <button id="pdf-report-export-btn" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg font-medium shadow-sm flex items-center gap-2 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+                ดาวน์โหลด PDF
+            </button>
+        </header>
+
+        <!-- Content -->
+        <div class="flex flex-1 overflow-hidden flex-col md:flex-row">
+            <!-- Sidebar Settings -->
+            <div class="w-full md:w-80 bg-white border-r border-slate-200 p-4 flex flex-col gap-6 overflow-y-auto shrink-0 shadow-sm z-10">
+                <div>
+                    <h3 class="font-bold text-slate-800 mb-3 flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-600"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+                        รูปแบบรายงาน
+                    </h3>
+                    <div class="space-y-3 bg-slate-50 p-3 rounded-lg border border-slate-200">
+                        <label class="flex items-start gap-3 cursor-pointer">
+                            <input type="radio" name="pdf-report-type" value="detailed" checked class="mt-1 text-blue-600 focus:ring-blue-500">
+                            <div>
+                                <span class="block text-sm font-medium text-slate-800">แบบละเอียด</span>
+                                <span class="block text-xs text-slate-500">แสดงตารางห้องและสรุปภาพรวม</span>
+                            </div>
+                        </label>
+                        <label class="flex items-start gap-3 cursor-pointer">
+                            <input type="radio" name="pdf-report-type" value="summary" class="mt-1 text-blue-600 focus:ring-blue-500">
+                            <div>
+                                <span class="block text-sm font-medium text-slate-800">แบบสรุป</span>
+                                <span class="block text-xs text-slate-500">แสดงเฉพาะข้อความสรุปภาพรวม</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="flex-1 flex flex-col min-h-0">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="font-bold text-slate-800 flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-600"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                            เลือกงานที่ต้องการ
+                        </h3>
+                        <button id="pdf-report-select-all-tasks" class="text-xs text-blue-600 hover:underline font-medium">เลือกทั้งหมด</button>
+                    </div>
+                    <div id="pdf-report-task-list" class="flex-1 overflow-y-auto pr-2 custom-scrollbar border border-slate-200 rounded-lg p-2 bg-slate-50 space-y-1">
+                        <!-- Checkboxes generated by JS -->
+                    </div>
+                </div>
+
+                <button id="pdf-report-generate-preview-btn" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium shadow-md transition-colors flex justify-center items-center gap-2 mt-auto">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                    สร้างตัวอย่างรายงาน
+                </button>
+            </div>
+
+            <!-- Preview Area -->
+            <div class="flex-1 bg-slate-300/50 p-4 md:p-8 overflow-auto flex flex-col items-center gap-8" id="pdf-report-preview-area">
+                <div class="text-slate-500 text-center mt-20 bg-white p-8 rounded-2xl shadow-sm border border-slate-200 max-w-md">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="mx-auto mb-4 text-blue-300"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                    <h3 class="text-lg font-bold text-slate-700 mb-2">พร้อมสร้างรายงาน</h3>
+                    <p class="text-sm">กรุณาเลือกงานจากเมนูด้านซ้าย และกดปุ่ม "สร้างตัวอย่างรายงาน" เพื่อดูตัวอย่างก่อนดาวน์โหลด</p>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Modals (Moved outside main containers) -->
@@ -4342,7 +4419,6 @@
                             <div id="report-type-toggle" class="bg-slate-100 p-1.5 rounded-xl text-slate-600 text-sm font-semibold flex shadow-inner border border-slate-200/60">
                                 <button id="toggle-simple-report" class="report-type-toggle-btn flex-1 px-4 py-2.5 rounded-lg active transition-all">สร้างรายงาน</button>
                                 <button id="toggle-ai-report" class="report-type-toggle-btn flex-1 px-4 py-2.5 rounded-lg transition-all">สร้างรายงานด้วย AI</button>
-                                <button id="toggle-pdf-report" class="report-type-toggle-btn flex-1 px-4 py-2.5 rounded-lg transition-all">PDF Report</button>
                             </div>
 
                             <!-- Simple Report View -->
@@ -4363,29 +4439,6 @@
                                          <button id="generateAIInfographicBtn" class="w-full px-4 py-2.5 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition-colors shadow-sm">
                                             แบบ Infographic
                                          </button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- PDF Report View -->
-                            <div id="pdf-report-view" class="hidden flex-col gap-4">
-                                <div class="bg-rose-50/50 border border-rose-100 rounded-xl p-4">
-                                    <p class="font-semibold text-center text-rose-800 mb-3">ตั้งค่า PDF</p>
-                                    <div class="flex flex-col gap-3">
-                                        <div class="flex items-center justify-center gap-4">
-                                            <label class="flex items-center gap-2 cursor-pointer">
-                                                <input type="radio" name="pdf-orientation" value="portrait" class="text-rose-600 focus:ring-rose-500">
-                                                <span class="text-sm font-medium text-slate-700">แนวตั้ง (Portrait)</span>
-                                            </label>
-                                            <label class="flex items-center gap-2 cursor-pointer">
-                                                <input type="radio" name="pdf-orientation" value="landscape" checked class="text-rose-600 focus:ring-rose-500">
-                                                <span class="text-sm font-medium text-slate-700">แนวนอน (Landscape)</span>
-                                            </label>
-                                        </div>
-                                        <button id="generatePDFReportBtn" class="w-full px-4 py-2.5 bg-rose-600 text-white font-semibold rounded-lg hover:bg-rose-700 transition-colors shadow-sm flex items-center justify-center gap-2">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-                                            สร้าง PDF Report
-                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -4428,21 +4481,17 @@
                 // Main Toggles
                 const simpleToggle = document.getElementById('toggle-simple-report');
                 const aiToggle = document.getElementById('toggle-ai-report');
-                const pdfToggle = document.getElementById('toggle-pdf-report');
                 
                 const simpleView = document.getElementById('simple-report-view');
                 const aiView = document.getElementById('ai-report-view');
-                const pdfView = document.getElementById('pdf-report-view');
 
                 function setActiveView(viewName) {
                     // Reset all
                     simpleToggle.classList.remove('active');
                     aiToggle.classList.remove('active');
-                    pdfToggle.classList.remove('active');
                     
                     simpleView.classList.add('hidden');
                     aiView.classList.add('hidden');
-                    pdfView.classList.add('hidden');
 
                     // Set active
                     if (viewName === 'simple') {
@@ -4451,22 +4500,16 @@
                     } else if (viewName === 'ai') {
                         aiToggle.classList.add('active');
                         aiView.classList.remove('hidden');
-                    } else if (viewName === 'pdf') {
-                        pdfToggle.classList.add('active');
-                        pdfView.classList.remove('hidden');
-                        pdfView.classList.add('flex'); // Ensure flex display
                     }
                 }
 
                 simpleToggle.addEventListener('click', () => setActiveView('simple'));
                 aiToggle.addEventListener('click', () => setActiveView('ai'));
-                pdfToggle.addEventListener('click', () => setActiveView('pdf'));
 
                 // Action Buttons
                 document.getElementById('generateRawReportBtn')?.addEventListener('click', handleGenerateRawReport);
                 document.getElementById('generateAITextBtn')?.addEventListener('click', handleGenerateAITextReport);
                 document.getElementById('generateAIInfographicBtn')?.addEventListener('click', handleGenerateAIInfographic);
-                document.getElementById('generatePDFReportBtn')?.addEventListener('click', generatePDFReport);
                 document.getElementById('copyReportBtn')?.addEventListener('click', () => copyToClipboard('ai-output-text', 'copyReportBtn'));
                 document.getElementById('downloadInfographicBtn')?.addEventListener('click', () => downloadInfographic('ai-output-infographic', 'downloadInfographicBtn'));
             }
@@ -5326,6 +5369,17 @@
                 document.getElementById('home-btn').addEventListener('click', backToSplash);
                 document.getElementById('quick-update-home-btn').addEventListener('click', backToSplash);
 
+                // PDF Report Mode
+                document.getElementById('openPdfReportModeBtn')?.addEventListener('click', enterPdfReportMode);
+                document.getElementById('pdf-report-home-btn')?.addEventListener('click', exitPdfReportMode);
+                document.getElementById('pdf-report-generate-preview-btn')?.addEventListener('click', generatePdfPreview);
+                document.getElementById('pdf-report-export-btn')?.addEventListener('click', exportPdfReport);
+                document.getElementById('pdf-report-select-all-tasks')?.addEventListener('click', () => {
+                    const checkboxes = document.querySelectorAll('.pdf-task-checkbox');
+                    const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+                    checkboxes.forEach(cb => cb.checked = !allChecked);
+                });
+
                 document.getElementById('closeModalBtn').addEventListener('click', () => closeModal('updateModal'));
                 document.getElementById('closeModalIconBtn').addEventListener('click', () => closeModal('updateModal'));
                 document.getElementById('saveProgressBtn').addEventListener('click', saveProgress);
@@ -5560,6 +5614,681 @@
                 } catch (error) {
                     console.warn("Could not initialize Google AI SDK. AI features will be disabled.", error.message);
                     // Don't block the main app from loading. The AI functions will handle the 'ai' instance being null.
+                }
+            }
+
+            // --- PDF Report Mode Logic ---
+            function enterPdfReportMode() {
+                document.getElementById('splash-screen').classList.add('hidden');
+                document.getElementById('main-app-container').classList.add('hidden');
+                document.getElementById('quick-update-mode-container').classList.add('hidden');
+                
+                const container = document.getElementById('pdf-report-mode-container');
+                container.classList.remove('hidden');
+                
+                // Populate task list
+                const taskListContainer = document.getElementById('pdf-report-task-list');
+                taskListContainer.innerHTML = '';
+                
+                const orderedTaskKeys = Object.keys(taskDefinitions);
+                orderedTaskKeys.forEach(taskKey => {
+                    const taskName = taskDefinitions[taskKey].name;
+                    const label = document.createElement('label');
+                    label.className = 'flex items-center gap-2 cursor-pointer p-2 hover:bg-slate-100 rounded-lg transition-colors border border-transparent hover:border-slate-200';
+                    label.innerHTML = `
+                        <input type="checkbox" value="${taskKey}" class="pdf-task-checkbox text-blue-600 rounded focus:ring-blue-500 w-4 h-4">
+                        <span class="text-sm font-medium text-slate-700 truncate" title="${taskName}">${taskName}</span>
+                    `;
+                    taskListContainer.appendChild(label);
+                });
+                
+                // Clear preview
+                document.getElementById('pdf-report-preview-area').innerHTML = `
+                    <div class="text-slate-500 text-center mt-20 bg-white p-8 rounded-2xl shadow-sm border border-slate-200 max-w-md">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="mx-auto mb-4 text-blue-300"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                        <h3 class="text-lg font-bold text-slate-700 mb-2">พร้อมสร้างรายงาน</h3>
+                        <p class="text-sm">กรุณาเลือกงานจากเมนูด้านซ้าย และกดปุ่ม "สร้างตัวอย่างรายงาน" เพื่อดูตัวอย่างก่อนดาวน์โหลด</p>
+                    </div>
+                `;
+            }
+
+            function exitPdfReportMode() {
+                document.getElementById('pdf-report-mode-container').classList.add('hidden');
+                document.getElementById('main-app-container').classList.remove('hidden');
+            }
+
+            function generatePdfPreview() {
+                const selectedTasks = Array.from(document.querySelectorAll('.pdf-task-checkbox:checked')).map(cb => cb.value);
+                const reportType = document.querySelector('input[name="pdf-report-type"]:checked').value;
+                const previewArea = document.getElementById('pdf-report-preview-area');
+                
+                if (selectedTasks.length === 0) {
+                    showNotificationModal('ข้อมูลไม่เพียงพอ', 'กรุณาเลือกงานอย่างน้อย 1 งาน');
+                    return;
+                }
+                
+                previewArea.innerHTML = ''; // Clear
+                
+                const today = new Date();
+                const dateString = `${today.getDate()}/${today.getMonth() + 1}/${today.getFullYear() + 543}`;
+                
+                selectedTasks.forEach(taskKey => {
+                    const catDef = taskDefinitions[taskKey];
+                    if (!catDef) return;
+                    
+                    const pageContainer = document.createElement('div');
+                    pageContainer.className = 'bg-white shadow-lg mx-auto shrink-0 mb-8 flex flex-col pdf-page';
+                    pageContainer.style.width = '297mm';
+                    pageContainer.style.minHeight = '210mm';
+                    pageContainer.style.padding = '12mm';
+                    pageContainer.style.boxSizing = 'border-box';
+                    
+                    // Header
+                    let html = `
+                        <div class="border-b-4 border-[#1e3a8a] pb-4 mb-6 flex justify-between items-end shrink-0">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <div class="w-12 h-12 bg-[#1e3a8a] rounded-lg flex items-center justify-center text-white shadow-lg">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M9 8h1"/><path d="M9 12h1"/><path d="M9 16h1"/><path d="M14 8h1"/><path d="M14 12h1"/><path d="M14 16h1"/><path d="m3 21 2-9 7-3 7 3 2 9"/><path d="M9 9h6"/></svg>
+                                    </div>
+                                    <div>
+                                        <h1 class="text-2xl font-black text-slate-900 tracking-tighter uppercase leading-none">Vay Rama 9</h1>
+                                        <p class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mt-1">Construction Progress Tracking System</p>
+                                    </div>
+                                </div>
+                                <h2 class="text-3xl font-black text-[#1e3a8a] uppercase tracking-tight mt-4">${catDef.title || catDef.name}</h2>
+                            </div>
+                            <div class="text-right flex flex-col items-end gap-2">
+                                <div class="bg-slate-100 px-4 py-2 rounded-xl border border-slate-200 flex items-center gap-3 text-sm font-bold text-slate-700">
+                                    <i class="far fa-calendar-alt text-blue-600"></i>
+                                    <span>วันที่รายงาน: ${dateString}</span>
+                                </div>
+                                <div class="flex gap-2">
+                                    <span class="px-2 py-1 bg-blue-600 text-white text-[9px] font-bold rounded uppercase tracking-wider">${reportType === 'detailed' ? 'Detailed Report' : 'Summary Report'}</span>
+                                    <span class="px-2 py-1 bg-slate-800 text-white text-[9px] font-bold rounded uppercase tracking-wider">Confidential</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    const taskCount = catDef.tasks.length;
+                    let totalRoomsAll = 0;
+                    let totalCompletedAll = 0;
+                    let totalInProgressAll = 0;
+                    let taskTotals = Array(taskCount).fill(0);
+                    let taskInProgressTotals = Array(taskCount).fill(0);
+
+                    if (reportType === 'detailed') {
+                        // --- DETAILED GRID VIEW ---
+                        html += `
+                            <div class="flex-1 overflow-hidden border-2 border-slate-800 rounded-xl shadow-md">
+                                <table class="w-full border-collapse text-[9px] table-fixed">
+                                    <thead>
+                                        <tr class="bg-slate-800 text-white">
+                                            <th class="border-r border-slate-700 w-10 py-3 font-black uppercase tracking-tighter" rowspan="2">Floor</th>
+                                            <th class="border-r border-slate-700 py-3 font-black uppercase tracking-widest" colspan="${CONFIG.MAX_ROOMS}">Room Units / Progress Status</th>
+                                            <th class="border-r border-slate-700 py-1 font-black uppercase tracking-tighter bg-slate-700" colspan="${taskCount}">Breakdown</th>
+                                            <th class="border-r border-slate-700 w-10 py-3 font-black uppercase tracking-tighter bg-slate-600" rowspan="2">Tasks</th>
+                                            <th class="border-r border-slate-700 w-10 py-3 font-black uppercase tracking-tighter bg-emerald-700" rowspan="2">Done</th>
+                                            <th class="w-10 py-3 font-black uppercase tracking-tighter bg-rose-700" rowspan="2">Rem.</th>
+                                        </tr>
+                                        <tr class="bg-slate-100 text-slate-600">
+                        `;
+                        
+                        for (let i = 1; i <= CONFIG.MAX_ROOMS; i++) html += `<th class="border border-slate-400 py-1 w-6">${i}</th>`;
+                        catDef.tasks.forEach(t => html += `<th class="border border-slate-400 py-1 text-[7px] font-bold">${t.shortName || t.name}</th>`);
+                        
+                        html += `</tr></thead><tbody class="bg-white">`;
+                        
+                        CONFIG.FLOORS.forEach(floor => {
+                            const roomsOnThisFloor = CONFIG.getRoomsOnFloor(floor);
+                            let fCompleted = 0;
+                            let fInProgress = 0;
+                            let fTaskCount = 0;
+                            let fSubTaskCounts = Array(taskCount).fill(0);
+                            
+                            html += `<tr class="border-b border-slate-200 hover:bg-slate-50 transition-colors">`;
+                            html += `<td class="border-r border-slate-300 text-center font-black text-slate-900 bg-slate-100 py-2 text-sm">${floor}</td>`;
+                            
+                            for (let room = 1; room <= CONFIG.MAX_ROOMS; room++) {
+                                if (room > roomsOnThisFloor) {
+                                    html += `<td class="border-r border-slate-100 bg-slate-50/30"></td>`;
+                                    continue;
+                                }
+                                
+                                const unitData = projectData[taskKey]?.[floor]?.[room] || {};
+                                let cellContent = room;
+                                let cellClass = "bg-white text-slate-400 font-medium";
+                                let isFullyDone = false;
+                                let hasAnyProgress = false;
+                                
+                                if (catDef.type === 'inspection') {
+                                    const cmScore = unitData.cmScore || 0;
+                                    const qcScore = unitData.qcScore || 0;
+                                    const isDefect = unitData.qcHasMajorDefect || unitData.cmHasMajorDefect;
+                                    
+                                    if (cmScore > 0) hasAnyProgress = true;
+                                    
+                                    if (cmScore >= 85) {
+                                        fSubTaskCounts[0]++;
+                                        taskTotals[0]++;
+                                    } else if (cmScore > 0) {
+                                        taskInProgressTotals[0]++;
+                                    }
+                                    
+                                    if (qcScore >= 85) {
+                                        fSubTaskCounts[1]++;
+                                        taskTotals[1]++;
+                                        isFullyDone = true;
+                                        cellClass = isDefect ? 'bg-yellow-400 text-yellow-900' : 'bg-emerald-500 text-white shadow-inner';
+                                        cellContent = isDefect ? '!' : '<i class="fas fa-check"></i>';
+                                    } else if (qcScore > 0) {
+                                        taskInProgressTotals[1]++;
+                                        cellClass = 'bg-rose-500 text-white shadow-sm';
+                                        cellContent = '<i class="fas fa-times"></i>';
+                                    } else if (cmScore > 0) {
+                                        cellClass = 'bg-rose-500 text-white shadow-sm';
+                                        cellContent = '<i class="fas fa-times"></i>';
+                                    }
+                                } else if (catDef.type === 'multi-progress') {
+                                    let doneCount = 0;
+                                    catDef.tasks.forEach((t, idx) => {
+                                        const p = unitData[`progress_${t.key}`] || 0;
+                                        if (p >= 100) { 
+                                            doneCount++; 
+                                            fSubTaskCounts[idx]++;
+                                            taskTotals[idx]++; 
+                                        } else if (p > 0) {
+                                            hasAnyProgress = true;
+                                            taskInProgressTotals[idx]++;
+                                        }
+                                    });
+                                    if (doneCount === taskCount) { 
+                                        isFullyDone = true; 
+                                        cellClass = 'bg-emerald-500 text-white shadow-inner'; 
+                                        cellContent = '<i class="fas fa-check"></i>'; 
+                                    } else if (doneCount > 0) { 
+                                        hasAnyProgress = true;
+                                        cellClass = 'bg-blue-500 text-white shadow-sm'; 
+                                        cellContent = `<span class="text-[9px] font-black">${Math.round((doneCount/taskCount)*100)}%</span>`; 
+                                    }
+                                } else {
+                                    const currentTaskIndex = unitData.taskIndex || 0;
+                                    const progress = unitData.progress || 0;
+                                    for(let i=0; i < taskCount; i++) {
+                                        if (currentTaskIndex > i || (currentTaskIndex === i && progress >= 100)) {
+                                            fSubTaskCounts[i]++;
+                                            taskTotals[i]++;
+                                        }
+                                    }
+                                    if (currentTaskIndex > 0 || progress > 0) hasAnyProgress = true;
+                                    
+                                    if (progress > 0 && progress < 100) {
+                                        taskInProgressTotals[currentTaskIndex]++;
+                                    }
+
+                                    if (currentTaskIndex >= taskCount - 1 && progress >= 100) { 
+                                        isFullyDone = true; 
+                                        cellClass = 'bg-emerald-500 text-white shadow-inner'; 
+                                        cellContent = '<i class="fas fa-check"></i>'; 
+                                    } else if (currentTaskIndex > 0 || progress > 0) { 
+                                        cellClass = `${catDef.tasks[currentTaskIndex]?.color || 'bg-blue-400'} text-white shadow-sm`; 
+                                        cellContent = `<span class="text-[10px] font-black">${progress}%</span>`; 
+                                    }
+                                }
+                                
+                                if (isFullyDone) fCompleted++;
+                                else if (hasAnyProgress) fInProgress++;
+                                fTaskCount++;
+                                
+                                html += `<td class="border-r border-slate-100 text-center p-0.5 h-8">
+                                    <div class="w-full h-full rounded-md flex items-center justify-center ${cellClass} border border-slate-200/50">
+                                        ${cellContent}
+                                    </div>
+                                </td>`;
+                            }
+                            
+                            const floorRem = fTaskCount - fCompleted;
+                            fSubTaskCounts.forEach(count => {
+                                html += `<td class="border-r border-slate-200 text-center font-medium text-slate-600 bg-slate-50/50">${count}</td>`;
+                            });
+                            html += `<td class="border-r border-slate-300 text-center font-bold text-slate-600 bg-slate-50">${fTaskCount}</td>`;
+                            html += `<td class="border-r border-slate-300 text-center font-black text-emerald-700 bg-emerald-50">${fCompleted}</td>`;
+                            html += `<td class="text-center font-black text-rose-700 bg-rose-50">${floorRem}</td>`;
+                            html += `</tr>`;
+                            
+                            totalRoomsAll += fTaskCount;
+                            totalCompletedAll += fCompleted;
+                            totalInProgressAll += fInProgress;
+                        });
+                        
+                        html += `
+                                    </tbody>
+                                    <tfoot>
+                                        <tr class="bg-slate-100 border-t-2 border-slate-800">
+                                            <td class="border-r border-slate-300 text-center font-black py-3 uppercase text-[10px]" colspan="${CONFIG.MAX_ROOMS + 1}">Grand Total (All Floors)</td>
+                                            ${taskTotals.map(total => `<td class="border-r border-slate-200 text-center font-bold text-slate-800 bg-slate-200/30">${total}</td>`).join('')}
+                                            <td class="border-r border-slate-300 text-center font-black text-slate-900 text-xs">${totalRoomsAll}</td>
+                                            <td class="border-r border-slate-300 text-center font-black text-emerald-800 text-xs bg-emerald-100/50">${totalCompletedAll}</td>
+                                            <td class="text-center font-black text-rose-800 text-xs bg-rose-100/50">${totalRoomsAll - totalCompletedAll}</td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        `;
+
+                    } else {
+                        // --- SUMMARY TABLE VIEW ---
+                        html += `
+                            <div class="flex-1 overflow-hidden border-2 border-slate-800 rounded-xl shadow-md">
+                                <table class="w-full border-collapse text-center">
+                                    <thead>
+                                        <tr class="bg-slate-800 text-white font-black uppercase tracking-widest text-[10px]">
+                                            <th class="border-r border-slate-700 py-4 px-4 w-16">Floor</th>
+                                            <th class="border-r border-slate-700 py-4 px-4 w-24">Total Units</th>
+                                            ${catDef.tasks.map(t => `<th class="border-r border-slate-700 py-4 px-4 text-[9px]">${t.name}</th>`).join('')}
+                                            <th class="border-r border-slate-700 py-4 px-4 bg-emerald-700 w-24">Completed</th>
+                                            <th class="border-r border-slate-700 py-4 px-4 bg-rose-700 w-24">Remaining</th>
+                                            <th class="py-4 px-4 w-48">Progress Visualization</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white text-xs">
+                        `;
+
+                        CONFIG.FLOORS.forEach(floor => {
+                            const roomsOnThisFloor = CONFIG.getRoomsOnFloor(floor);
+                            let fCompleted = 0;
+                            let fInProgress = 0;
+                            let fTaskCounts = Array(taskCount).fill(0);
+
+                            for (let room = 1; room <= roomsOnThisFloor; room++) {
+                                const unitData = projectData[taskKey]?.[floor]?.[room] || {};
+                                let isFullyDone = false;
+                                let hasAnyProgress = false;
+                                if (catDef.type === 'multi-progress') {
+                                    let doneCount = 0;
+                                    catDef.tasks.forEach((t, idx) => { 
+                                        const p = unitData[`progress_${t.key}`] || 0;
+                                        if (p >= 100) { doneCount++; fTaskCounts[idx]++; } 
+                                        else if (p > 0) {
+                                            hasAnyProgress = true;
+                                            taskInProgressTotals[idx]++;
+                                        }
+                                    });
+                                    if (doneCount === taskCount) isFullyDone = true;
+                                    if (doneCount > 0 && doneCount < taskCount) hasAnyProgress = true;
+                                } else if (catDef.type === 'inspection') {
+                                    const cmScore = unitData.cmScore || 0;
+                                    const qcScore = unitData.qcScore || 0;
+                                    const qcPass = qcScore >= 85;
+                                    const cmPass = cmScore >= 85;
+                                    
+                                    if (cmPass) fTaskCounts[0]++;
+                                    else if (cmScore > 0) {
+                                        hasAnyProgress = true;
+                                        taskInProgressTotals[0]++;
+                                    }
+                                    
+                                    if (qcPass) {
+                                        fTaskCounts[1]++;
+                                        isFullyDone = true;
+                                    } else if (qcScore > 0) {
+                                        hasAnyProgress = true;
+                                        taskInProgressTotals[1]++;
+                                    }
+                                    
+                                    if (hasAnyProgress || isFullyDone) hasAnyProgress = true;
+                                } else {
+                                    const currentTaskIndex = unitData.taskIndex || 0;
+                                    const progress = unitData.progress || 0;
+                                    for(let i=0; i < taskCount; i++) if (currentTaskIndex > i || (currentTaskIndex === i && progress >= 100)) fTaskCounts[i]++;
+                                    if (currentTaskIndex > 0 || progress > 0) hasAnyProgress = true;
+                                    
+                                    if (progress > 0 && progress < 100) {
+                                        taskInProgressTotals[currentTaskIndex]++;
+                                    }
+
+                                    if (currentTaskIndex >= taskCount - 1 && progress >= 100) isFullyDone = true;
+                                }
+                                if (isFullyDone) fCompleted++;
+                                else if (hasAnyProgress) fInProgress++;
+                            }
+
+                            const fProgress = Math.round((fCompleted / roomsOnThisFloor) * 100);
+                            html += `
+                                <tr class="border-b border-slate-200 hover:bg-slate-50 transition-colors">
+                                    <td class="border-r border-slate-300 py-3 font-black bg-slate-100 text-slate-900">${floor}</td>
+                                    <td class="border-r border-slate-200 py-3 font-bold text-slate-600">${roomsOnThisFloor}</td>
+                                    ${fTaskCounts.map(count => `<td class="border-r border-slate-100 py-3 font-medium text-slate-700">${count}</td>`).join('')}
+                                    <td class="border-r border-slate-200 py-3 font-black text-emerald-700 bg-emerald-50">${fCompleted}</td>
+                                    <td class="border-r border-slate-200 py-3 font-black text-rose-700 bg-rose-50">${roomsOnThisFloor - fCompleted}</td>
+                                    <td class="py-3 px-4">
+                                        <div class="flex items-center gap-3">
+                                            <div class="flex-1 bg-slate-100 rounded-full h-3 border border-slate-200 overflow-hidden">
+                                                <div class="bg-blue-600 h-full rounded-full shadow-inner" style="width: ${fProgress}%"></div>
+                                            </div>
+                                            <span class="text-[10px] font-black text-slate-900 w-10 text-right">${fProgress}%</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            `;
+                            fTaskCounts.forEach((count, idx) => taskTotals[idx] += count);
+                            totalRoomsAll += roomsOnThisFloor;
+                            totalCompletedAll += fCompleted;
+                            totalInProgressAll += fInProgress;
+                        });
+
+                        html += `
+                                </tbody>
+                                <tfoot>
+                                    <tr class="bg-slate-800 text-white font-black text-sm">
+                                        <td class="py-4 border-r border-slate-700 uppercase tracking-widest" colspan="2">Project Totals</td>
+                                        ${taskTotals.map(total => `<td class="py-4 border-r border-slate-700">${total}</td>`).join('')}
+                                        <td class="py-4 border-r border-slate-700 bg-emerald-700">${totalCompletedAll}</td>
+                                        <td class="py-4 border-r border-slate-700 bg-rose-700">${totalRoomsAll - totalCompletedAll}</td>
+                                        <td class="py-4 bg-blue-700">
+                                            <div class="flex items-center justify-center gap-2">
+                                                <span class="text-[10px] opacity-70">OVERALL:</span>
+                                                <span>${totalRoomsAll > 0 ? Math.round((totalCompletedAll / totalRoomsAll) * 100) : 0}%</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        `;
+                    }
+
+                    // --- SUMMARY ANALYSIS SECTION ---
+                    const overallProgress = totalRoomsAll > 0 ? ((totalCompletedAll / totalRoomsAll) * 100).toFixed(1) : 0;
+                    
+                    // Calculate floor-by-floor summary for the selected task
+                    const floorSummaries = CONFIG.FLOORS.map(floor => {
+                        const roomsOnThisFloor = CONFIG.getRoomsOnFloor(floor);
+                        let fCompleted = 0;
+                        for (let room = 1; room <= roomsOnThisFloor; room++) {
+                            const unitData = projectData[taskKey]?.[floor]?.[room] || {};
+                            let isFullyDone = false;
+                            if (catDef.type === 'multi-progress') {
+                                let doneCount = 0;
+                                catDef.tasks.forEach(t => { if ((unitData[`progress_${t.key}`] || 0) >= 100) doneCount++; });
+                                if (doneCount === taskCount) isFullyDone = true;
+                            } else if (catDef.type === 'inspection') {
+                                if ((unitData.qcScore || 0) >= 85) isFullyDone = true;
+                            } else {
+                                if ((unitData.taskIndex || 0) >= taskCount - 1 && (unitData.progress || 0) >= 100) isFullyDone = true;
+                            }
+                            if (isFullyDone) fCompleted++;
+                        }
+                        const pct = roomsOnThisFloor > 0 ? Math.round((fCompleted / roomsOnThisFloor) * 100) : 0;
+                        return { floor, completed: fCompleted, total: roomsOnThisFloor, pct };
+                    });
+
+                    const floorSummaryHtml = `
+                        <div class="grid grid-cols-4 gap-2 text-[9px]">
+                            ${floorSummaries.map(s => `
+                                <div class="flex flex-col border border-slate-100 p-1.5 rounded bg-slate-50/50">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="font-black text-slate-800">Floor ${s.floor}</span>
+                                        <span class="text-blue-600 font-bold">${s.pct}%</span>
+                                    </div>
+                                    <div class="w-full bg-slate-200 h-1 rounded-full overflow-hidden">
+                                        <div class="bg-blue-500 h-full" style="width: ${s.pct}%"></div>
+                                    </div>
+                                    <div class="flex justify-between mt-1 text-[7px] font-bold text-slate-400">
+                                        <span>DONE: ${s.completed}</span>
+                                        <span>TOTAL: ${s.total}</span>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="mt-4 p-3 bg-slate-800 rounded-xl text-white flex justify-between items-center shadow-md">
+                            <div class="flex flex-col">
+                                <span class="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Project Progress</span>
+                                <span class="text-lg font-black leading-none">${overallProgress}%</span>
+                            </div>
+                            <div class="flex gap-6">
+                                <div class="flex flex-col items-end">
+                                    <span class="text-[8px] font-bold text-emerald-400 uppercase">Completed</span>
+                                    <span class="text-sm font-black">${totalCompletedAll}</span>
+                                </div>
+                                <div class="flex flex-col items-end">
+                                    <span class="text-[8px] font-bold text-rose-400 uppercase">Remaining</span>
+                                    <span class="text-sm font-black">${totalRoomsAll - totalCompletedAll}</span>
+                                </div>
+                                <div class="flex flex-col items-end">
+                                    <span class="text-[8px] font-bold text-blue-400 uppercase">Total Units</span>
+                                    <span class="text-sm font-black">${totalRoomsAll}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    const taskSummaries = catDef.tasks.map((t, i) => {
+                        const count = taskTotals[i];
+                        const pct = totalRoomsAll > 0 ? ((count / totalRoomsAll) * 100).toFixed(1) : 0;
+                        return `
+                            <div class="flex justify-between items-center py-1.5 border-b border-slate-100 last:border-0">
+                                <span class="text-slate-600 font-medium">${t.name}</span>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-slate-900 font-bold">${count} ห้อง</span>
+                                    <span class="px-2 py-0.5 bg-blue-50 text-blue-700 rounded text-[10px] font-bold w-12 text-center">${pct}%</span>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+
+                    const taskInProgressSummaries = catDef.tasks.map((t, i) => {
+                        const count = taskInProgressTotals[i];
+                        if (count === 0) return '';
+                        return `
+                            <div class="flex justify-between items-center py-1 pl-3 border-l-2 border-blue-100 ml-1">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-1.5 h-1.5 rounded-full ${t.color || 'bg-blue-400'}"></div>
+                                    <span class="text-slate-500 text-[9px] font-medium">${t.name}</span>
+                                </div>
+                                <span class="text-blue-600 font-bold text-[9px]">${count}</span>
+                            </div>
+                        `;
+                    }).join('');
+
+                    let statusColor = "text-blue-600";
+                    let statusBg = "bg-blue-50";
+                    let statusLabel = "In Progress";
+
+                    if (parseFloat(overallProgress) >= 100) {
+                        statusColor = "text-emerald-600";
+                        statusBg = "bg-emerald-50";
+                        statusLabel = "Completed";
+                    } else if (parseFloat(overallProgress) > 90) {
+                        statusLabel = "Near Completion";
+                    } else if (parseFloat(overallProgress) > 50) {
+                        statusLabel = "On Track";
+                    } else if (parseFloat(overallProgress) > 10) {
+                        statusLabel = "Early Stage";
+                    } else {
+                        statusLabel = "Just Started";
+                    }
+
+                    html += `
+                        <div class="mt-8 flex gap-6 shrink-0">
+                            <!-- Left: Executive Summary -->
+                            <div class="flex-[2] bg-white border-2 border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+                                <div class="bg-slate-800 text-white px-5 py-3 flex justify-between items-center">
+                                    <h3 class="text-sm font-bold uppercase tracking-wider flex items-center gap-2">
+                                        <i class="fas fa-chart-line text-blue-400"></i> บทวิเคราะห์และสรุปผล (EXECUTIVE SUMMARY)
+                                    </h3>
+                                    <span class="text-[10px] font-bold px-2 py-0.5 rounded ${statusBg} ${statusColor} uppercase">${statusLabel}</span>
+                                </div>
+                                <div class="p-5 grid grid-cols-2 gap-6">
+                                    <div>
+                                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">TASK BREAKDOWN</p>
+                                        <div class="space-y-0">
+                                            ${taskSummaries}
+                                        </div>
+                                        <div class="mt-4 pt-3 border-t border-slate-100">
+                                            <div class="flex justify-between items-center mb-3">
+                                                <div class="flex flex-col">
+                                                    <span class="text-blue-600 font-black text-[10px] uppercase tracking-wider">กำลังดำเนินการ</span>
+                                                    <span class="text-slate-400 text-[7px] font-bold uppercase tracking-widest">IN PROGRESS STATUS</span>
+                                                </div>
+                                                <div class="bg-blue-50 px-3 py-1 rounded-lg border border-blue-100">
+                                                    <span class="text-blue-700 font-black text-sm">${totalInProgressAll}</span>
+                                                    <span class="text-blue-400 text-[8px] font-bold ml-1 uppercase">Units</span>
+                                                </div>
+                                            </div>
+                                            <div class="grid grid-cols-1 gap-1">
+                                                ${taskInProgressSummaries}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="border-l border-slate-100 pl-6">
+                                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">FLOOR PROGRESS SUMMARY</p>
+                                        ${floorSummaryHtml}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Right: Progress Gauge & Signatures -->
+                            <div class="flex-1 flex flex-col gap-4">
+                                <div class="bg-blue-600 rounded-2xl p-5 text-white flex flex-col items-center justify-center text-center shadow-lg shadow-blue-200 relative overflow-hidden">
+                                    <div class="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -mr-12 -mt-12"></div>
+                                    <p class="text-[10px] font-bold uppercase tracking-[0.2em] mb-4 opacity-80">Overall Progress</p>
+                                    <div class="relative w-28 h-28 flex items-center justify-center">
+                                        <svg class="w-full h-full transform -rotate-90">
+                                            <circle cx="56" cy="56" r="48" stroke="currentColor" stroke-width="10" fill="transparent" class="text-blue-800/30" />
+                                            <circle cx="56" cy="56" r="48" stroke="currentColor" stroke-width="10" fill="transparent" class="text-white" 
+                                                stroke-dasharray="${2 * Math.PI * 48}" 
+                                                stroke-dashoffset="${2 * Math.PI * 48 * (1 - overallProgress / 100)}" 
+                                                stroke-linecap="round" />
+                                        </svg>
+                                        <span class="absolute text-3xl font-black">${Math.round(overallProgress)}%</span>
+                                    </div>
+                                    <p class="text-[10px] mt-4 font-bold bg-white/20 px-3 py-1 rounded-full">DONE: ${totalCompletedAll} / TOTAL: ${totalRoomsAll}</p>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-3 flex-1">
+                                    <div class="border-2 border-dashed border-slate-200 rounded-xl p-3 flex flex-col justify-between">
+                                        <p class="text-[8px] font-bold text-slate-400 uppercase text-center">Prepared By</p>
+                                        <div class="h-8 border-b border-slate-200 mx-2"></div>
+                                        <p class="text-[9px] text-slate-600 text-center font-bold mt-1">Site Engineer</p>
+                                    </div>
+                                    <div class="border-2 border-dashed border-slate-200 rounded-xl p-3 flex flex-col justify-between">
+                                        <p class="text-[8px] font-bold text-slate-400 uppercase text-center">Approved By</p>
+                                        <div class="h-8 border-b border-slate-200 mx-2"></div>
+                                        <p class="text-[9px] text-slate-600 text-center font-bold mt-1">Project Manager</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Legend & Footer -->
+                        <div class="mt-6 pt-4 border-t-2 border-slate-100 flex items-center justify-between shrink-0">
+                            <div class="flex items-center gap-6">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Legend:</span>
+                                    <div class="flex items-center gap-3">
+                                        ${catDef.tasks.map((t, i) => `
+                                            <div class="flex items-center gap-1.5">
+                                                <span class="w-4 h-4 rounded ${t.color || 'bg-slate-400'} flex items-center justify-center text-[8px] font-bold text-white shadow-sm">${i + 1}</span>
+                                                <span class="text-[9px] text-slate-600 font-bold">${t.name}</span>
+                                            </div>
+                                        `).join('')}
+                                        <div class="flex items-center gap-1.5 ml-2">
+                                            <span class="w-4 h-4 rounded bg-emerald-500 flex items-center justify-center text-[8px] font-bold text-white shadow-sm">✓</span>
+                                            <span class="text-[9px] text-slate-600 font-bold">เสร็จสมบูรณ์</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <div class="bg-slate-800 text-white px-3 py-1 rounded text-[9px] font-black">
+                                    PAGE 1 / 1
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    pageContainer.innerHTML = html;
+                    previewArea.appendChild(pageContainer);
+                });
+            }
+
+            async function exportPdfReport() {
+                const pages = document.querySelectorAll('.pdf-page');
+                if (pages.length === 0) {
+                    showNotificationModal('ข้อมูลไม่เพียงพอ', 'กรุณาสร้างตัวอย่างรายงานก่อนดาวน์โหลด');
+                    return;
+                }
+
+                const exportBtn = document.getElementById('pdf-report-export-btn');
+                const originalText = exportBtn.innerHTML;
+                exportBtn.innerHTML = '<div class="spinner w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div> กำลังสร้าง PDF...';
+                exportBtn.disabled = true;
+
+                try {
+                    const { jsPDF } = window.jspdf;
+                    const pdf = new jsPDF('l', 'mm', 'a4'); // Landscape A4
+                    
+                    const pdfWidth = 297; // A4 Landscape width
+                    const pdfHeight = 210; // A4 Landscape height
+
+                    for (let i = 0; i < pages.length; i++) {
+                        const page = pages[i];
+                        
+                        // Temporarily remove shadow and margin for clean capture
+                        const originalShadow = page.style.boxShadow;
+                        const originalMargin = page.style.margin;
+                        page.style.boxShadow = 'none';
+                        page.style.margin = '0';
+                        
+                        const canvas = await html2canvas(page, { 
+                            scale: 2, 
+                            useCORS: true,
+                            backgroundColor: '#ffffff',
+                            windowWidth: page.scrollWidth,
+                            width: page.scrollWidth,
+                            height: page.scrollHeight
+                        });
+                        
+                        // Restore styles
+                        page.style.boxShadow = originalShadow;
+                        page.style.margin = originalMargin;
+                        
+                        const imgData = canvas.toDataURL('image/jpeg', 0.95);
+                        
+                        if (i > 0) pdf.addPage();
+                        
+                        const imgProps = pdf.getImageProperties(imgData);
+                        const imgRatio = imgProps.width / imgProps.height;
+                        const pdfRatio = pdfWidth / pdfHeight;
+                        
+                        let finalWidth, finalHeight;
+                        
+                        if (imgRatio > pdfRatio) {
+                            // Image is wider than page ratio
+                            finalWidth = pdfWidth;
+                            finalHeight = pdfWidth / imgRatio;
+                        } else {
+                            // Image is taller than page ratio
+                            finalHeight = pdfHeight;
+                            finalWidth = pdfHeight * imgRatio;
+                        }
+                        
+                        // Center it
+                        const x = (pdfWidth - finalWidth) / 2;
+                        const y = (pdfHeight - finalHeight) / 2;
+                        
+                        pdf.addImage(imgData, 'JPEG', x, y, finalWidth, finalHeight);
+                    }
+
+                    pdf.save(`Report_${projectData.projectName || 'Project'}_${Date.now()}.pdf`);
+                } catch (error) {
+                    console.error("PDF Export Error:", error);
+                    showNotificationModal('เกิดข้อผิดพลาด', 'ไม่สามารถสร้าง PDF ได้');
+                } finally {
+                    exportBtn.innerHTML = originalText;
+                    exportBtn.disabled = false;
                 }
             }
 
