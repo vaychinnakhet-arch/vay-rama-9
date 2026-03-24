@@ -1150,12 +1150,65 @@
                 ceilingBathroom: { name: 'งานฝ้า (ห้องน้ำ)', reportName: 'งานติดตั้งฝ้าห้องน้ำ', reportEmoji: '🪜', title: 'STATUS งานติดตั้งฝ้าห้องน้ำ', type: 'progress', tasks: [ { name: 'ขึ้นโครง', color: 'bg-slate-600', textColor: 'text-white' }, { name: 'ติดแผ่น', color: 'bg-yellow-500', textColor: 'text-black' } ] },
                 texcaWall: { name: 'งานผนัง TEXCA', reportName: 'งานผนัง TEXCA', reportEmoji: '🧱', title: 'STATUS งานผนัง TEXCA WALL', type: 'progress', tasks: [ { name: 'ตีไลน์', color: 'bg-red-500', textColor: 'text-white' }, { name: 'เขิบ', color: 'bg-stone-400', textColor: 'text-white' }, { name: 'TEXCA', color: 'bg-orange-300', textColor: 'text-black' } ] },
                 waterproofing: { name: 'งานกันซึม', reportName: 'งานกันซึม', reportEmoji: '🛡️', title: 'STATUS งานกันซึม', type: 'multi-progress', tasks: [ { name: 'ห้องน้ำ', key: 'bathroom', shortName: 'น้ำ', color: 'bg-indigo-500', textColor: 'text-white' }, { name: 'ระเบียง', key: 'balcony', shortName: 'รบ.', color: 'bg-cyan-500', textColor: 'text-white' } ] },
-                tiling: { name: 'งานปูกระเบื้อง', reportName: 'งานปูกระเบื้อง', reportEmoji: '🟧', title: 'STATUS งานปูกระเบื้อง', type: 'multi-progress', hasDetailedView: true, tasks: [ { name: 'ห้องน้ำ', key: 'bathroom', shortName: 'น้ำ', color: 'bg-teal-500', textColor: 'text-white' }, { name: 'ระเบียง', key: 'balcony', shortName: 'รบ.', color: 'bg-lime-600', textColor: 'text-white' }, { name: 'ครัว', key: 'kitchen', shortName: 'ครัว', color: 'bg-rose-500', textColor: 'text-white' } ] },
-                aluminum: { name: 'งานติดตั้งอลูมิเนียม', reportName: 'งานติดตั้งอลูมิเนียม', reportEmoji: '🪟', title: 'STATUS งานติดตั้งอลูมิเนียม', type: 'multi-progress', hasDetailedView: true, tasks: [ { name: 'บานกั้นห้อง', key: 'partition', shortName: 'กั้น', color: 'bg-slate-400', textColor: 'text-white' }, { name: 'บานออกระเบียง', key: 'balcony', shortName: 'รบ.', color: 'bg-blue-400', textColor: 'text-white' }, { name: 'บานหน้าต่าง', key: 'window', shortName: 'นต.', color: 'bg-sky-300', textColor: 'text-black' } ] },
+                tiling: { 
+                    name: 'งานปูกระเบื้อง', 
+                    reportName: 'งานปูกระเบื้อง', 
+                    reportEmoji: '🟧', 
+                    title: 'STATUS งานปูกระเบื้อง', 
+                    type: 'multi-progress', 
+                    hasDetailedView: true, 
+                    detailedViews: {
+                        bathroom: { name: 'ห้องน้ำ', title: 'งานปูพื้นและผนังกระเบื้องห้องน้ำ' },
+                        balcony: { name: 'ระเบียง', title: 'งานปูพื้นและผนังกระเบื้องระเบียง' },
+                        kitchen: { name: 'ครัว', title: 'งานปูพื้นและผนังกระเบื้องครัว' }
+                    },
+                    tasks: [ 
+                        { name: 'ห้องน้ำ', key: 'bathroom', shortName: 'น้ำ', color: 'bg-teal-500', textColor: 'text-white' }, 
+                        { name: 'ระเบียง', key: 'balcony', shortName: 'รบ.', color: 'bg-lime-600', textColor: 'text-white' }, 
+                        { name: 'ครัว', key: 'kitchen', shortName: 'ครัว', color: 'bg-rose-500', textColor: 'text-white' } 
+                    ] 
+                },
+                aluminum: { 
+                    name: 'งานติดตั้งอลูมิเนียม', 
+                    reportName: 'งานติดตั้งอลูมิเนียม', 
+                    reportEmoji: '🪟', 
+                    title: 'STATUS งานติดตั้งอลูมิเนียม', 
+                    type: 'multi-progress', 
+                    hasDetailedView: true, 
+                    detailedViews: {
+                        partition: { name: 'บานกั้นห้อง', title: 'งานติดตั้งอลูมิเนียมบานกั้นห้อง' },
+                        balcony: { name: 'บานออกระเบียง', title: 'งานติดตั้งอลูมิเนียมบานออกระเบียง' },
+                        window: { name: 'บานหน้าต่าง', title: 'งานติดตั้งอลูมิเนียมบานหน้าต่าง' }
+                    },
+                    tasks: [ 
+                        { name: 'บานกั้นห้อง', key: 'partition', shortName: 'กั้น', color: 'bg-slate-400', textColor: 'text-white' }, 
+                        { name: 'บานออกระเบียง', key: 'balcony', shortName: 'รบ.', color: 'bg-blue-400', textColor: 'text-white' }, 
+                        { name: 'บานหน้าต่าง', key: 'window', shortName: 'นต.', color: 'bg-sky-300', textColor: 'text-black' } 
+                    ] 
+                },
                 wetWork: { name: 'คะแนน WET WORK', reportName: 'WET WORK', reportEmoji: '💧', title: 'STATUS งาน WET WORK', type: 'inspection', tasks: [ { name: 'CM WW', color: 'bg-orange-400', textColor: 'text-white' }, { name: 'QC WW', color: 'bg-yellow-400', textColor: 'text-black' } ] },
                 furniture: { name: 'งานติดตั้งเฟอร์นิเจอร์', reportName: 'งานติดตั้งเฟอร์นิเจอร์', reportEmoji: '🛋️', title: 'STATUS งานติดตั้งเฟอร์นิเจอร์', type: 'progress', tasks: [ { name: 'ติดตั้งชุดครัว', color: 'bg-amber-500', textColor: 'text-white' }, { name: 'ติดตั้งเฟอร์นิเจอร์', color: 'bg-amber-700', textColor: 'text-white' }, ] },
                 laminate: { name: 'งานปูพื้นไม้ลามิเนต', reportName: 'งานปูพื้นไม้ลามิเนต', reportEmoji: '🌲', title: 'STATUS งานปูพื้นไม้ลามิเนต', type: 'progress', tasks: [ { name: 'ตรวจรับพื้นที่', color: 'bg-yellow-400', textColor: 'text-black' }, { name: 'ปูพื้นไม้', color: 'bg-amber-800', textColor: 'text-white' }, ] },
-                door: { name: 'งานติดตั้งประตูไม้', reportName: 'งานติดตั้งประตูไม้', reportEmoji: '🚪', title: 'STATUS งานติดตั้งประตูไม้', type: 'multi-progress', hasDetailedView: true, tasks: [ { name: 'ประตูหน้า', key: 'front', shortName: 'หน้า', color: 'bg-amber-600', textColor: 'text-white' }, { name: 'ประตูห้องนอน', key: 'bedroom', shortName: 'นอน', color: 'bg-emerald-600', textColor: 'text-white', condition: (f, r) => hasBedroomDoor(f, r) }, { name: 'ประตูห้องน้ำ', key: 'bathroom', shortName: 'น้ำ', color: 'bg-blue-400', textColor: 'text-white' }, { name: 'อุปกรณ์ประตู', key: 'hardware', shortName: 'อปก.', color: 'bg-cyan-600', textColor: 'text-white' } ] },
+                door: { 
+                    name: 'งานติดตั้งประตูไม้', 
+                    reportName: 'งานติดตั้งประตูไม้', 
+                    reportEmoji: '🚪', 
+                    title: 'STATUS งานติดตั้งประตูไม้', 
+                    type: 'multi-progress', 
+                    hasDetailedView: true, 
+                    detailedViews: {
+                        front: { name: 'ประตูหน้า', title: 'งานติดตั้งประตูไม้ประตูหน้า' },
+                        bedroom: { name: 'ประตูห้องนอน', title: 'งานติดตั้งประตูไม้ประตูห้องนอน' },
+                        bathroom: { name: 'ประตูห้องน้ำ', title: 'งานติดตั้งประตูไม้ประตูห้องน้ำ' },
+                        hardware: { name: 'อุปกรณ์ประตู', title: 'งานติดตั้งอุปกรณ์ประตูไม้' }
+                    },
+                    tasks: [ 
+                        { name: 'ประตูหน้า', key: 'front', shortName: 'หน้า', color: 'bg-amber-600', textColor: 'text-white' }, 
+                        { name: 'ประตูห้องนอน', key: 'bedroom', shortName: 'นอน', color: 'bg-emerald-600', textColor: 'text-white', condition: (f, r) => hasBedroomDoor(f, r) }, 
+                        { name: 'ประตูห้องน้ำ', key: 'bathroom', shortName: 'น้ำ', color: 'bg-blue-400', textColor: 'text-white' }, 
+                        { name: 'อุปกรณ์ประตู', key: 'hardware', shortName: 'อปก.', color: 'bg-cyan-600', textColor: 'text-white' } 
+                    ] 
+                },
                 showerScreen: { name: 'งาน SHOWER SCREEN', reportName: 'งาน SHOWER SCREEN', reportEmoji: '🚿', title: 'STATUS งาน SHOWER SCREEN', type: 'progress', tasks: [ { name: 'ติดตั้ง', color: 'bg-sky-500', textColor: 'text-white' }, { name: 'เก็บงาน', color: 'bg-teal-400', textColor: 'text-white' } ] },
                 endProduct: { name: 'คะแนน END PRODUCT', reportName: 'END PRODUCT', reportEmoji: '✅', title: 'STATUS งาน END PRODUCT', type: 'inspection', tasks: [ { name: 'CM End', color: 'bg-rose-300', textColor: 'text-black' }, { name: 'QC End', color: 'bg-emerald-400', textColor: 'text-black' }, ] },
             };
@@ -5633,20 +5686,55 @@
                 
                 const orderedTaskKeys = Object.keys(taskDefinitions);
                 orderedTaskKeys.forEach(taskKey => {
-                    const taskName = taskDefinitions[taskKey].name;
-                    const item = document.createElement('div');
-                    item.className = 'flex items-center gap-2 p-2 bg-white hover:bg-blue-50 rounded-lg transition-all border border-slate-200 shadow-sm group cursor-default';
-                    item.dataset.id = taskKey;
-                    item.innerHTML = `
-                        <div class="drag-handle cursor-grab active:cursor-grabbing text-slate-300 group-hover:text-blue-400 p-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="19" r="1"/></svg>
-                        </div>
-                        <label class="flex-1 flex items-center gap-3 cursor-pointer py-1">
-                            <input type="checkbox" value="${taskKey}" class="pdf-task-checkbox text-blue-600 rounded focus:ring-blue-500 w-4 h-4">
-                            <span class="text-sm font-semibold text-slate-700 truncate" title="${taskName}">${taskName}</span>
-                        </label>
-                    `;
-                    taskListContainer.appendChild(item);
+                    const taskDef = taskDefinitions[taskKey];
+                    const taskName = taskDef.name;
+                    
+                    // Main task item
+                    const mainItem = document.createElement('div');
+                    mainItem.className = 'flex items-center gap-2 p-2 bg-white hover:bg-blue-50 rounded-lg transition-all border border-slate-200 shadow-sm group cursor-default';
+                    mainItem.dataset.id = taskKey;
+                    
+                    if (taskDef.hasDetailedView && taskDef.detailedViews) {
+                        // For detailed views, the main item is just a header
+                        mainItem.innerHTML = `
+                            <div class="drag-handle cursor-grab active:cursor-grabbing text-slate-300 group-hover:text-blue-400 p-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="19" r="1"/></svg>
+                            </div>
+                            <div class="flex-1 flex items-center gap-3 py-1">
+                                <span class="text-sm font-black text-[#1e3a8a] truncate" title="${taskName}">${taskName}</span>
+                            </div>
+                        `;
+                        taskListContainer.appendChild(mainItem);
+
+                        // Add sub-tasks from detailedViews
+                        Object.entries(taskDef.detailedViews).forEach(([subKey, subDef]) => {
+                            const subItem = document.createElement('div');
+                            subItem.className = 'flex items-center gap-2 p-2 bg-slate-50 hover:bg-blue-50 rounded-lg transition-all border border-slate-200 shadow-sm group cursor-default ml-6 border-l-4 border-l-blue-400';
+                            subItem.dataset.id = `${taskKey}:${subKey}`;
+                            subItem.innerHTML = `
+                                <div class="drag-handle cursor-grab active:cursor-grabbing text-slate-300 group-hover:text-blue-400 p-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="19" r="1"/></svg>
+                                </div>
+                                <label class="flex-1 flex items-center gap-3 cursor-pointer py-1">
+                                    <input type="checkbox" value="${taskKey}:${subKey}" class="pdf-task-checkbox text-blue-600 rounded focus:ring-blue-500 w-4 h-4">
+                                    <span class="text-sm font-medium text-slate-600 truncate" title="${subDef.name}">${subDef.name}</span>
+                                </label>
+                            `;
+                            taskListContainer.appendChild(subItem);
+                        });
+                    } else {
+                        // Regular task
+                        mainItem.innerHTML = `
+                            <div class="drag-handle cursor-grab active:cursor-grabbing text-slate-300 group-hover:text-blue-400 p-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="19" r="1"/></svg>
+                            </div>
+                            <label class="flex-1 flex items-center gap-3 cursor-pointer py-1">
+                                <input type="checkbox" value="${taskKey}" class="pdf-task-checkbox text-blue-600 rounded focus:ring-blue-500 w-4 h-4">
+                                <span class="text-sm font-semibold text-slate-700 truncate" title="${taskName}">${taskName}</span>
+                            </label>
+                        `;
+                        taskListContainer.appendChild(mainItem);
+                    }
                 });
 
                 // Initialize SortableJS
@@ -5691,8 +5779,16 @@
                 const dateString = `${today.getDate()}/${today.getMonth() + 1}/${today.getFullYear() + 543}`;
                 
                 selectedTasks.forEach(taskKey => {
-                    const catDef = taskDefinitions[taskKey];
-                    if (!catDef) return;
+                    const [mainKey, subKey] = taskKey.split(':');
+                    const baseDef = taskDefinitions[mainKey];
+                    if (!baseDef) return;
+                    
+                    let catDef = { ...baseDef };
+                    if (subKey && baseDef.detailedViews && baseDef.detailedViews[subKey]) {
+                        const subDef = baseDef.detailedViews[subKey];
+                        catDef.name = `${baseDef.name} - ${subDef.name}`;
+                        catDef.title = subDef.title || `${baseDef.title} (${subDef.name})`;
+                    }
                     
                     const pageContainer = document.createElement('div');
                     pageContainer.className = 'bg-white shadow-lg mx-auto shrink-0 mb-8 flex flex-col pdf-page';
@@ -5768,7 +5864,8 @@
                                     continue;
                                 }
                                 
-                                const unitData = projectData[taskKey]?.[floor]?.[room] || {};
+                                const rawUnitData = projectData[mainKey]?.[floor]?.[room] || {};
+                                const unitData = subKey ? (rawUnitData[subKey] || {}) : rawUnitData;
                                 let cellContent = room;
                                 let cellClass = "bg-white text-slate-400 font-medium";
                                 let isFullyDone = false;
@@ -5914,7 +6011,8 @@
                             let fTaskCounts = Array(taskCount).fill(0);
 
                             for (let room = 1; room <= roomsOnThisFloor; room++) {
-                                const unitData = projectData[taskKey]?.[floor]?.[room] || {};
+                                const rawUnitData = projectData[mainKey]?.[floor]?.[room] || {};
+                                const unitData = subKey ? (rawUnitData[subKey] || {}) : rawUnitData;
                                 let isFullyDone = false;
                                 let hasAnyProgress = false;
                                 if (catDef.type === 'multi-progress') {
@@ -6019,7 +6117,8 @@
                         const roomsOnThisFloor = CONFIG.getRoomsOnFloor(floor);
                         let fCompleted = 0;
                         for (let room = 1; room <= roomsOnThisFloor; room++) {
-                            const unitData = projectData[taskKey]?.[floor]?.[room] || {};
+                            const rawUnitData = projectData[mainKey]?.[floor]?.[room] || {};
+                            const unitData = subKey ? (rawUnitData[subKey] || {}) : rawUnitData;
                             let isFullyDone = false;
                             if (catDef.type === 'multi-progress') {
                                 let doneCount = 0;
