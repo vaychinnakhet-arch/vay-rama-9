@@ -695,6 +695,10 @@
                 <div id="legend" class="mt-4 mx-2 md:mx-0 p-3 bg-slate-50 border border-slate-200 shadow-sm rounded-xl flex flex-wrap items-center gap-x-4 gap-y-2 text-sm font-medium text-slate-700">
                     <!-- JS Generated Content -->
                 </div>
+
+                <div id="executive-summary-dashboard" class="hidden mt-6 w-full mx-auto">
+                      <!-- JS Generated Content -->
+                </div>
             </main>
         </div>
         
@@ -718,7 +722,23 @@
                         <div class="bg-slate-100 p-1 rounded-lg text-slate-600 text-sm font-medium flex">
                             <button id="summary-report-wet-btn" class="view-toggle-btn px-4 py-1.5 rounded-md active">QC Wet work</button>
                             <button id="summary-report-end-btn" class="view-toggle-btn px-4 py-1.5 rounded-md">QC End product</button>
+                            <button id="summary-report-detail-btn" class="view-toggle-btn px-4 py-1.5 rounded-md">Task Detail</button>
                         </div>
+                    </div>
+
+                    <div id="summary-report-task-selection" class="flex flex-col md:flex-row items-start md:items-center gap-3 hidden md:ml-4 md:border-l border-slate-200 md:pl-4 mt-4 md:mt-0 w-full md:w-auto">
+                         <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">เลือกรายการ</span>
+                        <select id="summary-report-task-select" class="bg-slate-100 p-1.5 rounded-lg text-slate-600 text-sm font-medium border-none focus:ring-2 focus:ring-indigo-500">
+                            <option value="skimAndPaint">งาน Skim & ทาสี</option>
+                            <option value="tile">งานปูกระเบื้อง</option>
+                            <option value="door">งานติดตั้งประตูไม้</option>
+                            <option value="aluminum">งานอลูมิเนียม</option>
+                            <option value="sanitary">งานติดตั้งสุขภัณฑ์</option>
+                            <option value="ceiling">งานฝ้าเพดาน</option>
+                            <option value="electrical">งานไฟฟ้า</option>
+                            <option value="plumbing">งานสุขาภิบาล</option>
+                            <option value="airCon">งานแอร์</option>
+                        </select>
                     </div>
 
                     <div id="summary-report-floor-selection" class="flex flex-col md:flex-row items-start md:items-center gap-3 hidden md:ml-4 md:border-l border-slate-200 md:pl-4 mt-4 md:mt-0 w-full md:w-auto">
@@ -739,6 +759,10 @@
                 
                 <!-- Action Buttons -->
                 <div id="action-buttons-container" class="flex flex-wrap justify-start xl:justify-end items-center gap-2 w-full xl:w-auto">
+                    <button id="toggleExecutiveSummaryBtn" class="action-btn px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-lg shadow-sm hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 text-sm font-medium inline-flex items-center gap-2 transition-all">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>
+                        สรุปภาพรวม
+                    </button>
                     <button id="captureBtn" class="action-btn px-4 py-2 bg-indigo-600 text-white rounded-lg shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 text-sm font-medium inline-flex items-center gap-2 transition-all">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
                         แคปเจอร์
@@ -750,6 +774,10 @@
                     <button id="openPdfReportModeBtn" class="action-btn px-4 py-2 bg-white border border-rose-200 text-rose-700 rounded-lg shadow-sm hover:bg-rose-50 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-2 text-sm font-medium inline-flex items-center gap-2 transition-all">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
                         รายงาน PDF
+                    </button>
+                    <button id="downloadPngHqBtn" class="action-btn px-4 py-2 bg-white border border-blue-200 text-blue-700 rounded-lg shadow-sm hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 text-sm font-medium inline-flex items-center gap-2 transition-all">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-image-down"><path d="M10.3 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10l-3.1-3.1a2 2 0 0 0-2.814.014L6 21"/><path d="m14 19 3 3v-5.5"/><path d="m17 22 3-3"/><circle cx="9" cy="9" r="2"/></svg>
+                        ดาวน์โหลด PNG (HQ)
                     </button>
                     <button id="openReportModalBtn" class="action-btn px-4 py-2 bg-white border border-indigo-200 text-indigo-700 rounded-lg shadow-sm hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 text-sm font-medium inline-flex items-center gap-2 transition-all">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
@@ -941,10 +969,16 @@
                 </button>
                 <h1 class="text-xl font-bold">สร้างรายงาน PDF (แยกตามงาน)</h1>
             </div>
-            <button id="pdf-report-export-btn" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg font-medium shadow-sm flex items-center gap-2 transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
-                ดาวน์โหลด PDF
-            </button>
+            <div class="flex items-center gap-2">
+                <button id="png-report-export-btn" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium shadow-sm flex items-center gap-2 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-image-down"><path d="M10.3 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10l-3.1-3.1a2 2 0 0 0-2.814.014L6 21"/><path d="m14 19 3 3v-5.5"/><path d="m17 22 3-3"/><circle cx="9" cy="9" r="2"/></svg>
+                    ดาวน์โหลด PNG (HQ)
+                </button>
+                <button id="pdf-report-export-btn" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg font-medium shadow-sm flex items-center gap-2 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+                    ดาวน์โหลด PDF
+                </button>
+            </div>
         </header>
 
         <!-- Content -->
@@ -1234,10 +1268,11 @@
             
             // --- STATE VARIABLES ---
             let projectData = {};
+            let showExecutiveSummary = false;
             let currentView = 'residential';
             let currentCategory = 'skimAndPaint';
             let currentDetailedView = 'summary';
-            let summaryReportMode = 'wetWork'; // 'wetWork' or 'endProduct'
+            let summaryReportMode = 'wetWork'; // 'wetWork', 'endProduct', or 'taskDetail'
             let summaryReportSelectedFloors = [2]; // Default to floor 2
             let showMajorDefectHighlight = false;
             let currentQuickUpdateRoom = { floor: null, room: null };
@@ -1387,6 +1422,241 @@
             }
 
              // --- SPLASH SCREEN LOGIC ---
+            function renderExecutiveSummaryDashboard() {
+                const dashboard = document.getElementById('executive-summary-dashboard');
+                const isResidential = currentView === 'residential';
+                const isTaskDetailReport = currentView === 'summaryReport' && summaryReportMode === 'taskDetail';
+
+                if (!showExecutiveSummary || (!isResidential && !isTaskDetailReport)) {
+                    dashboard.classList.add('hidden');
+                    return;
+                }
+                dashboard.classList.remove('hidden');
+
+                let taskKey = currentCategory;
+                if (isTaskDetailReport) {
+                    const taskSelect = document.getElementById('summary-report-task-select');
+                    if (taskSelect) taskKey = taskSelect.value;
+                }
+
+                const catDef = taskDefinitions[taskKey];
+                if (!catDef) return;
+
+                let totalCompleted = 0;
+                let totalInProgress = 0;
+                let totalNotStarted = 0;
+                let floorStats = {};
+                let subTaskStats = {};
+
+                // Initialize subtask stats
+                catDef.tasks.forEach(t => {
+                    subTaskStats[t.key || t.name] = { count: 0, total: 0 };
+                });
+
+                CONFIG.FLOORS.forEach(floor => {
+                    let floorCompleted = 0;
+                    let floorTotal = CONFIG.getRoomsOnFloor(floor);
+                    
+                    for (let room = 1; room <= floorTotal; room++) {
+                        const unitData = projectData[taskKey]?.[floor]?.[room] || {};
+                        let progress = 0;
+                        
+                        if (catDef.type === 'progress') {
+                            const applicableTasks = catDef.tasks.filter(t => !t.condition || t.condition(floor, room));
+                            const taskCount = applicableTasks.length;
+                            
+                            // Calculate subtask completions for Task Breakdown
+                            catDef.tasks.forEach((t, idx) => {
+                                if (t.condition && !t.condition(floor, room)) return;
+                                subTaskStats[t.name].total++;
+                                if (unitData.taskIndex > idx || (unitData.taskIndex === idx && unitData.progress >= 100)) {
+                                    subTaskStats[t.name].count++;
+                                }
+                            });
+
+                            const taskProg = (unitData.progress || 0) / taskCount;
+                            const completedTasksProgress = (unitData.taskIndex || 0) * (100 / taskCount);
+                            progress = taskProg + completedTasksProgress;
+                        } else if (catDef.type === 'multi-progress') {
+                            let subTaskTotal = 0;
+                            let appCount = 0;
+                            catDef.tasks.forEach(task => {
+                                if (task.condition && !task.condition(floor, room)) return;
+                                appCount++;
+                                const subProg = (unitData[`progress_${task.key}`] || 0);
+                                subTaskTotal += subProg;
+                                
+                                subTaskStats[task.key].total++;
+                                if (subProg >= 100) subTaskStats[task.key].count++;
+                            });
+                            progress = appCount > 0 ? subTaskTotal / appCount : 0;
+                        } else if (catDef.type === 'inspection') {
+                            progress = unitData.qcScore > 0 ? unitData.qcScore : (unitData.cmScore || 0);
+                            // For inspection, we don't really have subtasks in the same way, but let's just use the main tasks
+                            catDef.tasks.forEach(t => {
+                                subTaskStats[t.name].total++;
+                                if (progress >= 100) subTaskStats[t.name].count++;
+                            });
+                        }
+
+                        if (progress >= 100) {
+                            floorCompleted++;
+                        } else if (progress > 0) {
+                            totalInProgress++;
+                        } else {
+                            totalNotStarted++;
+                        }
+                    }
+                    
+                    const floorProg = Math.round((floorCompleted / floorTotal) * 100);
+                    floorStats[floor] = { completed: floorCompleted, total: floorTotal, progress: floorProg };
+                    totalCompleted += floorCompleted;
+                });
+
+                const totalUnits = CONFIG.TOTAL_UNITS;
+                const overallProgress = (totalCompleted / totalUnits * 100).toFixed(1);
+                const remainingUnits = totalUnits - totalCompleted;
+
+                // Determine status badge
+                let statusBadge = "JUST STARTED";
+                if (parseFloat(overallProgress) >= 100) statusBadge = "COMPLETED";
+                else if (parseFloat(overallProgress) > 50) statusBadge = "IN PROGRESS";
+                else if (parseFloat(overallProgress) > 0) statusBadge = "JUST STARTED";
+
+                dashboard.innerHTML = `
+                    <div class="flex flex-col lg:flex-row gap-6 items-stretch">
+                        <!-- Left Main Box -->
+                        <div class="flex-1 bg-white rounded-[2rem] shadow-xl overflow-hidden border border-slate-100 flex flex-col">
+                            <!-- Header -->
+                            <div class="bg-white p-4 px-6 flex justify-between items-center border-b border-black">
+                                <h2 class="text-black font-bold text-sm md:text-base tracking-wider uppercase">บทวิเคราะห์และสรุปผล (EXECUTIVE SUMMARY)</h2>
+                                <span class="bg-slate-100 text-slate-800 px-4 py-1 rounded-lg text-[10px] font-black tracking-widest border border-slate-200">${statusBadge}</span>
+                            </div>
+                            
+                            <div class="p-6 flex-1 flex flex-col md:flex-row gap-8">
+                                <!-- Task Breakdown -->
+                                <div class="w-full md:w-[40%]">
+                                    <h3 class="text-[#94a3b8] font-black text-xl mb-6 tracking-widest uppercase">TASK BREAKDOWN</h3>
+                                    <div class="space-y-6">
+                                        ${catDef.tasks.map(t => {
+                                            const stats = subTaskStats[t.key || t.name];
+                                            const perc = stats.total > 0 ? Math.round((stats.count / stats.total) * 100) : 0;
+                                            return `
+                                                <div class="flex items-end justify-between border-b border-slate-100 pb-2">
+                                                    <span class="text-slate-700 font-bold text-lg">${t.name}</span>
+                                                    <div class="flex items-baseline gap-4">
+                                                        <span class="text-slate-900 font-black text-xl">${stats.count} <span class="text-sm font-bold text-slate-400">ห้อง</span></span>
+                                                        <span class="text-indigo-500 font-bold text-sm w-10 text-right">${perc.toFixed(1)}%</span>
+                                                    </div>
+                                                </div>
+                                            `;
+                                        }).join('')}
+                                    </div>
+                                    
+                                    <div class="mt-10">
+                                        <div class="flex justify-between items-center bg-[#eff6ff] p-4 rounded-2xl border border-[#dbeafe]">
+                                            <div>
+                                                <p class="text-indigo-600 font-black text-lg">กำลังดำเนินการ</p>
+                                                <p class="text-[10px] text-indigo-400 font-bold uppercase tracking-widest">IN PROGRESS STATUS</p>
+                                            </div>
+                                            <div class="bg-white px-4 py-2 rounded-xl shadow-sm border border-indigo-100">
+                                                <span class="text-indigo-600 font-black text-lg">${totalInProgress}</span>
+                                                <span class="text-[10px] text-indigo-300 font-bold ml-1 uppercase">UNITS</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Floor Progress Summary -->
+                                <div class="flex-1">
+                                    <h3 class="text-[#94a3b8] font-black text-xl mb-6 tracking-widest uppercase text-center md:text-left">FLOOR PROGRESS SUMMARY</h3>
+                                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
+                                        ${CONFIG.FLOORS.slice().reverse().map(floor => {
+                                            const stats = floorStats[floor];
+                                            return `
+                                                <div class="bg-white border border-slate-100 rounded-xl p-3 shadow-sm">
+                                                    <div class="flex justify-between items-center mb-2">
+                                                        <span class="text-[10px] font-black text-slate-800">Floor ${floor}</span>
+                                                        <span class="text-[10px] font-black text-indigo-500">${stats.progress}%</span>
+                                                    </div>
+                                                    <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden mb-2">
+                                                        <div class="bg-indigo-400 h-full" style="width: ${stats.progress}%"></div>
+                                                    </div>
+                                                    <div class="flex justify-between text-[8px] font-bold text-slate-400 uppercase">
+                                                        <span>DONE: ${stats.completed}</span>
+                                                        <span>TOTAL: ${stats.total}</span>
+                                                    </div>
+                                                </div>
+                                            `;
+                                        }).join('')}
+                                    </div>
+                                    
+                                    <!-- Bottom Progress Bar -->
+                                    <div class="bg-white border border-slate-200 rounded-2xl p-4 flex flex-wrap justify-between items-center gap-4 shadow-lg">
+                                        <div class="flex flex-col">
+                                            <span class="text-[#94a3b8] text-[10px] font-bold uppercase tracking-widest">PROJECT PROGRESS</span>
+                                            <span class="text-black font-black text-2xl">${overallProgress}%</span>
+                                        </div>
+                                        <div class="flex flex-col items-center">
+                                            <span class="text-emerald-600 text-[10px] font-bold uppercase tracking-widest">COMPLETED</span>
+                                            <span class="text-black font-black text-2xl">${totalCompleted}</span>
+                                        </div>
+                                        <div class="flex flex-col items-center">
+                                            <span class="text-rose-600 text-[10px] font-bold uppercase tracking-widest">REMAINING</span>
+                                            <span class="text-black font-black text-2xl">${remainingUnits}</span>
+                                        </div>
+                                        <div class="flex flex-col items-end">
+                                            <span class="text-indigo-600 text-[10px] font-bold uppercase tracking-widest">TOTAL UNITS</span>
+                                            <span class="text-black font-black text-2xl">${totalUnits}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Right Column -->
+                        <div class="w-full lg:w-[320px] flex flex-col gap-6">
+                            <!-- Overall Progress Card -->
+                            <div class="bg-[#2563eb] rounded-[2rem] p-8 text-white shadow-xl flex flex-col items-center justify-center relative overflow-hidden flex-1 min-h-[300px]">
+                                <!-- Decorative circle -->
+                                <div class="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
+                                
+                                <h3 class="text-white/80 font-black text-xs tracking-[0.2em] uppercase mb-10 z-10">OVERALL PROGRESS</h3>
+                                
+                                <!-- Circular Progress -->
+                                <div class="relative w-48 h-48 flex items-center justify-center z-10">
+                                    <svg class="w-full h-full transform -rotate-90">
+                                        <circle cx="96" cy="96" r="80" stroke="currentColor" stroke-width="12" fill="transparent" class="text-white/20" />
+                                        <circle cx="96" cy="96" r="80" stroke="currentColor" stroke-width="12" fill="transparent" stroke-dasharray="502.6" stroke-dashoffset="${502.6 - (502.6 * overallProgress / 100)}" class="text-white" stroke-linecap="round" />
+                                    </svg>
+                                    <div class="absolute inset-0 flex items-center justify-center">
+                                        <span class="text-5xl font-black">${overallProgress}%</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-10 bg-white/20 backdrop-blur-md px-6 py-2 rounded-full border border-white/30 z-10">
+                                    <span class="text-xs font-black tracking-widest uppercase">DONE: ${totalCompleted} / TOTAL: ${totalUnits}</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Signature Boxes -->
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="bg-white border-2 border-dashed border-slate-200 rounded-2xl p-4 flex flex-col items-center justify-between min-h-[120px]">
+                                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">PREPARED BY</span>
+                                    <div class="w-full border-t border-slate-200 mt-8 mb-2"></div>
+                                    <span class="text-[10px] font-bold text-slate-600">Site Engineer</span>
+                                </div>
+                                <div class="bg-white border-2 border-dashed border-slate-200 rounded-2xl p-4 flex flex-col items-center justify-between min-h-[120px]">
+                                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">APPROVED BY</span>
+                                    <div class="w-full border-t border-slate-200 mt-8 mb-2"></div>
+                                    <span class="text-[10px] font-bold text-slate-600">Project Engineer</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
             function calculateProjectSummary() {
                 if (!projectData || Object.keys(projectData).length === 0) {
                     return { overallProgress: 0, completedUnits: 0, qcPassRate: 0, taskProgress: {} };
@@ -1725,8 +1995,17 @@
 
                 // Show/Hide summary report mode toggle
                 const reportModeToggle = document.getElementById('summary-report-mode-toggle');
+                const taskSelection = document.getElementById('summary-report-task-selection');
                 if (reportModeToggle) {
                     reportModeToggle.classList.toggle('hidden', view !== 'summaryReport');
+                    if (view === 'summaryReport') {
+                        document.getElementById('summary-report-wet-btn').classList.toggle('active', summaryReportMode === 'wetWork');
+                        document.getElementById('summary-report-end-btn').classList.toggle('active', summaryReportMode === 'endProduct');
+                        document.getElementById('summary-report-detail-btn').classList.toggle('active', summaryReportMode === 'taskDetail');
+                    }
+                }
+                if (taskSelection) {
+                    taskSelection.classList.toggle('hidden', view !== 'summaryReport' || summaryReportMode !== 'taskDetail');
                 }
 
                 const floorSelection = document.getElementById('summary-report-floor-selection');
@@ -1735,6 +2014,13 @@
                     if (view === 'summaryReport') {
                         renderSummaryReportFloorList();
                     }
+                }
+
+                const toggleSummaryBtn = document.getElementById('toggleExecutiveSummaryBtn');
+                if (toggleSummaryBtn) {
+                    const isResidential = view === 'residential';
+                    const isTaskDetailReport = view === 'summaryReport' && summaryReportMode === 'taskDetail';
+                    toggleSummaryBtn.classList.toggle('hidden', !isResidential && !isTaskDetailReport);
                 }
                 
                 renderTable();
@@ -1770,12 +2056,35 @@
             }
 
             function renderTable() {
+                const captureArea = document.getElementById('capture-area');
+                const mainTable = document.getElementById('main-table');
+
+                renderExecutiveSummaryDashboard();
+
+                // Clean up any custom report elements from previous renderTaskDetailReportTable calls
+                if (mainTable._reportElements) {
+                    mainTable._reportElements.forEach(el => el.remove());
+                    mainTable._reportElements = null;
+                }
+                mainTable.classList.remove('hidden');
+
+                // Update visibility of controls based on current view and mode
+                const taskSelection = document.getElementById('summary-report-task-selection');
+                if (taskSelection) {
+                    taskSelection.classList.toggle('hidden', currentView !== 'summaryReport' || summaryReportMode !== 'taskDetail');
+                }
+                
+                const floorSelection = document.getElementById('summary-report-floor-selection');
+                if (floorSelection) {
+                    // Hide floor selection in taskDetail mode as it shows all floors as rows
+                    floorSelection.classList.toggle('hidden', currentView !== 'summaryReport' || summaryReportMode === 'taskDetail');
+                }
+
                 if (Object.keys(projectData).length === 0) {
                     document.getElementById('main-table').innerHTML = '<tr><td class="p-4">กำลังโหลดข้อมูลจากฐานข้อมูล...</td></tr>';
                     return;
                 }
 
-                const captureArea = document.getElementById('capture-area');
                 if (currentView === 'residential') {
                     captureArea.classList.remove('common-view-active');
                     renderResidentialTable();
@@ -1787,9 +2096,208 @@
                     renderQCSummaryTable();
                 } else if (currentView === 'summaryReport') {
                     captureArea.classList.remove('common-view-active');
-                    renderSummaryReportTable();
+                    if (summaryReportMode === 'taskDetail') {
+                        renderTaskDetailReportTable();
+                    } else {
+                        renderSummaryReportTable();
+                    }
                 }
                 updateUI();
+            }
+
+            function renderTaskDetailReportTable() {
+                const mainTable = document.getElementById('main-table');
+                mainTable.innerHTML = '';
+                
+                const taskKey = document.getElementById('summary-report-task-select').value;
+                const categoryDef = taskDefinitions[taskKey];
+                if (!categoryDef) return;
+
+                const categoryTasks = categoryDef.tasks;
+                const totalRooms = CONFIG.FLOORS.reduce((sum, f) => sum + CONFIG.getRoomsOnFloor(f), 0);
+
+                // Create the header container (Blue bar)
+                const headerContainer = document.createElement('div');
+                headerContainer.className = 'w-full bg-[#1e3a8a] text-white p-4 flex justify-between items-center rounded-t-xl mb-0 shadow-sm';
+                
+                const today = new Date();
+                const thaiDate = `${today.getDate()} ${['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'][today.getMonth()]} ${today.getFullYear() + 543}`;
+                
+                headerContainer.innerHTML = `
+                    <h2 class="text-xl md:text-2xl font-bold uppercase tracking-wide">${categoryDef.title || `STATUS ${categoryDef.name}`}</h2>
+                    <div class="bg-slate-800/30 px-3 py-1.5 rounded-lg flex items-center gap-2 text-[10px] md:text-sm border border-white/20">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                        <span>UPDATE: ${thaiDate}</span>
+                    </div>
+                `;
+                
+                // Wrap the table in a container
+                const tableWrapper = document.createElement('div');
+                tableWrapper.className = 'w-full border-x border-slate-200 bg-white p-2 md:p-4 overflow-auto';
+                
+                const table = document.createElement('table');
+                table.className = 'w-full border-collapse text-center text-[9px] md:text-xs';
+                
+                // Header
+                const thead = document.createElement('thead');
+                let headerHTML = `
+                    <tr class="bg-slate-100">
+                        <th class="border border-slate-300 p-2 w-10" rowspan="2">ชั้น</th>
+                        <th class="border border-slate-300 p-2" colspan="${CONFIG.MAX_ROOMS}">ROOM No.</th>
+                        <th class="border-y border-slate-300 w-4" rowspan="2"></th>
+                        <th class="border border-slate-300 p-2" colspan="${categoryTasks.length}">จำนวน</th>
+                        <th class="border border-slate-300 p-2 bg-teal-100" rowspan="2">ผ่าน/เสร็จ</th>
+                        <th class="border border-slate-300 p-2 bg-rose-100" rowspan="2">คงเหลือ</th>
+                    </tr>
+                    <tr class="bg-slate-50">
+                `;
+                
+                for (let i = 1; i <= CONFIG.MAX_ROOMS; i++) {
+                    headerHTML += `<th class="border border-slate-300 p-1 w-8 font-normal">${i}</th>`;
+                }
+                
+                categoryTasks.forEach(task => {
+                    headerHTML += `<th class="border border-slate-300 p-1 bg-slate-100 font-bold text-[8px] md:text-[10px]">${task.name}</th>`;
+                });
+                
+                headerHTML += '</tr>';
+                thead.innerHTML = headerHTML;
+                table.appendChild(thead);
+                
+                // Body
+                const tbody = document.createElement('tbody');
+                const totals = Array(categoryTasks.length).fill(0);
+                let grandTotalCompleted = 0;
+                let grandTotalUnits = 0;
+
+                CONFIG.FLOORS.slice().reverse().forEach(floor => {
+                    const roomsOnThisFloor = CONFIG.getRoomsOnFloor(floor);
+                    grandTotalUnits += roomsOnThisFloor;
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `<td class="border border-slate-300 p-2 font-bold bg-slate-50">${floor}</td>`;
+                    
+                    let floorCompletedCount = 0;
+                    const floorTaskCounts = Array(categoryTasks.length).fill(0);
+
+                    for (let room = 1; room <= CONFIG.MAX_ROOMS; room++) {
+                        if (room > roomsOnThisFloor) {
+                            row.innerHTML += `<td class="border border-slate-300 p-1 bg-slate-100"></td>`;
+                            continue;
+                        }
+                        
+                        const unitData = projectData[taskKey]?.[floor]?.[room] || {};
+                        let totalProgress = 0;
+                        let applicableTaskCount = 0;
+                        const activeTasks = [];
+                        let isRoomComplete = true;
+
+                        categoryTasks.forEach((task, idx) => {
+                            if (task.condition && !task.condition(floor, room)) return;
+                            applicableTaskCount++;
+                            const progress = unitData[`progress_${task.key}`] || 0;
+                            totalProgress += progress;
+                            if (progress > 0) {
+                                floorTaskCounts[idx]++;
+                                activeTasks.push(task.shortName);
+                            }
+                            if (progress < 100) isRoomComplete = false;
+                        });
+
+                        if (isRoomComplete) floorCompletedCount++;
+                        
+                        const avgProgress = applicableTaskCount > 0 ? totalProgress / applicableTaskCount : 0;
+                        const roundedProgress = Math.round(avgProgress);
+                        const styleClasses = roundedProgress >= 100 ? 'bg-teal-500 text-white' : (avgProgress > 0 ? getProgressColor(avgProgress, 'bg-sky-500') : 'bg-white text-black');
+                        
+                        let cellContent = `<div class="font-bold">${roundedProgress}%</div>`;
+                        if (activeTasks.length > 0 && roundedProgress < 100) {
+                            cellContent += `<div class="text-[7px] opacity-80 mt-0.5">${activeTasks.join(' ')}</div>`;
+                        } else if (roundedProgress >= 100) {
+                             cellContent = `<div class="flex flex-col items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                <div class="text-[7px] mt-0.5">เสร็จสมบูรณ์</div>
+                             </div>`;
+                        }
+
+                        row.innerHTML += `<td class="border border-slate-300 p-1 ${styleClasses} relative h-10 min-w-[32px]">${cellContent}</td>`;
+                    }
+                    
+                    grandTotalCompleted += floorCompletedCount;
+                    
+                    // Separator
+                    row.innerHTML += `<td class="border-y border-slate-300 bg-slate-50"></td>`;
+                    
+                    // Summary columns
+                    floorTaskCounts.forEach((count, idx) => {
+                        row.innerHTML += `<td class="border border-slate-300 p-1 font-bold">${count}</td>`;
+                        totals[idx] += count;
+                    });
+                    
+                    row.innerHTML += `<td class="border border-slate-300 p-1 font-bold text-teal-600 bg-teal-50">${floorCompletedCount}</td>`;
+                    row.innerHTML += `<td class="border border-slate-300 p-1 font-bold text-rose-600 bg-rose-50">${roomsOnThisFloor - floorCompletedCount}</td>`;
+                    
+                    tbody.appendChild(row);
+                });
+                
+                // Total Row
+                const totalRow = document.createElement('tr');
+                totalRow.className = 'bg-slate-100 font-bold';
+                totalRow.innerHTML = `
+                    <td class="border border-slate-300 p-2" colspan="${CONFIG.MAX_ROOMS + 2}">TOTAL ( ${grandTotalUnits} UNIT )</td>
+                    <td class="border-y border-slate-300"></td>
+                `;
+                
+                totals.forEach(total => {
+                    totalRow.innerHTML += `<td class="border border-slate-300 p-2">${total}</td>`;
+                });
+                
+                totalRow.innerHTML += `<td class="border border-slate-300 p-2 text-teal-600">${grandTotalCompleted}</td>`;
+                totalRow.innerHTML += `<td class="border border-slate-300 p-2 text-rose-600">${grandTotalUnits - grandTotalCompleted}</td>`;
+                
+                tbody.appendChild(totalRow);
+                table.appendChild(tbody);
+                tableWrapper.appendChild(table);
+                
+                // Legend
+                const legend = document.createElement('div');
+                legend.className = 'w-full bg-white border border-slate-200 rounded-b-xl p-4 mt-0 flex flex-wrap items-center gap-6 shadow-sm';
+                legend.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <div class="w-5 h-5 rounded-lg bg-slate-100 border border-slate-300 flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-400"><path d="M12 20h.01"/><path d="M12 16h.01"/><path d="M12 12h.01"/><path d="M12 8h.01"/><path d="M12 4h.01"/></svg>
+                        </div>
+                        <span class="text-sm font-bold text-slate-700">ขั้นตอน:</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-4 h-4 rounded-full bg-white border border-slate-300"></div>
+                        <span class="text-xs text-slate-600">เริ่มดำเนินการ (1-30%)</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-4 h-4 rounded-full bg-sky-200 border border-sky-300"></div>
+                        <span class="text-xs text-slate-600">คืบหน้า (31-60%)</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-4 h-4 rounded-full bg-sky-500 border border-sky-600"></div>
+                        <span class="text-xs text-slate-600">คืบหน้ามาก (61-99%)</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-4 h-4 rounded-full bg-teal-500 border border-teal-600"></div>
+                        <span class="text-xs text-slate-600">เสร็จสมบูรณ์ (100%)</span>
+                    </div>
+                `;
+                
+                // Append all to captureArea
+                const captureArea = document.getElementById('capture-area');
+                captureArea.appendChild(headerContainer);
+                captureArea.appendChild(tableWrapper);
+                captureArea.appendChild(legend);
+                
+                // Hide the original mainTable
+                mainTable.classList.add('hidden');
+                
+                // Store references to clean up later
+                mainTable._reportElements = [headerContainer, tableWrapper, legend];
             }
 
             function renderSummaryReportTable() {
@@ -1804,7 +2312,7 @@
                     'ceilingRoom', 'ceilingBathroom', 'skimOnly', 'wetWork'
                 ];
                 const endProductTasks = [
-                    'electrical', 'plumbing', 'airCon', 'door', 'aluminum',
+                    'door', 'aluminum',
                     'laminate', 'showerScreen', 'kitchenOnly', 'paintOnly', 'aluminumPaint', 'cleaning', 'endProduct'
                 ];
 
@@ -1947,7 +2455,7 @@
                                 }
                             }
 
-                            const isComplete = progress >= 100;
+                            const isComplete = Math.round(progress) >= 100;
                             let planData = projectData.plans?.[floor]?.[room]?.[taskDef.key] || {};
                             if (typeof planData === 'string') {
                                 // Migrate old string data
@@ -2527,8 +3035,8 @@
                                      if (progress > 0) activeTasks.push(task.shortName);
                                  });
                                  const avgProgress = applicableTaskCount > 0 ? totalProgress / applicableTaskCount : 0;
-                                 styleClasses = avgProgress >= 100 ? 'bg-teal-500 text-white' : (avgProgress > 0 ? getProgressColor(avgProgress, 'bg-sky-500') : 'bg-white text-black');
-                                 cellText = `${avgProgress.toFixed(0)}%`;
+                                 styleClasses = Math.round(avgProgress) >= 100 ? 'bg-teal-500 text-white' : (avgProgress > 0 ? getProgressColor(avgProgress, 'bg-sky-500') : 'bg-white text-black');
+                                 cellText = `${Math.round(avgProgress)}%`;
                                  if (activeTasks.length > 0) {
                                      const subText = activeTasks.join(' ');
                                      cellText += `<div class="sub-task-name absolute bottom-0 left-0 right-0 text-[8px] opacity-70 flex justify-center">${subText}</div>`;
@@ -4241,7 +4749,10 @@
                 document.body.classList.add('is-line-capturing');
                 
                 const table = document.getElementById('main-table');
-                const fullWidth = Math.max(table.scrollWidth, table.offsetWidth);
+                // If main-table is hidden, we might be in taskDetail mode, so use capture-area's scrollWidth
+                const fullWidth = (table && !table.classList.contains('hidden')) 
+                    ? Math.max(table.scrollWidth, table.offsetWidth) 
+                    : Math.max(captureArea.scrollWidth, 1200);
                 
                 // Force inline widths to prevent clipping
                 const originalCaptureAreaWidth = captureArea.style.width;
@@ -5667,6 +6178,7 @@
                 document.getElementById('pdf-report-home-btn')?.addEventListener('click', exitPdfReportMode);
                 document.getElementById('pdf-report-generate-preview-btn')?.addEventListener('click', generatePdfPreview);
                 document.getElementById('pdf-report-export-btn')?.addEventListener('click', exportPdfReport);
+                document.getElementById('png-report-export-btn')?.addEventListener('click', exportPngReport);
                 document.getElementById('pdf-report-select-all-tasks')?.addEventListener('click', () => {
                     const checkboxes = document.querySelectorAll('.pdf-task-checkbox');
                     const allChecked = Array.from(checkboxes).every(cb => cb.checked);
@@ -5753,6 +6265,20 @@
                 document.getElementById('summaryPlanDateInput').addEventListener('input', updateSummaryPlanDelayInfo);
 
                 document.getElementById('captureBtn').addEventListener('click', captureForLine);
+                
+                document.getElementById('toggleExecutiveSummaryBtn').addEventListener('click', () => {
+                    showExecutiveSummary = !showExecutiveSummary;
+                    const btn = document.getElementById('toggleExecutiveSummaryBtn');
+                    if (showExecutiveSummary) {
+                        btn.classList.add('bg-indigo-50', 'text-indigo-600', 'border-indigo-200');
+                        btn.classList.remove('bg-white', 'text-slate-700', 'border-slate-200');
+                    } else {
+                        btn.classList.remove('bg-indigo-50', 'text-indigo-600', 'border-indigo-200');
+                        btn.classList.add('bg-white', 'text-slate-700', 'border-slate-200');
+                    }
+                    renderExecutiveSummaryDashboard();
+                });
+                document.getElementById('downloadPngHqBtn').addEventListener('click', captureForLine);
                 document.getElementById('toggleCaptureModeBtn').addEventListener('click', () => {
                     document.documentElement.classList.add('is-line-capturing');
                     document.body.classList.add('is-line-capturing');
@@ -5802,14 +6328,17 @@
 
                 document.getElementById('summary-report-wet-btn').addEventListener('click', () => {
                     summaryReportMode = 'wetWork';
-                    document.getElementById('summary-report-wet-btn').classList.add('active');
-                    document.getElementById('summary-report-end-btn').classList.remove('active');
-                    renderTable();
+                    enterAppView('summaryReport');
                 });
                 document.getElementById('summary-report-end-btn').addEventListener('click', () => {
                     summaryReportMode = 'endProduct';
-                    document.getElementById('summary-report-end-btn').classList.add('active');
-                    document.getElementById('summary-report-wet-btn').classList.remove('active');
+                    enterAppView('summaryReport');
+                });
+                document.getElementById('summary-report-detail-btn').addEventListener('click', () => {
+                    summaryReportMode = 'taskDetail';
+                    enterAppView('summaryReport');
+                });
+                document.getElementById('summary-report-task-select').addEventListener('change', () => {
                     renderTable();
                 });
 
@@ -6685,6 +7214,89 @@
                 } catch (error) {
                     console.error("PDF Export Error:", error);
                     showNotificationModal('เกิดข้อผิดพลาด', 'ไม่สามารถสร้าง PDF ได้');
+                } finally {
+                    exportBtn.innerHTML = originalText;
+                    exportBtn.disabled = false;
+                }
+            }
+
+            async function exportPngReport() {
+                const pages = document.querySelectorAll('.pdf-page');
+                if (pages.length === 0) {
+                    showNotificationModal('ข้อมูลไม่เพียงพอ', 'กรุณาสร้างตัวอย่างรายงานก่อนดาวน์โหลด');
+                    return;
+                }
+
+                const exportBtn = document.getElementById('png-report-export-btn');
+                const originalText = exportBtn.innerHTML;
+                exportBtn.innerHTML = '<div class="spinner w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div> กำลังสร้าง PNG...';
+                exportBtn.disabled = true;
+
+                try {
+                    // Ensure fonts are fully loaded before capturing
+                    if (document.fonts) {
+                        await document.fonts.ready;
+                    }
+
+                    const canvases = [];
+                    let totalHeight = 0;
+                    let maxWidth = 0;
+
+                    for (let i = 0; i < pages.length; i++) {
+                        const page = pages[i];
+                        
+                        // Scroll to top to ensure clean capture
+                        window.scrollTo(0, 0);
+
+                        // Temporarily remove shadow and margin for clean capture
+                        const originalShadow = page.style.boxShadow;
+                        const originalMargin = page.style.margin;
+                        page.style.boxShadow = 'none';
+                        page.style.margin = '0';
+                        
+                        const canvas = await html2canvas(page, { 
+                            scale: 3, // Higher scale for better quality
+                            useCORS: true,
+                            allowTaint: true,
+                            backgroundColor: '#ffffff',
+                            imageTimeout: 0,
+                            logging: false
+                        });
+                        
+                        // Restore styles
+                        page.style.boxShadow = originalShadow;
+                        page.style.margin = originalMargin;
+                        
+                        canvases.push(canvas);
+                        totalHeight += canvas.height;
+                        if (canvas.width > maxWidth) {
+                            maxWidth = canvas.width;
+                        }
+                    }
+
+                    // Create a combined canvas
+                    const combinedCanvas = document.createElement('canvas');
+                    combinedCanvas.width = maxWidth;
+                    combinedCanvas.height = totalHeight;
+                    const ctx = combinedCanvas.getContext('2d');
+
+                    let currentY = 0;
+                    for (const canvas of canvases) {
+                        // Center the canvas horizontally if it's narrower than maxWidth
+                        const xOffset = (maxWidth - canvas.width) / 2;
+                        ctx.drawImage(canvas, xOffset, currentY);
+                        currentY += canvas.height;
+                    }
+
+                    // Download the combined image
+                    const link = document.createElement('a');
+                    link.download = `Report_${projectData.projectName || 'Project'}_${Date.now()}.png`;
+                    link.href = combinedCanvas.toDataURL('image/png');
+                    link.click();
+
+                } catch (error) {
+                    console.error("PNG Export Error:", error);
+                    showNotificationModal('เกิดข้อผิดพลาด', 'ไม่สามารถสร้าง PNG ได้');
                 } finally {
                     exportBtn.innerHTML = originalText;
                     exportBtn.disabled = false;
