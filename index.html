@@ -1189,6 +1189,8 @@
                         { name: 'บานหน้าต่าง', key: 'window', shortName: 'นต.', color: 'bg-sky-300', textColor: 'text-black' } 
                     ] 
                 },
+                aluminumPaint: { name: 'งานเก็บสีอลูมิเนียม', reportName: 'งานเก็บสีอลูมิเนียม', reportEmoji: '🖌️', title: 'STATUS งานเก็บสีอลูมิเนียม', type: 'progress', tasks: [ { name: 'ดำเนินการ', color: 'bg-zinc-400', textColor: 'text-white' }, { name: 'แล้วเสร็จ', color: 'bg-zinc-600', textColor: 'text-white' } ] },
+                cleaning: { name: 'งานทำความสะอาด', reportName: 'งานทำความสะอาด', reportEmoji: '🧹', title: 'STATUS งานทำความสะอาด', type: 'progress', tasks: [ { name: 'ดำเนินการ', color: 'bg-violet-400', textColor: 'text-white' }, { name: 'แล้วเสร็จ', color: 'bg-violet-600', textColor: 'text-white' } ] },
                 wetWork: { name: 'คะแนน WET WORK', reportName: 'WET WORK', reportEmoji: '💧', title: 'STATUS งาน WET WORK', type: 'inspection', tasks: [ { name: 'CM WW', color: 'bg-orange-400', textColor: 'text-white' }, { name: 'QC WW', color: 'bg-yellow-400', textColor: 'text-black' } ] },
                 furniture: { name: 'งานติดตั้งเฟอร์นิเจอร์', reportName: 'งานติดตั้งเฟอร์นิเจอร์', reportEmoji: '🛋️', title: 'STATUS งานติดตั้งเฟอร์นิเจอร์', type: 'progress', tasks: [ { name: 'ติดตั้งชุดครัว', color: 'bg-amber-500', textColor: 'text-white' }, { name: 'ติดตั้งเฟอร์นิเจอร์', color: 'bg-amber-700', textColor: 'text-white' }, ] },
                 laminate: { name: 'งานปูพื้นไม้ลามิเนต', reportName: 'งานปูพื้นไม้ลามิเนต', reportEmoji: '🌲', title: 'STATUS งานปูพื้นไม้ลามิเนต', type: 'progress', tasks: [ { name: 'ตรวจรับพื้นที่', color: 'bg-yellow-400', textColor: 'text-black' }, { name: 'ปูพื้นไม้', color: 'bg-amber-800', textColor: 'text-white' }, ] },
@@ -1575,6 +1577,16 @@
                     color: 'text-emerald-600',
                     svg: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>'
                 },
+                aluminumPaint: {
+                    bg: 'bg-zinc-100',
+                    color: 'text-zinc-600',
+                    svg: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9.06 11.9 8.07-8.06a2.85 2.85 0 1 1 4.03 4.03l-8.06 8.08"/><path d="M7.07 14.94c-1.66 0-3 1.35-3 3.02 0 1.33-2.5 1.52-2 2.02 1.08 1.1 2.49 2.02 4 2.02 2.2 0 4-1.8 4-4.04a3.01 3.01 0 0 0-3-3.02z"/></svg>'
+                },
+                cleaning: {
+                    bg: 'bg-violet-100',
+                    color: 'text-violet-600',
+                    svg: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>'
+                },
                 common: {
                     bg: 'bg-violet-100',
                     color: 'text-violet-600',
@@ -1597,7 +1609,7 @@
                     taskCardsContainer.innerHTML = '';
                     
                     const wetWorkKeys = ['skimAndPaint', 'topping', 'ceilingRoom', 'ceilingBathroom', 'texcaWall', 'waterproofing', 'tiling', 'aluminum', 'wetWork'];
-                    const endProductKeys = ['furniture', 'laminate', 'door', 'showerScreen', 'endProduct'];
+                    const endProductKeys = ['furniture', 'laminate', 'door', 'showerScreen', 'aluminumPaint', 'cleaning', 'endProduct'];
                     
                     const createCard = (catKey, catDef, progress, isCommon = false) => {
                         const iconData = categoryIcons[catKey] || { bg: 'bg-slate-100', color: 'text-slate-600', svg: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>' };
@@ -1788,7 +1800,7 @@
                 ];
                 const endProductTasks = [
                     'electrical', 'plumbing', 'airCon', 'door', 'aluminum',
-                    'laminate', 'showerScreen', 'kitchenOnly', 'paintOnly', 'endProduct'
+                    'laminate', 'showerScreen', 'kitchenOnly', 'paintOnly', 'aluminumPaint', 'cleaning', 'endProduct'
                 ];
 
                 const activeTaskKeys = summaryReportMode === 'wetWork' ? wetWorkTasks : endProductTasks;
@@ -1820,6 +1832,8 @@
                                 showerScreen: 'bg-sky-500',
                                 kitchenOnly: 'bg-amber-500',
                                 paintOnly: 'bg-rose-500',
+                                aluminumPaint: 'bg-zinc-500',
+                                cleaning: 'bg-violet-500',
                                 endProduct: 'bg-emerald-500',
                                 texcaWall: 'bg-orange-500',
                                 topping: 'bg-stone-500',
@@ -1844,6 +1858,8 @@
                                     showerScreen: baseSvg + '<rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><line x1="12" x2="12" y1="3" y2="21"/></svg>',
                                     kitchenOnly: baseSvg + '<path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/><path d="M5 10v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V10"/></svg>',
                                     paintOnly: baseSvg + '<rect width="16" height="6" x="2" y="2" rx="2"/><path d="M10 16v-2a2 2 0 0 1 2-2h8a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect width="4" height="6" x="8" y="16" rx="1"/></svg>',
+                                    aluminumPaint: baseSvg + '<path d="m9.06 11.9 8.07-8.06a2.85 2.85 0 1 1 4.03 4.03l-8.06 8.08"/><path d="M7.07 14.94c-1.66 0-3 1.35-3 3.02 0 1.33-2.5 1.52-2 2.02 1.08 1.1 2.49 2.02 4 2.02 2.2 0 4-1.8 4-4.04a3.01 3.01 0 0 0-3-3.02z"/></svg>',
+                                    cleaning: baseSvg + '<path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>',
                                     endProduct: baseSvg + '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
                                     texcaWall: baseSvg + '<rect width="18" height="18" x="3" y="3" rx="2"/><path d="M12 9v6"/><path d="M16 15v6"/><path d="M16 3v6"/><path d="M3 15h18"/><path d="M3 9h18"/><path d="M8 15v6"/><path d="M8 3v6"/></svg>',
                                     topping: baseSvg + '<rect width="18" height="18" x="3" y="3" rx="2"/><path d="M8 12l4-4 4 4"/><path d="M12 16V8"/></svg>',
@@ -2786,6 +2802,8 @@
                             door: 'text-amber-800',
                             showerScreen: 'text-blue-400',
                             wetWork: 'text-indigo-500',
+                            aluminumPaint: 'text-zinc-500',
+                            cleaning: 'text-violet-500',
                             endProduct: 'text-emerald-500'
                         }[catKey] || 'text-slate-400'
                     );
@@ -2807,13 +2825,15 @@
                         door: `<svg class="w-5 h-5 ${iconColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2" ry="2" stroke-width="2"></rect><circle cx="15" cy="12" r="1" stroke-width="2"></circle></svg>`,
                         showerScreen: `<svg class="w-5 h-5 ${iconColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z"></path></svg>`,
                         wetWork: `<svg class="w-5 h-5 ${iconColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`,
+                        aluminumPaint: `<svg class="w-5 h-5 ${iconColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9.06 11.9 8.07-8.06a2.85 2.85 0 1 1 4.03 4.03l-8.06 8.08"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7.07 14.94c-1.66 0-3 1.35-3 3.02 0 1.33-2.5 1.52-2 2.02 1.08 1.1 2.49 2.02 4 2.02 2.2 0 4-1.8 4-4.04a3.01 3.01 0 0 0-3-3.02z"/></svg>`,
+                        cleaning: `<svg class="w-5 h-5 ${iconColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 17v4"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h4"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 19h4"/></svg>`,
                         endProduct: `<svg class="w-5 h-5 ${iconColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`
                     };
                     return icons[catKey] || `<svg class="w-5 h-5 ${iconColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>`;
                 };
 
                 const wetWorkKeys = ['skimAndPaint', 'topping', 'ceilingRoom', 'ceilingBathroom', 'texcaWall', 'waterproofing', 'tiling', 'aluminum', 'wetWork'];
-                const endProductKeys = ['furniture', 'laminate', 'door', 'showerScreen', 'endProduct'];
+                const endProductKeys = ['furniture', 'laminate', 'door', 'showerScreen', 'aluminumPaint', 'cleaning', 'endProduct'];
 
                 const createGroup = (title, keys, colorClass) => {
                     const groupDiv = document.createElement('div');
@@ -6043,18 +6063,22 @@
                                 <table class="w-full border-collapse text-[9px] table-fixed">
                                     <thead>
                                         <tr class="text-white">
-                                            <th class="bg-slate-800 border-r border-slate-700 w-10 py-3 font-black uppercase tracking-tighter" rowspan="2">Floor</th>
+                                            <th class="bg-slate-800 border-r border-slate-700 w-10 py-3 font-black uppercase tracking-tighter border-b-0">Floor</th>
                                             <th class="bg-slate-800 border-r border-slate-700 py-3 font-black uppercase tracking-widest" colspan="${CONFIG.MAX_ROOMS}">Room Units / Progress Status</th>
                                             <th class="bg-slate-700 border-r border-slate-700 py-1 font-black uppercase tracking-tighter" colspan="${taskCount}">Breakdown</th>
-                                            <th class="bg-slate-600 border-r border-slate-700 w-10 py-3 font-black uppercase tracking-tighter" rowspan="2">Tasks</th>
-                                            <th class="bg-emerald-700 border-r border-slate-700 w-10 py-3 font-black uppercase tracking-tighter" rowspan="2">Done</th>
-                                            <th class="bg-rose-700 w-10 py-3 font-black uppercase tracking-tighter" rowspan="2">Rem.</th>
+                                            <th class="bg-slate-600 border-r border-slate-700 w-10 py-3 font-black uppercase tracking-tighter border-b-0">Tasks</th>
+                                            <th class="bg-emerald-700 border-r border-slate-700 w-10 py-3 font-black uppercase tracking-tighter border-b-0">Done</th>
+                                            <th class="bg-rose-700 w-10 py-3 font-black uppercase tracking-tighter border-b-0">Rem.</th>
                                         </tr>
                                         <tr class="text-slate-600">
                         `;
                         
+                        html += `<th class="bg-slate-800 border-r border-slate-700 border-t-0"></th>`;
                         for (let i = 1; i <= CONFIG.MAX_ROOMS; i++) html += `<th class="bg-slate-100 border border-slate-400 py-1 w-6">${i}</th>`;
                         catDef.tasks.forEach(t => html += `<th class="bg-slate-100 border border-slate-400 py-1 text-[8px] font-bold">${t.shortName || t.name}</th>`);
+                        html += `<th class="bg-slate-600 border-r border-slate-700 border-t-0"></th>`;
+                        html += `<th class="bg-emerald-700 border-r border-slate-700 border-t-0"></th>`;
+                        html += `<th class="bg-rose-700 border-t-0"></th>`;
                         
                         html += `</tr></thead><tbody class="bg-white">`;
                         
