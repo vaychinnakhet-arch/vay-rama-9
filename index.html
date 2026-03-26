@@ -669,7 +669,7 @@
     <div id="main-app-container" class="hidden">
         <div id="capture-area" class="max-w-full mx-auto bg-white md:rounded-xl shadow-lg overflow-hidden border-0 md:border border-slate-200">
             <!-- Header -->
-            <header class="bg-[#1e3a8a] text-white p-4 md:p-6 flex flex-col md:flex-row justify-between items-center gap-4 relative overflow-hidden shadow-md">
+            <header id="main-header" class="bg-[#1e3a8a] text-white p-4 md:p-6 flex flex-col md:flex-row justify-between items-center gap-4 relative overflow-hidden shadow-md">
                 
                 <div id="home-btn-container" class="flex items-center gap-4 z-10 w-full md:w-1/4">
                      <button id="home-btn" class="p-2.5 rounded-xl bg-[#0f172a]/40 hover:bg-[#0f172a]/60 transition-all border border-white/10 shadow-sm flex items-center justify-center" title="กลับสู่หน้าหลัก">
@@ -1272,7 +1272,7 @@
                         { name: 'อุปกรณ์ประตู', key: 'hardware', shortName: 'อปก.', color: 'bg-cyan-600', textColor: 'text-white' } 
                     ] 
                 },
-                showerScreen: { name: 'งาน SHOWER SCREEN', reportName: 'งาน SHOWER SCREEN', reportEmoji: '🚿', title: 'STATUS งาน SHOWER SCREEN', type: 'progress', tasks: [ { name: 'ติดตั้ง', color: 'bg-sky-500', textColor: 'text-white' }, { name: 'เก็บงาน', color: 'bg-teal-400', textColor: 'text-white' } ] },
+                showerScreen: { name: 'งาน SHOWER SCREEN', reportName: 'งาน SHOWER SCREEN', reportEmoji: '🚿', title: 'STATUS งาน SHOWER SCREEN', type: 'progress', tasks: [ { key: 'inspection', name: 'ตรวจรับพื้นที่', color: 'bg-yellow-400', textColor: 'text-black' }, { key: 'install', name: 'ติดตั้ง', color: 'bg-sky-500', textColor: 'text-white' }, { key: 'finish', name: 'เก็บงาน', color: 'bg-teal-400', textColor: 'text-white' } ] },
                 endProduct: { name: 'คะแนน END PRODUCT', reportName: 'END PRODUCT', reportEmoji: '✅', title: 'STATUS งาน END PRODUCT', type: 'inspection', tasks: [ { name: 'CM End', color: 'bg-rose-300', textColor: 'text-black' }, { name: 'QC End', color: 'bg-emerald-400', textColor: 'text-black' }, ] },
             };
 
@@ -1514,14 +1514,14 @@
                             // Calculate subtask completions for Task Breakdown
                             catDef.tasks.forEach((t, idx) => {
                                 if (t.condition && !t.condition(floor, room)) return;
-                                subTaskStats[t.name].total++;
+                                subTaskStats[t.key || t.name].total++;
                                 floorTaskStatus[floor][t.key || t.name].total++;
                                 
                                 const isCompleted = unitData.taskIndex > idx || (unitData.taskIndex === idx && unitData.progress >= 100);
                                 const isInProgress = unitData.taskIndex === idx && unitData.progress > 0 && unitData.progress < 100;
                                 
                                 if (isCompleted) {
-                                    subTaskStats[t.name].count++;
+                                    subTaskStats[t.key || t.name].count++;
                                     floorTaskStatus[floor][t.key || t.name].completed++;
                                 } else if (isInProgress) {
                                     floorTaskStatus[floor][t.key || t.name].inProgress++;
@@ -1555,10 +1555,10 @@
                             progress = unitData.qcScore > 0 ? unitData.qcScore : (unitData.cmScore || 0);
                             // For inspection, we don't really have subtasks in the same way, but let's just use the main tasks
                             catDef.tasks.forEach(t => {
-                                subTaskStats[t.name].total++;
+                                subTaskStats[t.key || t.name].total++;
                                 floorTaskStatus[floor][t.key || t.name].total++;
                                 if (progress >= 100) {
-                                    subTaskStats[t.name].count++;
+                                    subTaskStats[t.key || t.name].count++;
                                     floorTaskStatus[floor][t.key || t.name].completed++;
                                 } else if (progress > 0) {
                                     floorTaskStatus[floor][t.key || t.name].inProgress++;
@@ -1935,7 +1935,7 @@
                     taskCardsContainer.innerHTML = '';
                     
                     const wetWorkKeys = ['skimAndPaint', 'topping', 'ceilingRoom', 'ceilingBathroom', 'texcaWall', 'waterproofing', 'tiling', 'aluminum', 'wetWork'];
-                    const endProductKeys = ['furniture', 'laminate', 'door', 'showerScreen', 'aluminumPaint', 'cleaning', 'endProduct'];
+                    const endProductKeys = ['electrical', 'plumbing', 'airCon', 'furniture', 'laminate', 'door', 'showerScreen', 'aluminumPaint', 'cleaning', 'endProduct'];
                     
                     const createCard = (catKey, catDef, progress, isCommon = false) => {
                         const iconData = categoryIcons[catKey] || { bg: 'bg-slate-100', color: 'text-slate-600', svg: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>' };
@@ -2059,11 +2059,9 @@
                 }
 
                 if (headerStyleToggle) {
-                    headerStyleToggle.classList.toggle('hidden', view !== 'summaryReport');
-                    if (view === 'summaryReport') {
-                        document.getElementById('header-style-dark-btn').classList.toggle('active', reportHeaderStyle === 'dark');
-                        document.getElementById('header-style-light-btn').classList.toggle('active', reportHeaderStyle === 'light');
-                    }
+                    headerStyleToggle.classList.remove('hidden');
+                    document.getElementById('header-style-dark-btn').classList.toggle('active', reportHeaderStyle === 'dark');
+                    document.getElementById('header-style-light-btn').classList.toggle('active', reportHeaderStyle === 'light');
                 }
 
                 const overallProgressToggle = document.getElementById('overall-progress-toggle');
@@ -2103,6 +2101,7 @@
                 renderQuickUpdateTaskList();
             }
             
+            window.backToSplash = backToSplash;
             function backToSplash() {
                 document.getElementById('main-app-container').classList.add('hidden');
                 document.getElementById('quick-update-mode-container').classList.add('hidden');
@@ -2119,6 +2118,14 @@
                  if (progress > 60) return `${baseColor}`;
                  if (progress > 30) return `bg-${colorName}-${Math.max(100, colorShade-200)} text-black`;
                  return `bg-${colorName}-100 text-black`;
+            }
+
+            function getHeaderColors() {
+                return {
+                    headerColor: reportHeaderStyle === 'light' ? 'bg-slate-200 text-slate-800' : 'bg-[#1e3a8a] text-white',
+                    subHeaderColor: reportHeaderStyle === 'light' ? 'bg-slate-50 text-slate-800' : 'bg-slate-800 text-white',
+                    stickyHeaderColor: reportHeaderStyle === 'light' ? 'bg-slate-200' : 'bg-[#1e3a8a]'
+                };
             }
 
             function renderTable() {
@@ -2182,54 +2189,6 @@
                 const categoryTasks = categoryDef.tasks;
                 const totalRooms = CONFIG.FLOORS.reduce((sum, f) => sum + CONFIG.getRoomsOnFloor(f), 0);
                 const maxRoomsToShow = 10; // User requested to cut out columns 11-24
-
-                // Create the header container
-                const headerContainer = document.createElement('div');
-                
-                if (reportHeaderStyle === 'light') {
-                    headerContainer.className = 'w-full bg-white text-slate-800 p-8 flex flex-col gap-0 mb-0 shadow-sm relative';
-                    
-                    const today = new Date();
-                    const d = String(today.getDate()).padStart(2, '0');
-                    const m = String(today.getMonth() + 1).padStart(2, '0');
-                    const y = today.getFullYear() + 543;
-                    const thaiDateShort = `${d}/${m}/${y}`;
-
-                    headerContainer.innerHTML = `
-                        <div class="flex justify-between items-start w-full mb-6">
-                            <div>
-                                <h1 class="text-5xl font-black text-[#1e3a8a] tracking-tighter leading-none">VAY RAMA 9</h1>
-                                <p class="text-[11px] font-bold text-slate-400 uppercase tracking-[0.3em] mt-2">CONSTRUCTION PROGRESS REPORT</p>
-                            </div>
-                            <div class="bg-slate-50 border border-slate-200 px-6 py-3 rounded-2xl shadow-sm">
-                                <span class="text-sm font-bold text-slate-700">วันที่รายงาน: ${thaiDateShort}</span>
-                            </div>
-                        </div>
-                        <div class="flex flex-col mt-4">
-                             <h2 class="text-3xl font-black tracking-tight text-slate-900 uppercase">${categoryDef.title || `STATUS ${categoryDef.name}`}</h2>
-                        </div>
-                        <div class="h-1.5 w-full bg-[#1e3a8a] mt-6"></div>
-                    `;
-                } else {
-                    headerContainer.className = 'w-full bg-[#1e3a8a] text-white p-6 flex justify-between items-center mb-0 shadow-sm relative border-b border-black';
-                    
-                    const today = new Date();
-                    const thaiDate = `${today.getDate()} ${['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'][today.getMonth()]} ${today.getFullYear() + 543}`;
-                    
-                    headerContainer.innerHTML = `
-                        <div class="flex items-center gap-4 z-10">
-                            <div class="p-2 bg-slate-800/40 rounded-lg flex items-center justify-center border border-white/10">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
-                            </div>
-                            <span class="text-2xl font-black tracking-tighter">Vay rama 9</span>
-                        </div>
-                        <h2 class="text-2xl md:text-3xl font-black uppercase tracking-tight absolute left-1/2 -translate-x-1/2 hidden md:block z-10">${categoryDef.title || `STATUS ${categoryDef.name}`}</h2>
-                        <div class="bg-white/10 px-4 py-2 rounded-xl flex items-center gap-2 text-[10px] md:text-sm border border-white/10 backdrop-blur-sm z-10">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                            <span class="font-bold">UPDATE: ${thaiDate}</span>
-                        </div>
-                    `;
-                }
                 
                 // Wrap the table in a container
                 const tableWrapper = document.createElement('div');
@@ -2240,16 +2199,18 @@
                 
                 // Header
                 const thead = document.createElement('thead');
+                const { headerColor, subHeaderColor } = getHeaderColors();
+
                 let headerHTML = `
-                    <tr class="bg-slate-100">
+                    <tr class="${headerColor}">
                         <th class="border border-slate-300 p-2 w-10" rowspan="2">ชั้น</th>
                         <th class="border border-slate-300 p-2" colspan="${maxRoomsToShow}">ROOM No.</th>
                         <th class="border-y border-slate-300 w-4" rowspan="2"></th>
                         <th class="border border-slate-300 p-2" colspan="${categoryTasks.length}">จำนวน</th>
-                        <th class="border border-slate-300 p-2 bg-teal-100" rowspan="2">ผ่าน/เสร็จ</th>
-                        <th class="border border-slate-300 p-2 bg-rose-100" rowspan="2">คงเหลือ</th>
+                        <th class="border border-slate-300 p-2 bg-teal-100 text-slate-800" rowspan="2">ผ่าน/เสร็จ</th>
+                        <th class="border border-slate-300 p-2 bg-rose-100 text-slate-800" rowspan="2">คงเหลือ</th>
                     </tr>
-                    <tr class="bg-slate-50">
+                    <tr class="${subHeaderColor}">
                 `;
                 
                 for (let i = 1; i <= maxRoomsToShow; i++) {
@@ -2257,7 +2218,7 @@
                 }
                 
                 categoryTasks.forEach(task => {
-                    headerHTML += `<th class="border border-slate-300 p-1 bg-slate-100 font-bold text-[8px] md:text-[10px]">${task.name}</th>`;
+                    headerHTML += `<th class="border border-slate-300 p-1 ${subHeaderColor} font-bold text-[8px] md:text-[10px]">${task.name}</th>`;
                 });
                 
                 headerHTML += '</tr>';
@@ -2422,8 +2383,7 @@
                 const leftSideContainer = document.createElement('div');
                 leftSideContainer.className = 'w-full border-2 border-black rounded-2xl overflow-hidden bg-white shadow-xl mb-8';
                 
-                // Append header, table, and legend to the container
-                leftSideContainer.appendChild(headerContainer);
+                // Append table, and legend to the container
                 leftSideContainer.appendChild(tableWrapper);
                 leftSideContainer.appendChild(legend);
                 
@@ -2445,12 +2405,12 @@
 
                 const wetWorkTasks = [
                     'texcaWall', 'topping', 'waterproofing', 'tiling',
-                    'electrical', 'plumbing', 'airCon', 
                     'ceilingRoom', 'ceilingBathroom', 'skimOnly', 'wetWork'
                 ];
                 const endProductTasks = [
+                    'electrical', 'plumbing', 'airCon',
                     'door', 'aluminum',
-                    'laminate', 'showerScreen', 'kitchenOnly', 'paintOnly', 'aluminumPaint', 'cleaning', 'endProduct'
+                    'laminate', 'showerScreenInspection', 'showerScreen', 'kitchenOnly', 'paintOnly', 'aluminumPaint', 'cleaning', 'endProduct'
                 ];
 
                 const activeTaskKeys = summaryReportMode === 'wetWork' ? wetWorkTasks : endProductTasks;
@@ -2464,13 +2424,18 @@
                     if (key === 'skimOnly') {
                         return { key: 'skimOnly', name: 'งานสกิม', reportName: 'งานสกิม', reportEmoji: '🖌️', type: 'progress-skim' };
                     }
+                    if (key === 'showerScreenInspection') {
+                        return { key: 'showerScreenInspection', name: 'ตรวจรับพื้นที่ SHOWER SCREEN', reportName: 'ตรวจรับพื้นที่ (Shower)', reportEmoji: '🔍', type: 'progress-inspection' };
+                    }
                     return { key, ...taskDefinitions[key] };
                 }).filter(t => t.reportName);
 
                 const thead = document.createElement('thead');
+                const { headerColor, stickyHeaderColor } = getHeaderColors();
+
                 const headerHTML = `
-                    <tr class="bg-slate-200">
-                        <th class="border p-2 sticky left-0 z-30 bg-slate-200" style="min-width: 80px;">ห้อง</th>
+                    <tr class="${headerColor}">
+                        <th class="border p-2 sticky left-0 z-30 ${stickyHeaderColor}" style="min-width: 80px;">ห้อง</th>
                         ${activeTasks.map(t => {
                             const headerColors = {
                                 electrical: 'bg-yellow-500',
@@ -2479,6 +2444,7 @@
                                 door: 'bg-amber-700',
                                 aluminum: 'bg-slate-500',
                                 laminate: 'bg-emerald-600',
+                                showerScreenInspection: 'bg-yellow-500',
                                 showerScreen: 'bg-sky-500',
                                 kitchenOnly: 'bg-amber-500',
                                 paintOnly: 'bg-rose-500',
@@ -2505,6 +2471,7 @@
                                     door: baseSvg + '<path d="M13 4h3a2 2 0 0 1 2 2v14"/><path d="M2 20h3"/><path d="M13 20v-9a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v9j"/><path d="M13 20h9"/><path d="M10 12v.01"/></svg>',
                                     aluminum: baseSvg + '<rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><line x1="3" x2="21" y1="9" y2="9"/><line x1="9" x2="9" y1="21" y2="9"/></svg>',
                                     laminate: baseSvg + '<polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>',
+                                    showerScreenInspection: baseSvg + '<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><path d="M11 8v6"/><path d="M8 11h6"/></svg>',
                                     showerScreen: baseSvg + '<rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><line x1="12" x2="12" y1="3" y2="21"/></svg>',
                                     kitchenOnly: baseSvg + '<path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/><path d="M5 10v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V10"/></svg>',
                                     paintOnly: baseSvg + '<rect width="16" height="6" x="2" y="2" rx="2"/><path d="M10 16v-2a2 2 0 0 1 2-2h8a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect width="4" height="6" x="8" y="16" rx="1"/></svg>',
@@ -2572,6 +2539,24 @@
                                 if (taskData.taskIndex === 0) {
                                     progress = taskData.progress || 0;
                                 } else if (taskData.taskIndex > 0) {
+                                    progress = 100;
+                                } else {
+                                    progress = 0;
+                                }
+                            } else if (taskDef.key === 'showerScreenInspection') {
+                                taskData = projectData['showerScreen']?.[floor]?.[room] || {};
+                                if (taskData.taskIndex === 0) {
+                                    progress = taskData.progress || 0;
+                                } else if (taskData.taskIndex > 0) {
+                                    progress = 100;
+                                } else {
+                                    progress = 0;
+                                }
+                            } else if (taskDef.key === 'showerScreen') {
+                                taskData = projectData['showerScreen']?.[floor]?.[room] || {};
+                                if (taskData.taskIndex === 1) {
+                                    progress = taskData.progress || 0;
+                                } else if (taskData.taskIndex > 1) {
                                     progress = 100;
                                 } else {
                                     progress = 0;
@@ -2734,8 +2719,10 @@
                 const mainTable = document.getElementById('main-table');
                 mainTable.innerHTML = '';
                 
+                const { headerColor } = getHeaderColors();
+
                 const thead = document.createElement('thead');
-                let headerHTML = `<tr class="bg-slate-200">
+                let headerHTML = `<tr class="${headerColor}">
                     <th class="border p-2">LOCATION</th>
                     <th class="border p-2">DESCRIPTION</th>`;
                 CONFIG.COMMON_AREA_FLOORS.forEach(floor => {
@@ -2771,23 +2758,25 @@
                 const mainTable = document.getElementById('main-table');
                 mainTable.innerHTML = '';
 
+                const { headerColor, subHeaderColor } = getHeaderColors();
+
                 const thead = document.createElement('thead');
                 let headerHTML = `
                     <tr>
-                        <th class="border p-2 bg-slate-200" rowspan="2"><span>ชั้น</span></th>
-                        <th class="border p-2 bg-slate-200" rowspan="2"><span>รายการ</span></th>
-                        <th class="border p-2 bg-slate-200" colspan="${CONFIG.MAX_ROOMS}"><span>ROOM No.</span></th>
+                        <th class="border p-2 ${headerColor}" rowspan="2"><span>ชั้น</span></th>
+                        <th class="border p-2 ${headerColor}" rowspan="2"><span>รายการ</span></th>
+                        <th class="border p-2 ${headerColor}" colspan="${CONFIG.MAX_ROOMS}"><span>ROOM No.</span></th>
                         <th class="border-y separator-cell" rowspan="2"></th>
-                        <th class="border p-2 bg-slate-200" colspan="3"><span>สรุปผลตรวจ</span></th>
+                        <th class="border p-2 ${headerColor}" colspan="3"><span>สรุปผลตรวจ</span></th>
                     </tr>
                     <tr>`;
                 for (let i = 1; i <= CONFIG.MAX_ROOMS; i++) {
-                    headerHTML += `<th class="border p-1 md:p-2 font-normal bg-slate-50"><span>${i}</span></th>`;
+                    headerHTML += `<th class="border p-1 md:p-2 font-normal ${subHeaderColor}"><span>${i}</span></th>`;
                 }
                 headerHTML += `
-                        <th class="border p-2 bg-slate-100 font-semibold"><span>ส่งแล้ว</span></th>
-                        <th class="border p-2 bg-teal-100 font-semibold"><span>ผ่าน</span></th>
-                        <th class="border p-2 bg-rose-100 font-semibold"><span>ไม่ผ่าน</span></th>
+                        <th class="border p-2 ${subHeaderColor} font-semibold"><span>ส่งแล้ว</span></th>
+                        <th class="border p-2 ${subHeaderColor} font-semibold"><span>ผ่าน</span></th>
+                        <th class="border p-2 ${subHeaderColor} font-semibold"><span>ไม่ผ่าน</span></th>
                     </tr>`;
                 thead.innerHTML = headerHTML;
                 mainTable.appendChild(thead);
@@ -2974,36 +2963,38 @@
                 const isMultiProgress = categoryDef.type === 'multi-progress';
                 const isDetailedView = categoryDef.hasDetailedView && currentDetailedView === 'detailed';
 
+                const { headerColor, subHeaderColor } = getHeaderColors();
+
                 const thead = document.createElement('thead');
                 let headerHTML = '';
 
                 if (isDetailedView) {
                     headerHTML = `<tr>
-                        <th class="border p-2 bg-slate-200" rowspan="2"><span>ชั้น</span></th>
-                        <th class="border p-2 bg-slate-200" rowspan="2" style="min-width: 100px;"><span>รายการ</span></th>
-                        <th class="border p-2 bg-slate-200" colspan="${CONFIG.MAX_ROOMS}"><span>ROOM No.</span></th>
+                        <th class="border p-2 ${headerColor}" rowspan="2"><span>ชั้น</span></th>
+                        <th class="border p-2 ${headerColor}" rowspan="2" style="min-width: 100px;"><span>รายการ</span></th>
+                        <th class="border p-2 ${headerColor}" colspan="${CONFIG.MAX_ROOMS}"><span>ROOM No.</span></th>
                         <th class="border-y separator-cell" rowspan="2"></th>
-                        <th class="border p-2 bg-slate-200" rowspan="2"><span>จำนวน</span></th>
-                        <th class="border p-2 bg-teal-200" rowspan="2"><span>เสร็จ</span></th>
-                        <th class="border p-2 bg-rose-200" rowspan="2"><span>คงเหลือ</span></th>
+                        <th class="border p-2 ${headerColor}" rowspan="2"><span>จำนวน</span></th>
+                        <th class="border p-2 bg-teal-200 text-slate-800" rowspan="2"><span>เสร็จ</span></th>
+                        <th class="border p-2 bg-rose-200 text-slate-800" rowspan="2"><span>คงเหลือ</span></th>
                     </tr>
                     <tr>`;
                     for (let i = 1; i <= CONFIG.MAX_ROOMS; i++) {
-                        headerHTML += `<th class="border p-1 md:p-2 font-normal bg-slate-50"><span>${i}</span></th>`;
+                        headerHTML += `<th class="border p-1 md:p-2 font-normal ${subHeaderColor}"><span>${i}</span></th>`;
                     }
                     headerHTML += '</tr>';
                 } else {
                     headerHTML = `<tr>
-                        <th class="border p-2 bg-slate-200" rowspan="2"><span>ชั้น</span></th>
-                        <th class="border p-2 bg-slate-200" colspan="${CONFIG.MAX_ROOMS}"><span>ROOM No.</span></th>
+                        <th class="border p-2 ${headerColor}" rowspan="2"><span>ชั้น</span></th>
+                        <th class="border p-2 ${headerColor}" colspan="${CONFIG.MAX_ROOMS}"><span>ROOM No.</span></th>
                         <th class="border-y separator-cell" rowspan="2"></th>
-                        <th class="border p-2 bg-slate-200" colspan="${isInspection ? 3 : categoryTasks.length}"><span>${isInspection ? 'สรุปผลตรวจ' : 'จำนวน'}</span></th>
-                        <th class="border p-2 bg-teal-200" rowspan="2"><span>ผ่าน/เสร็จ</span></th>
-                        <th class="border p-2 bg-rose-200" rowspan="2"><span>คงเหลือ</span></th>
+                        <th class="border p-2 ${headerColor}" colspan="${isInspection ? 3 : categoryTasks.length}"><span>${isInspection ? 'สรุปผลตรวจ' : 'จำนวน'}</span></th>
+                        <th class="border p-2 bg-teal-200 text-slate-800" rowspan="2"><span>ผ่าน/เสร็จ</span></th>
+                        <th class="border p-2 bg-rose-200 text-slate-800" rowspan="2"><span>คงเหลือ</span></th>
                     </tr>
                     <tr>`;
                     for (let i = 1; i <= CONFIG.MAX_ROOMS; i++) {
-                        headerHTML += `<th class="border p-1 md:p-2 font-normal bg-slate-50"><span>${i}</span></th>`;
+                        headerHTML += `<th class="border p-1 md:p-2 font-normal ${subHeaderColor}"><span>${i}</span></th>`;
                     }
                     if (isInspection) {
                         headerHTML += `<th class="border p-2 bg-slate-100 font-semibold"><span>ส่งแล้ว</span></th>`;
@@ -3564,11 +3555,70 @@
                 } else if (isQCSummaryView) {
                     title = 'STATUS สรุปผล QC';
                 } else if (currentView === 'summaryReport') {
-                    title = summaryReportMode === 'wetWork' ? 'รายงานสรุป WET WORK' : 'รายงานสรุป END PRODUCT';
+                    if (summaryReportMode === 'wetWork') {
+                        title = 'รายงานสรุป WET WORK';
+                    } else if (summaryReportMode === 'endProduct') {
+                        title = 'รายงานสรุป END PRODUCT';
+                    } else if (summaryReportMode === 'taskDetail') {
+                        const taskKey = document.getElementById('summary-report-task-select').value;
+                        const catDef = taskDefinitions[taskKey];
+                        title = catDef ? (catDef.title || `STATUS ${catDef.name}`) : 'รายงานสรุปรายละเอียดงาน';
+                    }
                 } else {
-                    title = categoryDef.title;
+                    title = categoryDef.title || `STATUS ${categoryDef.name}`;
                 }
-                document.getElementById('status-title').textContent = title;
+                
+                const thaiDate = new Date().toLocaleDateString('th-TH', {
+                    year: 'numeric', month: 'long', day: 'numeric'
+                });
+                
+                const thaiDateShort = new Date().toLocaleDateString('th-TH', {
+                    year: 'numeric', month: 'numeric', day: 'numeric'
+                });
+
+                const header = document.getElementById('main-header');
+                if (reportHeaderStyle === 'light') {
+                    header.className = 'w-full bg-white text-slate-800 p-4 md:p-8 flex flex-col gap-0 mb-0 shadow-sm relative';
+                    header.innerHTML = `
+                        <div class="flex justify-between items-start w-full mb-6">
+                            <div class="flex items-center gap-4">
+                                <button onclick="backToSplash()" id="home-btn" class="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 transition-all border border-slate-200 shadow-sm flex items-center justify-center text-slate-600" title="กลับสู่หน้าหลัก">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+                                </button>
+                                <div>
+                                    <h1 class="text-3xl md:text-5xl font-black text-[#1e3a8a] tracking-tighter leading-none">VAY RAMA 9</h1>
+                                    <p class="text-[9px] md:text-[11px] font-bold text-slate-400 uppercase tracking-[0.3em] mt-2">CONSTRUCTION PROGRESS REPORT</p>
+                                </div>
+                            </div>
+                            <div class="bg-slate-50 border border-slate-200 px-4 py-2 md:px-6 md:py-3 rounded-2xl shadow-sm">
+                                <span class="text-xs md:text-sm font-bold text-slate-700">วันที่รายงาน: <span id="update-date">${thaiDateShort}</span></span>
+                            </div>
+                        </div>
+                        <div class="flex flex-col mt-4">
+                             <h2 class="text-2xl md:text-3xl font-black tracking-tight text-slate-900 uppercase" id="status-title">${title}</h2>
+                        </div>
+                        <div class="h-1.5 w-full bg-[#1e3a8a] mt-6"></div>
+                    `;
+                } else {
+                    header.className = 'bg-[#1e3a8a] text-white p-4 md:p-6 flex flex-col md:flex-row justify-between items-center gap-4 relative overflow-hidden shadow-md';
+                    header.innerHTML = `
+                        <div id="home-btn-container" class="flex items-center gap-4 z-10 w-full md:w-1/4">
+                             <button onclick="backToSplash()" id="home-btn" class="p-2.5 rounded-xl bg-[#0f172a]/40 hover:bg-[#0f172a]/60 transition-all border border-white/10 shadow-sm flex items-center justify-center" title="กลับสู่หน้าหลัก">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+                             </button>
+                            <h1 class="text-xl md:text-2xl font-black tracking-tighter text-white">Vay rama 9</h1>
+                        </div>
+                        <div id="header-title-container" class="w-full md:w-1/2 text-center z-10">
+                            <p class="text-2xl md:text-4xl font-black tracking-tight text-white drop-shadow-sm" id="status-title">${title}</p>
+                        </div>
+                        <div id="header-date-container" class="w-full md:w-1/4 text-center md:text-right z-10 flex flex-col items-center md:items-end">
+                             <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/10 backdrop-blur-sm border border-white/10 text-xs md:text-sm font-medium text-slate-200">
+                                 <svg class="w-4 h-4 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                 <span>UPDATE: <span id="update-date" class="font-bold text-white">${thaiDate}</span></span>
+                             </div>
+                        </div>
+                    `;
+                }
                 
                 const categoryToggle = document.getElementById('category-view-toggle');
                 if (categoryDef && categoryDef.hasDetailedView && !isCommonView && !isQCSummaryView && currentView !== 'summaryReport') {
@@ -3578,10 +3628,6 @@
                 } else {
                     categoryToggle.classList.add('hidden');
                 }
-
-                document.getElementById('update-date').textContent = new Date().toLocaleDateString('th-TH', {
-                    year: 'numeric', month: 'long', day: 'numeric'
-                });
 
                 if (!isCommonView) {
                     updateLegend();
@@ -6485,11 +6531,11 @@
 
                 document.getElementById('header-style-dark-btn').addEventListener('click', () => {
                     reportHeaderStyle = 'dark';
-                    enterAppView('summaryReport');
+                    enterAppView(currentView);
                 });
                 document.getElementById('header-style-light-btn').addEventListener('click', () => {
                     reportHeaderStyle = 'light';
-                    enterAppView('summaryReport');
+                    enterAppView(currentView);
                 });
 
                 document.getElementById('view-category-summary-btn').addEventListener('click', () => {
