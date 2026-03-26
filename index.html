@@ -71,6 +71,10 @@
         .is-line-capturing header {
             overflow: visible !important;
             width: 100% !important;
+            flex-direction: row !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            padding: 16px 24px !important;
         }
         .is-line-capturing #controls-area,
         .is-line-capturing #action-buttons-container,
@@ -81,38 +85,33 @@
             display: none !important;
         }
         .is-line-capturing #home-btn-container {
-            position: absolute !important;
-            left: 24px !important;
-            top: 50% !important;
-            transform: translateY(-50%) !important;
+            position: static !important;
+            transform: none !important;
             width: auto !important;
-            z-index: 20 !important;
             display: flex !important;
             align-items: center !important;
             justify-content: flex-start !important;
             white-space: nowrap !important;
+            flex: 1 !important;
         }
         .is-line-capturing #header-title-container {
-            width: 100% !important;
+            width: auto !important;
             text-align: center !important;
-            position: relative !important;
-            left: auto !important;
-            right: auto !important;
+            position: static !important;
             pointer-events: none;
             display: block !important;
-            padding: 1rem 0 !important;
+            padding: 0 !important;
+            flex: 2 !important;
         }
         .is-line-capturing #header-date-container {
-            position: absolute;
-            right: 24px;
-            top: 50%;
-            transform: translateY(-50%);
+            position: static !important;
+            transform: none !important;
             width: auto !important;
-            z-index: 20;
             display: flex !important;
             align-items: center !important;
             justify-content: flex-end !important;
             white-space: nowrap !important;
+            flex: 1 !important;
         }
         .is-line-capturing #header-date-container > div {
             display: inline-flex !important;
@@ -1503,7 +1502,7 @@
 
                 // Initialize subtask stats
                 catDef.tasks.forEach(t => {
-                    subTaskStats[t.key || t.name] = { count: 0, total: 0 };
+                    subTaskStats[t.key || t.name] = { count: 0, total: 0, inProgress: 0 };
                 });
 
                 CONFIG.FLOORS.forEach(f => {
@@ -1538,6 +1537,7 @@
                                     subTaskStats[t.key || t.name].count++;
                                     floorTaskStatus[floor][t.key || t.name].completed++;
                                 } else if (isInProgress) {
+                                    subTaskStats[t.key || t.name].inProgress++;
                                     floorTaskStatus[floor][t.key || t.name].inProgress++;
                                 }
                             });
@@ -1561,6 +1561,7 @@
                                     subTaskStats[task.key].count++;
                                     floorTaskStatus[floor][task.key || task.name].completed++;
                                 } else if (subProg > 0) {
+                                    subTaskStats[task.key].inProgress++;
                                     floorTaskStatus[floor][task.key || task.name].inProgress++;
                                 }
                             });
@@ -1575,6 +1576,7 @@
                                     subTaskStats[t.key || t.name].count++;
                                     floorTaskStatus[floor][t.key || t.name].completed++;
                                 } else if (progress > 0) {
+                                    subTaskStats[t.key || t.name].inProgress++;
                                     floorTaskStatus[floor][t.key || t.name].inProgress++;
                                 }
                             });
@@ -1620,13 +1622,13 @@
                                     <div class="space-y-6">
                                         ${catDef.tasks.map(t => {
                                             const stats = subTaskStats[t.key || t.name];
-                                            const perc = stats.total > 0 ? Math.round((stats.count / stats.total) * 100) : 0;
+                                            const perc = stats.total > 0 ? (stats.count / stats.total) * 100 : 0;
                                             return `
                                                 <div class="flex items-end justify-between border-b border-slate-100 pb-2">
                                                     <span class="text-slate-700 font-bold text-lg">${t.name}</span>
                                                     <div class="flex items-baseline gap-4">
-                                                        <span class="text-slate-900 font-black text-xl">${stats.count} <span class="text-sm font-bold text-slate-400">ห้อง</span></span>
-                                                        <span class="text-indigo-500 font-bold text-sm w-10 text-right">${perc.toFixed(1)}%</span>
+                                                        <span class="text-slate-900 font-black text-xl">${stats.count} <span class="text-sm font-bold text-slate-400">/ ${stats.total} ห้อง</span></span>
+                                                        <span class="text-indigo-500 font-bold text-sm w-12 text-right">${perc.toFixed(1)}%</span>
                                                     </div>
                                                 </div>
                                             `;
@@ -1634,7 +1636,7 @@
                                     </div>
                                     
                                     <div class="mt-10">
-                                        <div class="flex justify-between items-center bg-[#eff6ff] p-4 rounded-2xl border border-[#dbeafe]">
+                                        <div class="flex justify-between items-center bg-[#eff6ff] p-4 rounded-2xl border border-[#dbeafe] mb-4">
                                             <div>
                                                 <p class="text-indigo-600 font-black text-lg">กำลังดำเนินการ</p>
                                                 <p class="text-[10px] text-indigo-400 font-bold uppercase tracking-widest">IN PROGRESS STATUS</p>
@@ -1643,6 +1645,20 @@
                                                 <span class="text-indigo-600 font-black text-lg">${totalInProgress}</span>
                                                 <span class="text-[10px] text-indigo-300 font-bold ml-1 uppercase">UNITS</span>
                                             </div>
+                                        </div>
+                                        <div class="space-y-2 pl-4 border-l-2 border-indigo-100">
+                                            ${catDef.tasks.map(t => {
+                                                const stats = subTaskStats[t.key || t.name];
+                                                if (stats.inProgress > 0) {
+                                                    return `
+                                                        <div class="flex justify-between items-center">
+                                                            <span class="text-slate-600 font-bold text-sm">${t.name}</span>
+                                                            <span class="text-indigo-500 font-black text-sm">${stats.inProgress} <span class="text-[10px] text-indigo-300 font-bold uppercase">ห้อง</span></span>
+                                                        </div>
+                                                    `;
+                                                }
+                                                return '';
+                                            }).join('')}
                                         </div>
                                     </div>
                                 </div>
