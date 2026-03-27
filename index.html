@@ -1706,14 +1706,14 @@
                             
                             <!-- Signature Boxes -->
                             <div class="grid grid-cols-2 gap-4">
-                                <div class="bg-white border-2 border-dashed border-slate-200 rounded-2xl p-4 flex flex-col items-center justify-between min-h-[120px]">
-                                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">PREPARED BY</span>
-                                    <div class="w-full border-t border-slate-200 mt-8 mb-2"></div>
+                                <div class="bg-white border-2 border-dashed border-black rounded-2xl p-4 flex flex-col items-center justify-between min-h-[120px]">
+                                    <span class="text-[10px] font-black text-black uppercase tracking-widest">PREPARED BY</span>
+                                    <div class="w-full border-t border-black mt-8 mb-2"></div>
                                     <span class="text-[10px] font-bold text-slate-600">Site Engineer</span>
                                 </div>
-                                <div class="bg-white border-2 border-dashed border-slate-200 rounded-2xl p-4 flex flex-col items-center justify-between min-h-[120px]">
-                                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">APPROVED BY</span>
-                                    <div class="w-full border-t border-slate-200 mt-8 mb-2"></div>
+                                <div class="bg-white border-2 border-dashed border-black rounded-2xl p-4 flex flex-col items-center justify-between min-h-[120px]">
+                                    <span class="text-[10px] font-black text-black uppercase tracking-widest">APPROVED BY</span>
+                                    <div class="w-full border-t border-black mt-8 mb-2"></div>
                                     <span class="text-[10px] font-bold text-slate-600">Project Engineer</span>
                                 </div>
                             </div>
@@ -5620,12 +5620,19 @@
             function calculateMultiProgressOverallStatus(categoryKey, floorsToCalc, selectedSubTaskIndexes) {
                 let completedRooms = 0, inProgressRooms = 0, totalRooms = 0;
                 const catDef = taskDefinitions[categoryKey];
-                const relevantTaskKeys = selectedSubTaskIndexes.map(idx => catDef.tasks[idx].key);
+                const relevantTasks = selectedSubTaskIndexes.map(idx => catDef.tasks[idx]);
+                const relevantTaskKeys = relevantTasks.map(t => t.key);
 
                 floorsToCalc.forEach(floor => {
                     const roomsOnThisFloor = CONFIG.getRoomsOnFloor(floor);
-                    totalRooms += roomsOnThisFloor;
                     for (let room = 1; room <= roomsOnThisFloor; room++) {
+                        let isApplicable = false;
+                        relevantTasks.forEach(t => {
+                            if (!t.condition || t.condition(floor, room)) isApplicable = true;
+                        });
+                        if (!isApplicable) continue;
+                        totalRooms++;
+
                         const unitData = projectData[categoryKey][floor][room];
                         let isRoomComplete = relevantTaskKeys.every(taskKey => (unitData[`progress_${taskKey}`] || 0) >= 100);
                         let isRoomInProgress = !isRoomComplete && relevantTaskKeys.some(taskKey => (unitData[`progress_${taskKey}`] || 0) > 0);
@@ -5639,12 +5646,19 @@
             function calculateMultiProgressOverallPercentage(categoryKey, floorsToCalc, selectedSubTaskIndexes) {
                 let totalProgress = 0, totalUnitsInvolved = 0;
                 const catDef = taskDefinitions[categoryKey];
-                const relevantTaskKeys = selectedSubTaskIndexes.map(idx => catDef.tasks[idx].key);
+                const relevantTasks = selectedSubTaskIndexes.map(idx => catDef.tasks[idx]);
+                const relevantTaskKeys = relevantTasks.map(t => t.key);
 
                 floorsToCalc.forEach(floor => {
                     const roomsOnThisFloor = CONFIG.getRoomsOnFloor(floor);
-                    totalUnitsInvolved += roomsOnThisFloor;
                     for (let room = 1; room <= roomsOnThisFloor; room++) {
+                        let isApplicable = false;
+                        relevantTasks.forEach(t => {
+                            if (!t.condition || t.condition(floor, room)) isApplicable = true;
+                        });
+                        if (!isApplicable) continue;
+                        totalUnitsInvolved++;
+
                         let roomTotalProgress = relevantTaskKeys.reduce((sum, taskKey) => sum + (projectData[categoryKey][floor][room][`progress_${taskKey}`] || 0), 0);
                         totalProgress += roomTotalProgress / relevantTaskKeys.length;
                     }
@@ -5659,8 +5673,15 @@
 
                 floorsToCalc.forEach(floor => {
                     const roomsOnThisFloor = CONFIG.getRoomsOnFloor(floor);
-                    totalUnitsInvolved += roomsOnThisFloor;
                     for (let room = 1; room <= roomsOnThisFloor; room++) {
+                        let isApplicable = true;
+                        if (catDef.type === 'multi-progress') {
+                            const task = catDef.tasks[subTaskIndex];
+                            if (task.condition && !task.condition(floor, room)) isApplicable = false;
+                        }
+                        if (!isApplicable) continue;
+                        totalUnitsInvolved++;
+
                         const unitData = projectData[categoryKey][floor][room];
                         if (catDef.type === 'multi-progress') {
                             const taskKey = catDef.tasks[subTaskIndex].key;
@@ -5681,8 +5702,15 @@
 
                 floorsToCalc.forEach(floor => {
                     const roomsOnThisFloor = CONFIG.getRoomsOnFloor(floor);
-                    totalRooms += roomsOnThisFloor;
                     for (let room = 1; room <= roomsOnThisFloor; room++) {
+                        let isApplicable = true;
+                        if (catDef.type === 'multi-progress') {
+                            const task = catDef.tasks[subTaskIndex];
+                            if (task.condition && !task.condition(floor, room)) isApplicable = false;
+                        }
+                        if (!isApplicable) continue;
+                        totalRooms++;
+
                         const unitData = projectData[categoryKey][floor][room];
                         let isCompleted, isInProgress;
                         if (catDef.type === 'multi-progress') {
@@ -6849,6 +6877,7 @@
                     let totalInProgressAll = 0;
                     let taskTotals = Array(taskCount).fill(0);
                     let taskInProgressTotals = Array(taskCount).fill(0);
+                    let taskApplicableTotals = Array(taskCount).fill(0);
 
                     if (currentReportType === 'detailed') {
                         // --- DETAILED GRID VIEW ---
@@ -6892,12 +6921,34 @@
                                     continue;
                                 }
                                 
+                                let isApplicable = true;
+                                if (catDef.type === 'multi-progress') {
+                                    let applicableCount = 0;
+                                    catDef.tasks.forEach(t => {
+                                        if (!t.condition || t.condition(floor, room)) applicableCount++;
+                                    });
+                                    if (applicableCount === 0) isApplicable = false;
+                                }
+                                
+                                if (!isApplicable) {
+                                    html += `<td class="border-r border-slate-100 text-center p-0.5 h-7">
+                                        <div class="w-full h-full rounded-md flex items-center justify-center bg-slate-100 text-slate-300 border border-slate-200/50">
+                                            -
+                                        </div>
+                                    </td>`;
+                                    continue;
+                                }
+                                
                                 const rawUnitData = projectData[mainKey]?.[floor]?.[room] || {};
                                 const unitData = (catDef.type === 'multi-progress' || subKey?.startsWith('combined-')) ? rawUnitData : (subKey ? (rawUnitData[subKey] || {}) : rawUnitData);
                                 let cellContent = room;
                                 let cellClass = "bg-white text-slate-400 font-medium";
                                 let isFullyDone = false;
                                 let hasAnyProgress = false;
+                                
+                                catDef.tasks.forEach((t, idx) => {
+                                    if (!t.condition || t.condition(floor, room)) taskApplicableTotals[idx]++;
+                                });
                                 
                                 if (catDef.type === 'inspection') {
                                     const cmScore = unitData.cmScore || 0;
@@ -7037,12 +7088,29 @@
                             let fCompleted = 0;
                             let fInProgress = 0;
                             let fTaskCounts = Array(taskCount).fill(0);
+                            let fApplicableRooms = 0;
 
                             for (let room = 1; room <= roomsOnThisFloor; room++) {
+                                let isApplicable = true;
+                                if (catDef.type === 'multi-progress') {
+                                    let applicableCount = 0;
+                                    catDef.tasks.forEach(t => {
+                                        if (!t.condition || t.condition(floor, room)) applicableCount++;
+                                    });
+                                    if (applicableCount === 0) isApplicable = false;
+                                }
+                                if (!isApplicable) continue;
+                                fApplicableRooms++;
+
                                 const rawUnitData = projectData[mainKey]?.[floor]?.[room] || {};
                                 const unitData = (catDef.type === 'multi-progress' || subKey?.startsWith('combined-')) ? rawUnitData : (subKey ? (rawUnitData[subKey] || {}) : rawUnitData);
                                 let isFullyDone = false;
                                 let hasAnyProgress = false;
+                                
+                                catDef.tasks.forEach((t, idx) => {
+                                    if (!t.condition || t.condition(floor, room)) taskApplicableTotals[idx]++;
+                                });
+
                                 if (catDef.type === 'multi-progress') {
                                     let doneCount = 0;
                                     catDef.tasks.forEach((t, idx) => { 
@@ -7092,14 +7160,14 @@
                                 else if (hasAnyProgress) fInProgress++;
                             }
 
-                            const fProgress = Math.round((fCompleted / roomsOnThisFloor) * 100);
+                            const fProgress = fApplicableRooms > 0 ? Math.round((fCompleted / fApplicableRooms) * 100) : 0;
                             html += `
                                 <tr class="border-b border-slate-200">
                                     <td class="border-r border-slate-300 py-3 font-black bg-slate-100 text-slate-900">${floor}</td>
-                                    <td class="border-r border-slate-200 py-3 font-bold text-slate-600">${roomsOnThisFloor}</td>
+                                    <td class="border-r border-slate-200 py-3 font-bold text-slate-600">${fApplicableRooms}</td>
                                     ${fTaskCounts.map(count => `<td class="border-r border-slate-100 py-3 font-medium text-slate-700">${count}</td>`).join('')}
                                     <td class="border-r border-slate-200 py-3 font-black text-emerald-700 bg-emerald-50">${fCompleted}</td>
-                                    <td class="border-r border-slate-200 py-3 font-black text-rose-700 bg-rose-50">${roomsOnThisFloor - fCompleted}</td>
+                                    <td class="border-r border-slate-200 py-3 font-black text-rose-700 bg-rose-50">${fApplicableRooms - fCompleted}</td>
                                     <td class="py-3 px-4">
                                         <div class="flex items-center gap-3">
                                             <div class="flex-1 bg-slate-100 rounded-full h-3 border border-slate-200 overflow-hidden">
@@ -7111,7 +7179,7 @@
                                 </tr>
                             `;
                             fTaskCounts.forEach((count, idx) => taskTotals[idx] += count);
-                            totalRoomsAll += roomsOnThisFloor;
+                            totalRoomsAll += fApplicableRooms;
                             totalCompletedAll += fCompleted;
                             totalInProgressAll += fInProgress;
                         });
@@ -7144,7 +7212,19 @@
                     const floorSummaries = CONFIG.FLOORS.map(floor => {
                         const roomsOnThisFloor = CONFIG.getRoomsOnFloor(floor);
                         let fCompleted = 0;
+                        let fApplicableRooms = 0;
                         for (let room = 1; room <= roomsOnThisFloor; room++) {
+                            let isApplicable = true;
+                            if (catDef.type === 'multi-progress') {
+                                let applicableCount = 0;
+                                catDef.tasks.forEach(t => {
+                                    if (!t.condition || t.condition(floor, room)) applicableCount++;
+                                });
+                                if (applicableCount === 0) isApplicable = false;
+                            }
+                            if (!isApplicable) continue;
+                            fApplicableRooms++;
+
                             const rawUnitData = projectData[mainKey]?.[floor]?.[room] || {};
                             const unitData = (catDef.type === 'multi-progress' || subKey?.startsWith('combined-')) ? rawUnitData : (subKey ? (rawUnitData[subKey] || {}) : rawUnitData);
                             let isFullyDone = false;
@@ -7159,8 +7239,8 @@
                             }
                             if (isFullyDone) fCompleted++;
                         }
-                        const pct = roomsOnThisFloor > 0 ? Math.round((fCompleted / roomsOnThisFloor) * 100) : 0;
-                        return { floor, completed: fCompleted, total: roomsOnThisFloor, pct };
+                        const pct = fApplicableRooms > 0 ? Math.round((fCompleted / fApplicableRooms) * 100) : 0;
+                        return { floor, completed: fCompleted, total: fApplicableRooms, pct };
                     });
 
                     const floorSummaryHtml = `
@@ -7205,7 +7285,8 @@
 
                     const taskSummaries = catDef.tasks.map((t, i) => {
                         const count = taskTotals[i];
-                        const pct = totalRoomsAll > 0 ? ((count / totalRoomsAll) * 100).toFixed(1) : 0;
+                        const applicableTotal = taskApplicableTotals[i];
+                        const pct = applicableTotal > 0 ? ((count / applicableTotal) * 100).toFixed(1) : 0;
                         return `
                             <div class="flex justify-between items-center py-1.5 border-b border-slate-100 last:border-0">
                                 <span class="text-slate-600 font-medium">${t.name}</span>
