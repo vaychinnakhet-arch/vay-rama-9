@@ -1503,7 +1503,7 @@
 
                 // Initialize subtask stats
                 catDef.tasks.forEach(t => {
-                    subTaskStats[t.key || t.name] = { count: 0, total: 0 };
+                    subTaskStats[t.key || t.name] = { count: 0, total: 0, inProgress: 0 };
                 });
 
                 CONFIG.FLOORS.forEach(f => {
@@ -1538,6 +1538,7 @@
                                     subTaskStats[t.key || t.name].count++;
                                     floorTaskStatus[floor][t.key || t.name].completed++;
                                 } else if (isInProgress) {
+                                    subTaskStats[t.key || t.name].inProgress++;
                                     floorTaskStatus[floor][t.key || t.name].inProgress++;
                                 }
                             });
@@ -1561,6 +1562,7 @@
                                     subTaskStats[task.key].count++;
                                     floorTaskStatus[floor][task.key || task.name].completed++;
                                 } else if (subProg > 0) {
+                                    subTaskStats[task.key].inProgress++;
                                     floorTaskStatus[floor][task.key || task.name].inProgress++;
                                 }
                             });
@@ -1575,6 +1577,7 @@
                                     subTaskStats[t.key || t.name].count++;
                                     floorTaskStatus[floor][t.key || t.name].completed++;
                                 } else if (progress > 0) {
+                                    subTaskStats[t.key || t.name].inProgress++;
                                     floorTaskStatus[floor][t.key || t.name].inProgress++;
                                 }
                             });
@@ -1634,7 +1637,7 @@
                                     </div>
                                     
                                     <div class="mt-10">
-                                        <div class="flex justify-between items-center bg-[#eff6ff] p-4 rounded-2xl border border-[#dbeafe]">
+                                        <div class="flex justify-between items-center bg-[#eff6ff] p-4 rounded-2xl border border-[#dbeafe] mb-4">
                                             <div>
                                                 <p class="text-indigo-600 font-black text-lg">กำลังดำเนินการ</p>
                                                 <p class="text-[10px] text-indigo-400 font-bold uppercase tracking-widest">IN PROGRESS STATUS</p>
@@ -1643,6 +1646,20 @@
                                                 <span class="text-indigo-600 font-black text-lg">${totalInProgress}</span>
                                                 <span class="text-[10px] text-indigo-300 font-bold ml-1 uppercase">UNITS</span>
                                             </div>
+                                        </div>
+                                        <div class="space-y-2 pl-2">
+                                            ${catDef.tasks.map(t => {
+                                                const stats = subTaskStats[t.key || t.name];
+                                                if (stats.inProgress > 0) {
+                                                    return `
+                                                        <div class="flex justify-between items-center text-sm">
+                                                            <span class="text-slate-600 font-medium">${t.name}</span>
+                                                            <span class="text-indigo-600 font-bold">${stats.inProgress} <span class="text-xs text-slate-400 font-normal">ห้อง</span></span>
+                                                        </div>
+                                                    `;
+                                                }
+                                                return '';
+                                            }).join('')}
                                         </div>
                                     </div>
                                 </div>
@@ -2217,8 +2234,8 @@
 
                 let headerHTML = `
                     <tr class="${headerColor}">
-                        <th class="border border-slate-300 p-2 w-10" rowspan="2">ชั้น</th>
-                        <th class="border border-slate-300 p-2" colspan="${maxRoomsToShow}">ROOM No.</th>
+                        <th class="border border-slate-300 p-2 w-10" rowspan="2" style="font-size: 18px;">ชั้น</th>
+                        <th class="border border-slate-300 p-2" colspan="${maxRoomsToShow}" style="font-size: 18px;">ROOM No.</th>
                         <th class="border-y border-slate-300 w-4" rowspan="2"></th>
                         <th class="border border-slate-300 p-2" colspan="${categoryTasks.length}">จำนวน</th>
                         <th class="border border-slate-300 p-2 bg-teal-100 text-slate-800" rowspan="2">ผ่าน/เสร็จ</th>
@@ -2232,7 +2249,7 @@
                 }
                 
                 categoryTasks.forEach(task => {
-                    headerHTML += `<th class="border border-slate-300 p-1 ${subHeaderColor} font-bold text-[8px] md:text-[10px]">${task.name}</th>`;
+                    headerHTML += `<th class="border border-slate-300 p-1 ${subHeaderColor} font-bold text-[8px] md:text-[10px]" style="font-size: 18px;">${task.name}</th>`;
                 });
                 
                 headerHTML += '</tr>';
@@ -2449,7 +2466,7 @@
 
                 const headerHTML = `
                     <tr class="${headerColor}">
-                        <th class="border p-2 sticky left-0 z-30 ${stickyHeaderColor}" style="min-width: 80px;">ห้อง</th>
+                        <th class="border p-2 sticky left-0 z-30 ${stickyHeaderColor}" style="min-width: 80px; font-size: 18px;">ห้อง</th>
                         ${activeTasks.map(t => {
                             const headerColors = {
                                 electrical: 'bg-yellow-500',
@@ -2508,7 +2525,7 @@
                                 <th class="border p-2 text-xs" style="min-width: 100px;">
                                     <div class="flex items-center justify-center gap-1.5">
                                         <span class="w-5 h-5 flex items-center justify-center rounded ${colorClass} text-white shadow-sm">${getMinimalIcon(t.key)}</span>
-                                        <span class="uppercase tracking-tight font-bold">${t.reportName}</span>
+                                        <span class="uppercase tracking-tight font-bold" style="font-size: 18px;">${t.reportName}</span>
                                     </div>
                                 </th>`;
                         }).join('')}
@@ -7307,7 +7324,7 @@
                                             <div class="w-2.5 h-2.5 rounded-full ${t.color || 'bg-blue-400'} border border-white/10"></div>
                                             <span class="text-slate-500 text-[16px] font-medium">${t.name}</span>
                                         </div>
-                                        <span class="text-blue-600 font-bold text-[16px]">${count}</span>
+                                        <span class="text-blue-600 font-bold text-[16px]">${count} <span class="text-xs text-blue-400 font-normal">ห้อง</span></span>
                                     </div>
                         `;
                     }).join('');
