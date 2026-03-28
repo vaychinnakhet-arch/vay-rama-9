@@ -770,6 +770,10 @@
                 
                 <!-- Action Buttons -->
                 <div id="action-buttons-container" class="flex flex-wrap justify-start xl:justify-end items-center gap-2 w-full xl:w-auto">
+                    <button id="overall-progress-toggle-btn" onclick="toggleOverallProgressCard()" class="action-btn px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-lg shadow-sm hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 text-sm font-medium inline-flex items-center gap-2 transition-all">
+                        <i id="overall-progress-toggle-icon" data-lucide="eye-off" class="w-4 h-4"></i>
+                        <span id="overall-progress-toggle-text">ซ่อนสรุปภาพรวม</span>
+                    </button>
                     <button id="toggleExecutiveSummaryBtn" class="action-btn px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-lg shadow-sm hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 text-sm font-medium inline-flex items-center gap-2 transition-all">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>
                         สรุปภาพรวม
@@ -1430,16 +1434,12 @@
                 if (btn && text && icon) {
                     text.textContent = showOverallProgressCard ? 'ซ่อนสรุปภาพรวม' : 'แสดงสรุปภาพรวม';
                     icon.setAttribute('data-lucide', showOverallProgressCard ? 'eye-off' : 'eye');
-                    lucide.createIcons();
+                    if (window.lucide) lucide.createIcons();
                 }
                 
                 renderExecutiveSummaryDashboard();
+                renderTable(); // Also re-render table if needed
             };
-
-            window.toggleOverallProgressCard = function() {
-                showOverallProgressCard = !showOverallProgressCard;
-                renderTable();
-            }
 
             function renderExecutiveSummaryDashboard() {
                 const dashboard = document.getElementById('executive-summary-dashboard');
@@ -1703,6 +1703,7 @@
                         </div>
                     </div>
                 `;
+                if (window.lucide) lucide.createIcons();
             }
 
             function calculateProjectSummary() {
@@ -2098,9 +2099,14 @@
                 }
 
                 const toggleSummaryBtn = document.getElementById('toggleExecutiveSummaryBtn');
+                const toggleOverallBtn = document.getElementById('overall-progress-toggle-btn');
+                const isResidentialOrSummary = view === 'residential' || view === 'summaryReport';
+                
                 if (toggleSummaryBtn) {
-                    const isResidentialOrSummary = view === 'residential' || view === 'summaryReport';
                     toggleSummaryBtn.classList.toggle('hidden', !isResidentialOrSummary);
+                }
+                if (toggleOverallBtn) {
+                    toggleOverallBtn.classList.toggle('hidden', !isResidentialOrSummary);
                 }
                 
                 renderTable();
