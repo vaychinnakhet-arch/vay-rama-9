@@ -48,6 +48,8 @@
             max-width: none !important;
             display: inline-block; /* Crucial for width calculation */
             margin: 0 !important;
+            padding: 16px !important; /* Add padding to prevent clipping and give breathing room */
+            box-sizing: border-box !important;
             box-shadow: none;
             border: none;
             border-radius: 0;
@@ -1095,6 +1097,7 @@
                     <div class="flex gap-2">
                         <input type="date" id="summaryPlanDateInput" class="flex-1 p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none">
                         <button id="addSummaryPlanDateBtn" class="px-3 py-2 bg-indigo-50 text-indigo-600 rounded-lg font-medium hover:bg-indigo-100 transition-colors">เพิ่ม</button>
+                        <button id="clearSummaryPlanDateBtn" class="px-3 py-2 bg-rose-50 text-rose-600 rounded-lg font-medium hover:bg-rose-100 transition-colors">ล้างวันที่</button>
                     </div>
                     <div id="summaryPlanDelayInfo" class="text-xs text-rose-500 mt-2 hidden"></div>
                 </div>
@@ -1117,8 +1120,8 @@
                 </div>
 
                 <div id="summaryPlanNoteContainer" class="mt-4 pt-4 border-t border-slate-100">
-                    <label class="block text-sm font-semibold text-slate-700 mb-2">หมายเหตุ / ปัญหา</label>
-                    <textarea id="summaryPlanNoteInput" rows="3" class="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm resize-none" placeholder="ระบุหมายเหตุ เช่น งานประปาไม่เสร็จ ชักโครกร้าว..."></textarea>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">โน๊ตเพิ่มเติม</label>
+                    <textarea id="summaryPlanNoteInput" rows="3" class="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm resize-none" placeholder="ระบุโน๊ตเพิ่มเติม เช่น งานประปาไม่เสร็จ ชักโครกร้าว..."></textarea>
                 </div>
 
                 <div id="summaryPlanProgressContainer">
@@ -2420,7 +2423,7 @@
                             }
 
                             const noteIcon = planData.note ? `<div class="absolute top-0.5 right-0.5 text-amber-500" title="${planData.note.replace(/"/g, '&quot;')}"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></div>` : '';
-                            const noteDisplay = planData.note ? `<div class="text-[9px] leading-tight text-amber-600 mt-0.5 truncate w-full max-w-[80px] mx-auto" title="${planData.note.replace(/"/g, '&quot;')}">${planData.note}</div>` : '';
+                            const noteDisplay = planData.note ? `<div class="text-[11px] leading-tight text-amber-600 mt-0.5 truncate w-full max-w-[80px] mx-auto" title="${planData.note.replace(/"/g, '&quot;')}">${planData.note}</div>` : '';
 
                             if (taskDef.type === 'inspection' && scoreToShow > 0) {
                                 let completedDateDisplay = '';
@@ -3589,6 +3592,19 @@
                 return taskDefinitions[key]?.reportName || taskDefinitions[key]?.name || key;
             }
 
+            async function saveProjectDataToDB() {
+                try {
+                    const { error } = await supabaseClient
+                        .from(CONFIG.DB_TABLE_NAME)
+                        .update({ data: projectData })
+                        .eq('id', CONFIG.DB_ROW_ID);
+                    if (error) throw error;
+                } catch (error) {
+                    console.error("Error saving data to Supabase: ", error);
+                    showNotificationModal("เกิดข้อผิดพลาด", "ไม่สามารถบันทึกข้อมูลได้");
+                }
+            }
+
             function openSummaryPlanModal(floor, room, taskKey) {
                 let isMultiSelect = false;
                 
@@ -3615,7 +3631,7 @@
                     if (!projectData.plans[floor]) projectData.plans[floor] = {};
                     if (!projectData.plans[floor][room]) projectData.plans[floor][room] = {};
                     projectData.plans[floor][room][taskKey] = planData;
-                    saveProgress();
+                    saveProjectDataToDB();
                 }
                 
                 const dateInput = document.getElementById('summaryPlanDateInput');
@@ -3805,10 +3821,49 @@
                     async () => {
                         if (projectData.plans?.[floor]?.[room]?.[taskKey]) {
                             delete projectData.plans[floor][room][taskKey];
-                            saveProgress();
+                            await saveProjectDataToDB();
                             renderSummaryPlanHistory();
                             renderTable();
                         }
+                    }
+                );
+            }
+
+            window.clearSummaryPlanDate = function() {
+                if (!currentSummaryPlanData) return;
+                
+                const isMulti = currentSummaryPlanData.isMultiSelect;
+                const msg = isMulti ? 'คุณแน่ใจหรือไม่ว่าต้องการล้างข้อมูลวันที่ของทุกรายการที่เลือก?' : 'คุณแน่ใจหรือไม่ว่าต้องการล้างข้อมูลวันที่ของรายการนี้?';
+                
+                showConfirmModal(
+                    'ยืนยันการล้างวันที่',
+                    msg,
+                    async () => {
+                        const cellsToUpdate = isMulti ? Array.from(selectedCells) : [{
+                            dataset: {
+                                floor: currentSummaryPlanData.floor,
+                                room: currentSummaryPlanData.room,
+                                taskkey: currentSummaryPlanData.taskKey
+                            }
+                        }];
+
+                        cellsToUpdate.forEach(cell => {
+                            const floor = cell.dataset.floor;
+                            const room = cell.dataset.room;
+                            const taskKey = cell.dataset.taskkey;
+                            
+                            if (projectData.plans?.[floor]?.[room]?.[taskKey]) {
+                                projectData.plans[floor][room][taskKey].history = [];
+                                projectData.plans[floor][room][taskKey].firstPlanDate = '';
+                                projectData.plans[floor][room][taskKey].currentPlanDate = '';
+                            }
+                        });
+                        
+                        document.getElementById('summaryPlanDateInput').value = '';
+                        await saveProjectDataToDB();
+                        renderSummaryPlanHistory();
+                        updateSummaryPlanDelayInfo();
+                        renderTable();
                     }
                 );
             }
@@ -3833,7 +3888,7 @@
                     planData.currentPlanDate = '';
                 }
                 
-                saveProgress(); // save to local storage
+                saveProjectDataToDB(); // save to db
                 renderSummaryPlanHistory();
                 updateSummaryPlanDelayInfo();
                 renderTable(); // update the background table
@@ -3873,7 +3928,7 @@
                 projectData.plans[floor][room][taskKey] = planData;
                 
                 dateInput.value = ''; // clear input
-                saveProgress();
+                saveProjectDataToDB();
                 renderSummaryPlanHistory();
                 updateSummaryPlanDelayInfo();
                 renderTable();
@@ -4860,6 +4915,8 @@
                     htmlToImage.toPng(captureArea, {
                         backgroundColor: '#ffffff',
                         pixelRatio: captureScale,
+                        width: finalWidth,
+                        height: finalHeight,
                         style: {
                             transformOrigin: 'top left'
                         }
@@ -5979,7 +6036,7 @@
 
                 // Add Notes Section
                 let hasNotes = false;
-                let notesSection = `\n\n------------------------------------\n\n📝 หมายเหตุ (Notes)\n`;
+                let notesSection = `\n\n------------------------------------\n\n📝 โน๊ตเพิ่มเติม (Notes)\n`;
                 
                 orderedTaskKeys.forEach(catKey => {
                     const catDef = taskDefinitions[catKey];
@@ -6406,6 +6463,7 @@
                 document.getElementById('cancelSummaryPlanBtn').addEventListener('click', () => closeModal('summaryPlanModal'));
                 document.getElementById('saveSummaryPlanBtn').addEventListener('click', saveSummaryPlan);
                 document.getElementById('addSummaryPlanDateBtn').addEventListener('click', addSummaryPlanDate);
+                document.getElementById('clearSummaryPlanDateBtn').addEventListener('click', clearSummaryPlanDate);
                 document.getElementById('clearSummaryPlanHistoryBtn').addEventListener('click', clearSummaryPlanHistory);
                 document.getElementById('summaryPlanDateInput').addEventListener('input', updateSummaryPlanDelayInfo);
 
