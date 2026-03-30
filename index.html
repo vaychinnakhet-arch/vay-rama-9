@@ -67,12 +67,16 @@
         .is-line-capturing #main-table {
             width: max-content !important;
             min-width: max-content !important;
-            background-color: #000000 !important;
+            border-collapse: separate !important;
+            border-spacing: 0 !important;
+            border-top: 1px solid #000 !important;
+            border-left: 1px solid #000 !important;
         }
         .is-line-capturing #main-table th,
         .is-line-capturing #main-table td {
-            outline: 1px solid #000000;
-            outline-offset: -1px;
+            border: none !important;
+            border-bottom: 1px solid #000 !important;
+            border-right: 1px solid #000 !important;
         }
         .is-line-capturing header {
             overflow: visible !important;
@@ -636,7 +640,7 @@
         }
     </style>
 <link rel="stylesheet" href="/index.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image-more/3.1.6/dom-to-image-more.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>
 </head>
 <body class="p-0 md:p-4 bg-slate-50">
 
@@ -779,11 +783,11 @@
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>
                         สรุปภาพรวม
                     </button>
-                    <button id="captureDownloadBtn" class="action-btn px-4 py-2 bg-indigo-600 text-white rounded-lg shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 text-sm font-medium inline-flex items-center gap-2 transition-all">
+                    <button id="captureDownloadBtn" class="hidden action-btn px-4 py-2 bg-indigo-600 text-white rounded-lg shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 text-sm font-medium inline-flex items-center gap-2 transition-all">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                         แคปเจอร์แบบเดิม
                     </button>
-                    <button id="captureShareBtn" class="action-btn px-4 py-2 bg-emerald-600 text-white rounded-lg shadow-sm hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 text-sm font-medium inline-flex items-center gap-2 transition-all">
+                    <button id="captureShareBtn" class="hidden action-btn px-4 py-2 bg-emerald-600 text-white rounded-lg shadow-sm hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 text-sm font-medium inline-flex items-center gap-2 transition-all">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
                         แคปเจอร์แบบแชร์
                     </button>
@@ -4852,10 +4856,10 @@
                     const isMobile = window.innerWidth <= 768;
                     const captureScale = isMobile ? 1.5 : 2;
 
-                    // Use dom-to-image-more which handles text rendering better
-                    domtoimage.toPng(captureArea, {
-                        bgcolor: '#ffffff',
-                        scale: captureScale,
+                    // Use html-to-image which handles SVGs and scaling much better
+                    htmlToImage.toPng(captureArea, {
+                        backgroundColor: '#ffffff',
+                        pixelRatio: captureScale,
                         style: {
                             transformOrigin: 'top left'
                         }
