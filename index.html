@@ -6477,14 +6477,31 @@
 
                 const mainTable = document.getElementById('main-table');
                 
+                let touchStartX = 0;
+                let touchStartY = 0;
+                let isTouchScrolling = false;
+                let lastTouchTime = 0;
+
                 function handleSelectionStart(e) {
+                    if (e.type.includes('touch')) {
+                        lastTouchTime = Date.now();
+                    } else {
+                        // Ignore simulated mouse events after touch
+                        if (Date.now() - lastTouchTime < 500) {
+                            return;
+                        }
+                    }
+
                     let target = e.type.includes('touch') ? e.touches[0].target : e.target;
                     if (target.nodeType === 3) target = target.parentNode; // Handle text nodes
                     const cell = target.closest('.table-cell');
                     if (!cell) return;
                     
                     if (e.type.includes('touch')) {
-                        if (e.cancelable) e.preventDefault();
+                        touchStartX = e.touches[0].clientX;
+                        touchStartY = e.touches[0].clientY;
+                        isTouchScrolling = false;
+                        // Do not preventDefault to allow native scrolling on touch devices
                     } else {
                         e.preventDefault();
                     }
@@ -6508,8 +6525,18 @@
                     
                     let target;
                     if (e.type.includes('touch')) {
-                        if (e.cancelable) e.preventDefault();
                         const touch = e.touches[0];
+                        const deltaX = Math.abs(touch.clientX - touchStartX);
+                        const deltaY = Math.abs(touch.clientY - touchStartY);
+                        
+                        // If moved more than 10px, consider it a scroll
+                        if (deltaX > 10 || deltaY > 10) {
+                            isTouchScrolling = true;
+                            isSelecting = false;
+                            clearSelection();
+                            return;
+                        }
+                        
                         target = document.elementFromPoint(touch.clientX, touch.clientY);
                     } else {
                         target = e.target;
@@ -6525,6 +6552,21 @@
                 }
 
                 function handleSelectionEnd(e) {
+                    if (e.type === 'touchcancel') {
+                        isSelecting = false;
+                        isTouchScrolling = false;
+                        clearSelection();
+                        return;
+                    }
+
+                    if (e.type.includes('touch') || e.type === 'touchend') {
+                        if (isTouchScrolling) {
+                            isSelecting = false;
+                            isTouchScrolling = false;
+                            return;
+                        }
+                    }
+                    
                     if (isSelecting) {
                         isSelecting = false;
                         if (currentView === 'qcSummary' && selectedCells.size > 1) {
