@@ -1892,8 +1892,8 @@
                 if (taskCardsContainer) {
                     taskCardsContainer.innerHTML = '';
                     
-                    const wetWorkKeys = ['skimAndPaint', 'topping', 'ceilingRoom', 'ceilingBathroom', 'texcaWall', 'electricalRoughIn', 'plumbingRoughIn', 'airConRoughIn', 'waterproofing', 'tiling', 'aluminum', 'wetWork'];
-                    const endProductKeys = ['electrical', 'plumbing', 'airCon', 'furniture', 'laminate', 'door', 'showerScreen', 'aluminumPaint', 'cleaning', 'endProduct'];
+                    const wetWorkKeys = ['skimAndPaint', 'topping', 'ceilingRoom', 'ceilingBathroom', 'texcaWall', 'waterproofing', 'tiling', 'aluminum', 'wetWork'];
+                    const endProductKeys = ['furniture', 'laminate', 'door', 'showerScreen', 'aluminumPaint', 'cleaning', 'endProduct'];
                     
                     const createCard = (catKey, catDef, progress, isCommon = false) => {
                         const iconData = categoryIcons[catKey] || { bg: 'bg-slate-100', color: 'text-slate-600', svg: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>' };
@@ -5722,7 +5722,7 @@
                     model: CONFIG.GEMINI_API_MODEL,
                     contents: [{ parts: [{ text: rawReportText }] }],
                     config: {
-                        systemInstruction: "คุณคือผู้จัดการโครงการที่ต้องรายงานความคืบหน้าในกลุ่ม LINE จงสรุปข้อมูลต่อไปนี้ให้กระชับ ชัดเจน ห้ามใช้ Markdown formatting เช่น `**` หรือ `*` และห้ามลงท้ายด้วย 'ครับ' หรือ 'ค่ะ' แต่ให้ใช้ emoji ช่วยเน้นประเด็นสำคัญ และจัดรูปแบบให้อ่านง่ายในแอปพลิเคชันแชท"
+                        systemInstruction: "คุณคือผู้จัดการโครงการที่ต้องรายงานความคืบหน้าในกลุ่ม LINE อย่างเป็นทางการและมีความเป็นมืออาชีพสูง จงสรุปข้อมูลต่อไปนี้ให้กระชับ ชัดเจน ห้ามใช้ Markdown formatting เช่น `**` หรือ `*` และห้ามลงท้ายด้วย 'ครับ' หรือ 'ค่ะ' ใช้ emoji ช่วยเน้นประเด็นสำคัญ และจัดรูปแบบให้อ่านง่ายในแอปพลิเคชันแชท สำหรับงานประตู งานอลูมิเนียม และงานกระเบื้อง ให้สรุปรายละเอียดจำนวนบาน/ห้องที่แล้วเสร็จจากจำนวนทั้งหมด และจำนวนที่กำลังดำเนินการอย่างชัดเจน เช่น '- ประตูหน้า: แล้วเสร็จ 10/20 บาน, กำลังดำเนินการ 5 บาน'"
                     }
                 };
                 runAIAnalysis(request, (text) => {
@@ -5868,6 +5868,35 @@
                         if (reportType === 'long') {
                             line += `\n  • ดำเนินการแล้วเสร็จ: ${stats.completedRooms}/${total} ห้อง`;
                             if (stats.inProgressRooms > 0) line += `\n  • อยู่ระหว่างดำเนินการ: ${stats.inProgressRooms} ห้อง`;
+                            
+                            // Detailed summaries for specific multi-progress tasks
+                            if (catKey === 'door' || catKey === 'aluminum' || catKey === 'tiling') {
+                                tasks[catKey].sort((a,b) => a-b).forEach(taskIdx => {
+                                    const subTask = catDef.tasks[taskIdx];
+                                    let subCompleted = 0;
+                                    let subInProgress = 0;
+                                    let subTotal = 0;
+                                    
+                                    floorsToCalc.forEach(floor => {
+                                        const roomsOnThisFloor = CONFIG.getRoomsOnFloor(floor);
+                                        for (let room = 1; room <= roomsOnThisFloor; room++) {
+                                            if (subTask.condition && !subTask.condition(floor, room)) continue;
+                                            subTotal++;
+                                            const unitData = projectData[catKey]?.[floor]?.[room] || {};
+                                            const progress = unitData[`progress_${subTask.key}`] || 0;
+                                            if (progress >= 100) {
+                                                subCompleted++;
+                                            } else if (progress > 0) {
+                                                subInProgress++;
+                                            }
+                                        }
+                                    });
+                                    
+                                    if (subTotal > 0) {
+                                        line += `\n    - ${subTask.name}: แล้วเสร็จ ${subCompleted}/${subTotal} บาน, กำลังดำเนินการ ${subInProgress} บาน`;
+                                    }
+                                });
+                            }
                         }
                         categorySection += line + '\n';
                     } else {
