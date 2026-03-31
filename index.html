@@ -1224,6 +1224,7 @@
             let reportHeaderStyle = 'dark'; // 'dark' or 'light'
             let showOverallProgressCard = true;
             let summaryReportSelectedFloors = [2]; // Default to floor 2
+            let isMultiFloorSelectionEnabled = false;
             let showMajorDefectHighlight = false;
             let currentQuickUpdateRoom = { floor: null, room: null };
             let isSelecting = false;
@@ -2437,25 +2438,53 @@
                 if (!container) return;
                 container.innerHTML = '';
 
+                // Add multi-select toggle button
+                const multiSelectBtn = document.createElement('button');
+                multiSelectBtn.className = `px-3 py-1.5 rounded-full text-xs font-medium transition-all flex items-center gap-1.5 border ${isMultiFloorSelectionEnabled ? 'bg-indigo-50 border-indigo-200 text-indigo-700' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'}`;
+                multiSelectBtn.innerHTML = `<i data-lucide="layers" class="w-3.5 h-3.5"></i> เลือกหลายชั้น`;
+                multiSelectBtn.onclick = () => {
+                    isMultiFloorSelectionEnabled = !isMultiFloorSelectionEnabled;
+                    if (!isMultiFloorSelectionEnabled && summaryReportSelectedFloors.length > 1) {
+                        // If turning off multi-select and multiple floors are selected, keep only the first one
+                        summaryReportSelectedFloors = [summaryReportSelectedFloors[0]];
+                        renderSummaryReportTable();
+                    }
+                    renderSummaryReportFloorList();
+                };
+                container.appendChild(multiSelectBtn);
+
+                // Add a divider
+                const divider = document.createElement('div');
+                divider.className = 'w-px h-6 bg-slate-200 mx-1 self-center';
+                container.appendChild(divider);
+
                 CONFIG.FLOORS.forEach(floor => {
                     const isSelected = summaryReportSelectedFloors.includes(floor);
                     const btn = document.createElement('button');
-                    btn.className = `px-3 py-1 rounded-md text-xs font-medium transition-all ${isSelected ? 'bg-indigo-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`;
+                    btn.className = `px-3 py-1.5 rounded-full text-xs font-medium transition-all border ${isSelected ? 'bg-indigo-600 border-indigo-600 text-white shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50 hover:border-slate-300'}`;
                     btn.textContent = `ชั้น ${floor}`;
                     btn.onclick = () => {
-                        if (summaryReportSelectedFloors.includes(floor)) {
-                            if (summaryReportSelectedFloors.length > 1) {
-                                summaryReportSelectedFloors = summaryReportSelectedFloors.filter(f => f !== floor);
+                        if (isMultiFloorSelectionEnabled) {
+                            if (summaryReportSelectedFloors.includes(floor)) {
+                                if (summaryReportSelectedFloors.length > 1) {
+                                    summaryReportSelectedFloors = summaryReportSelectedFloors.filter(f => f !== floor);
+                                }
+                            } else {
+                                summaryReportSelectedFloors.push(floor);
+                                summaryReportSelectedFloors.sort((a, b) => b - a);
                             }
                         } else {
-                            summaryReportSelectedFloors.push(floor);
-                            summaryReportSelectedFloors.sort((a, b) => b - a);
+                            summaryReportSelectedFloors = [floor];
                         }
                         renderSummaryReportFloorList();
                         renderSummaryReportTable();
                     };
                     container.appendChild(btn);
                 });
+                
+                if (window.lucide) {
+                    lucide.createIcons();
+                }
             }
             
             function renderCommonAreaTable() {
