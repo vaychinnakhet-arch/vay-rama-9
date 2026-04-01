@@ -1147,8 +1147,8 @@
             };
 
             const taskDefinitions = {
-                skimAndPaint: { name: 'งานสกิม/ทาสี', reportName: 'งานสกิมและทาสีห้องพัก', reportEmoji: '🎨', title: 'STATUS งานสกิม / ทาสี', type: 'progress', tasks: [ { name: 'สกิม', color: 'bg-stone-400', textColor: 'text-white' }, { name: 'ทาสี', color: 'bg-sky-500', textColor: 'text-white' } ] },
-                topping: { name: 'งานเท TOPPING', reportName: 'งานเทปรับระดับพื้นห้องพัก', reportEmoji: '🛠️', title: 'STATUS งานเท TOPPING', type: 'progress', tasks: [ { name: 'จับปุ่ม/ขังน้ำ', color: 'bg-orange-400', textColor: 'text-white' }, { name: 'เท Topping', color: 'bg-stone-500', textColor: 'text-white' } ] },
+                skimAndPaint: { name: 'งานสกิม/ทาสี', reportName: 'งานสกิมและทาสีห้องพัก', reportEmoji: '<img src="https://img1.pic.in.th/images/paint.md.png" alt="งานสี" class="w-6 h-6 inline-block object-contain" />', title: 'STATUS งานสกิม / ทาสี', type: 'progress', tasks: [ { name: 'สกิม', color: 'bg-stone-400', textColor: 'text-white' }, { name: 'ทาสี', color: 'bg-sky-500', textColor: 'text-white' } ] },
+                topping: { name: 'งานเท TOPPING', reportName: 'งานเทปรับระดับพื้นห้องพัก', reportEmoji: '<img src="https://img1.pic.in.th/images/Topping.png" alt="งาน Topping" class="w-6 h-6 inline-block object-contain" />', title: 'STATUS งานเท TOPPING', type: 'progress', tasks: [ { name: 'จับปุ่ม/ขังน้ำ', color: 'bg-orange-400', textColor: 'text-white' }, { name: 'เท Topping', color: 'bg-stone-500', textColor: 'text-white' } ] },
                 electrical: { name: 'งานไฟฟ้า', reportName: 'งานไฟฟ้า', reportEmoji: '⚡', title: 'STATUS งานไฟฟ้า', type: 'progress', tasks: [ { name: 'เดินท่อ', color: 'bg-yellow-500', textColor: 'text-black' }, { name: 'ร้อยสาย', color: 'bg-yellow-600', textColor: 'text-white' } ] },
                 plumbing: { name: 'งานประปา', reportName: 'งานประปา', reportEmoji: '💧', title: 'STATUS งานประปา', type: 'progress', tasks: [ { name: 'เดินท่อ', color: 'bg-blue-400', textColor: 'text-white' }, { name: 'ทดสอบแรงดัน', color: 'bg-blue-600', textColor: 'text-white' } ] },
                 airCon: { name: 'งานแอร์', reportName: 'งานแอร์', reportEmoji: '❄️', title: 'STATUS งานแอร์', type: 'progress', tasks: [ { name: 'เดินท่อ', color: 'bg-cyan-400', textColor: 'text-black' }, { name: 'ติดตั้งเครื่อง', color: 'bg-cyan-600', textColor: 'text-white' } ] },
@@ -1184,14 +1184,14 @@
                     ] 
                 },
                 aluminumPaint: { name: 'งานเก็บสีอลูมิเนียม', reportName: 'งานเก็บสีอลูมิเนียม', reportEmoji: '🖌️', title: 'STATUS งานเก็บสีอลูมิเนียม', type: 'progress', tasks: [ { name: 'ดำเนินการ', color: 'bg-zinc-400', textColor: 'text-white' }, { name: 'แล้วเสร็จ', color: 'bg-zinc-600', textColor: 'text-white' } ] },
-                cleaning: { name: 'งานทำความสะอาด', reportName: 'งานทำความสะอาด', reportEmoji: '🧹', title: 'STATUS งานทำความสะอาด', type: 'progress', tasks: [ { name: 'ดำเนินการ', color: 'bg-violet-400', textColor: 'text-white' }, { name: 'แล้วเสร็จ', color: 'bg-violet-600', textColor: 'text-white' } ] },
+                cleaning: { name: 'งานทำความสะอาด', reportName: 'งานทำความสะอาด', reportEmoji: '<img src="https://img1.pic.in.th/images/clean10ebd589103179c6.png" alt="Cleaning" class="w-6 h-6 inline-block object-contain" />', title: 'STATUS งานทำความสะอาด', type: 'progress', tasks: [ { name: 'ดำเนินการ', color: 'bg-violet-400', textColor: 'text-white' }, { name: 'แล้วเสร็จ', color: 'bg-violet-600', textColor: 'text-white' } ] },
                 wetWork: { name: 'คะแนน WET WORK', reportName: 'WET WORK', reportEmoji: '💧', title: 'STATUS งาน WET WORK', type: 'inspection', tasks: [ { name: 'CM WW', color: 'bg-orange-400', textColor: 'text-white' }, { name: 'QC WW', color: 'bg-yellow-400', textColor: 'text-black' } ] },
                 furniture: { name: 'งานติดตั้งเฟอร์นิเจอร์', reportName: 'งานติดตั้งเฟอร์นิเจอร์', reportEmoji: '🛋️', title: 'STATUS งานติดตั้งเฟอร์นิเจอร์', type: 'progress', tasks: [ { name: 'ติดตั้งชุดครัว', color: 'bg-amber-500', textColor: 'text-white' }, { name: 'ติดตั้งเฟอร์นิเจอร์', color: 'bg-amber-700', textColor: 'text-white' }, ] },
-                laminate: { name: 'งานปูพื้นไม้ลามิเนต', reportName: 'งานปูพื้นไม้ลามิเนต', reportEmoji: '🌲', title: 'STATUS งานปูพื้นไม้ลามิเนต', type: 'progress', tasks: [ { name: 'ตรวจรับพื้นที่', color: 'bg-yellow-400', textColor: 'text-black' }, { name: 'ปูพื้นไม้', color: 'bg-amber-800', textColor: 'text-white' }, ] },
+                laminate: { name: 'งานปูพื้นไม้ลามิเนต', reportName: 'งานปูพื้นไม้ลามิเนต', reportEmoji: '<img src="https://img1.pic.in.th/images/Untitled-5822b5d8fb838c5cc.png" alt="Laminate" class="w-6 h-6 inline-block object-contain" />', title: 'STATUS งานปูพื้นไม้ลามิเนต', type: 'progress', tasks: [ { name: 'ตรวจรับพื้นที่', color: 'bg-yellow-400', textColor: 'text-black' }, { name: 'ปูพื้นไม้', color: 'bg-amber-800', textColor: 'text-white' }, ] },
                 door: { 
                     name: 'งานติดตั้งประตูไม้', 
                     reportName: 'งานติดตั้งประตูไม้', 
-                    reportEmoji: '🚪', 
+                    reportEmoji: '<img src="https://img1.pic.in.th/images/Door.png" alt="งานประตู" class="w-6 h-6 inline-block object-contain" />', 
                     title: 'STATUS งานติดตั้งประตูไม้', 
                     type: 'multi-progress', 
                     tasks: [ 
@@ -1201,7 +1201,7 @@
                         { name: 'อุปกรณ์ประตู', key: 'hardware', shortName: 'อปก.', color: 'bg-cyan-600', textColor: 'text-white' } 
                     ] 
                 },
-                showerScreen: { name: 'งาน SHOWER SCREEN', reportName: 'งาน SHOWER SCREEN', reportEmoji: '🚿', title: 'STATUS งาน SHOWER SCREEN', type: 'progress', tasks: [ { key: 'inspection', name: 'ตรวจรับพื้นที่', color: 'bg-yellow-400', textColor: 'text-black' }, { key: 'install', name: 'ติดตั้ง', color: 'bg-sky-500', textColor: 'text-white' }, { key: 'finish', name: 'เก็บงาน', color: 'bg-teal-400', textColor: 'text-white' } ] },
+                showerScreen: { name: 'งาน SHOWER SCREEN', reportName: 'งาน SHOWER SCREEN', reportEmoji: '<img src="https://img2.pic.in.th/shower-screen.png" alt="Shower Screen" class="w-6 h-6 inline-block object-contain" />', title: 'STATUS งาน SHOWER SCREEN', type: 'progress', tasks: [ { key: 'inspection', name: 'ตรวจรับพื้นที่', color: 'bg-yellow-400', textColor: 'text-black' }, { key: 'install', name: 'ติดตั้ง', color: 'bg-sky-500', textColor: 'text-white' }, { key: 'finish', name: 'เก็บงาน', color: 'bg-teal-400', textColor: 'text-white' } ] },
                 endProduct: { name: 'คะแนน END PRODUCT', reportName: 'END PRODUCT', reportEmoji: '✅', title: 'STATUS งาน END PRODUCT', type: 'inspection', tasks: [ { name: 'CM End', color: 'bg-rose-300', textColor: 'text-black' }, { name: 'QC End', color: 'bg-emerald-400', textColor: 'text-black' }, ] },
             };
 
@@ -1763,14 +1763,14 @@
             
             const categoryIcons = {
                 skimAndPaint: {
-                    bg: 'bg-pink-100',
-                    color: 'text-pink-600',
-                    svg: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16.24 7.76-1.804 5.411a2 2 0 0 1-1.265 1.265L7.76 16.24l1.804-5.411a2 2 0 0 1 1.265-1.265z"/><path d="M4 20l3.5-3.5"/><path d="M14 4l6 6"/></svg>'
+                    bg: 'bg-transparent',
+                    color: '',
+                    svg: '<img src="https://img1.pic.in.th/images/paint.md.png" alt="งานสี" class="w-[70px] h-[70px] object-contain" />'
                 },
                 topping: {
-                    bg: 'bg-stone-100',
-                    color: 'text-stone-600',
-                    svg: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>'
+                    bg: 'bg-transparent',
+                    color: '',
+                    svg: '<img src="https://img1.pic.in.th/images/Topping.png" alt="งาน Topping" class="w-[70px] h-[70px] object-contain" />'
                 },
                 electrical: {
                     bg: 'bg-yellow-100',
@@ -1843,19 +1843,19 @@
                     svg: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 9V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v2"/><path d="M2 13h20"/><path d="M2 13v5a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-5"/><path d="M6 13v-4"/><path d="M18 13v-4"/></svg>'
                 },
                 laminate: {
-                    bg: 'bg-yellow-100',
-                    color: 'text-yellow-600',
-                    svg: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h20"/><path d="M4 6h16"/><path d="M4 18h16"/></svg>'
+                    bg: 'bg-transparent',
+                    color: '',
+                    svg: '<img src="https://img1.pic.in.th/images/Untitled-5822b5d8fb838c5cc.png" alt="Laminate" class="w-[70px] h-[70px] object-contain" />'
                 },
                 door: {
-                    bg: 'bg-amber-100',
-                    color: 'text-amber-800',
-                    svg: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16"/><path d="M2 20h20"/><path d="M14 12v.01"/></svg>'
+                    bg: 'bg-transparent',
+                    color: '',
+                    svg: '<img src="https://img1.pic.in.th/images/Door.png" alt="งานประตู" class="w-[70px] h-[70px] object-contain" />'
                 },
                 showerScreen: {
-                    bg: 'bg-blue-100',
-                    color: 'text-blue-500',
-                    svg: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v6"/><path d="M12 18v4"/><path d="M4.93 10.93l4.24 4.24"/><path d="M14.83 14.83l4.24 4.24"/><path d="M14.83 9.17l4.24-4.24"/><path d="M4.93 13.07l4.24-4.24"/></svg>'
+                    bg: 'bg-transparent',
+                    color: '',
+                    svg: '<img src="https://img2.pic.in.th/shower-screen.png" alt="Shower Screen" class="w-[70px] h-[70px] object-contain" />'
                 },
                 endProduct: {
                     bg: 'bg-emerald-100',
@@ -1868,9 +1868,9 @@
                     svg: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9.06 11.9 8.07-8.06a2.85 2.85 0 1 1 4.03 4.03l-8.06 8.08"/><path d="M7.07 14.94c-1.66 0-3 1.35-3 3.02 0 1.33-2.5 1.52-2 2.02 1.08 1.1 2.49 2.02 4 2.02 2.2 0 4-1.8 4-4.04a3.01 3.01 0 0 0-3-3.02z"/></svg>'
                 },
                 cleaning: {
-                    bg: 'bg-violet-100',
-                    color: 'text-violet-600',
-                    svg: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>'
+                    bg: 'bg-transparent',
+                    color: '',
+                    svg: '<img src="https://img1.pic.in.th/images/clean10ebd589103179c6.png" alt="Cleaning" class="w-[70px] h-[70px] object-contain" />'
                 },
                 common: {
                     bg: 'bg-violet-100',
@@ -2157,7 +2157,7 @@
                         return { key: 'kitchenOnly', name: 'งานติดตั้งชุดครัว', reportName: 'ชุดครัว', reportEmoji: '🍳', type: 'progress-kitchen' };
                     }
                     if (key === 'paintOnly') {
-                        return { key: 'paintOnly', name: 'งานสี', reportName: 'งานสี', reportEmoji: '🎨', type: 'progress-paint' };
+                        return { key: 'paintOnly', name: 'งานสี', reportName: 'งานสี', reportEmoji: '<img src="https://img1.pic.in.th/images/paint.md.png" alt="งานสี" class="w-6 h-6 inline-block object-contain" />', type: 'progress-paint' };
                     }
                     if (key === 'skimOnly') {
                         return { key: 'skimOnly', name: 'งานสกิม', reportName: 'งานสกิม', reportEmoji: '🖌️', type: 'progress-skim' };
@@ -2182,18 +2182,18 @@
                                 electricalRoughIn: 'bg-yellow-500',
                                 plumbingRoughIn: 'bg-blue-500',
                                 airConRoughIn: 'bg-cyan-500',
-                                door: 'bg-amber-700',
+                                door: 'bg-transparent',
                                 aluminum: 'bg-slate-500',
-                                laminate: 'bg-emerald-600',
+                                laminate: 'bg-transparent',
                                 showerScreenInspection: 'bg-yellow-500',
-                                showerScreen: 'bg-sky-500',
+                                showerScreen: 'bg-transparent',
                                 kitchenOnly: 'bg-amber-500',
-                                paintOnly: 'bg-rose-500',
+                                paintOnly: 'bg-transparent',
                                 aluminumPaint: 'bg-zinc-500',
-                                cleaning: 'bg-violet-500',
+                                cleaning: 'bg-transparent',
                                 endProduct: 'bg-emerald-500',
                                 texcaWall: 'bg-orange-500',
-                                topping: 'bg-stone-500',
+                                topping: 'bg-transparent',
                                 waterproofing: 'bg-indigo-500',
                                 tiling: 'bg-teal-500',
                                 ceilingRoom: 'bg-slate-500',
@@ -2212,18 +2212,18 @@
                                     electricalRoughIn: baseSvg + '<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>',
                                     plumbingRoughIn: baseSvg + '<path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"></path></svg>',
                                     airConRoughIn: baseSvg + '<path d="M17.7 7.7a2.5 2.5 0 1 1 1.8 4.3H2"/><path d="M9.6 4.6A2 2 0 1 1 11 8H2"/><path d="M12.6 19.4A2 2 0 1 0 14 16H2"/></svg>',
-                                    door: baseSvg + '<path d="M13 4h3a2 2 0 0 1 2 2v14"/><path d="M2 20h3"/><path d="M13 20v-9a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v9j"/><path d="M13 20h9"/><path d="M10 12v.01"/></svg>',
+                                    door: '<img src="https://img1.pic.in.th/images/Door.png" alt="งานประตู" class="w-6 h-6 object-contain" />',
                                     aluminum: baseSvg + '<rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><line x1="3" x2="21" y1="9" y2="9"/><line x1="9" x2="9" y1="21" y2="9"/></svg>',
-                                    laminate: baseSvg + '<polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>',
+                                    laminate: '<img src="https://img1.pic.in.th/images/Untitled-5822b5d8fb838c5cc.png" alt="Laminate" class="w-6 h-6 object-contain" />',
                                     showerScreenInspection: baseSvg + '<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><path d="M11 8v6"/><path d="M8 11h6"/></svg>',
-                                    showerScreen: baseSvg + '<rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><line x1="12" x2="12" y1="3" y2="21"/></svg>',
+                                    showerScreen: '<img src="https://img2.pic.in.th/shower-screen.png" alt="Shower Screen" class="w-6 h-6 object-contain" />',
                                     kitchenOnly: baseSvg + '<path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/><path d="M5 10v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V10"/></svg>',
-                                    paintOnly: baseSvg + '<rect width="16" height="6" x="2" y="2" rx="2"/><path d="M10 16v-2a2 2 0 0 1 2-2h8a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect width="4" height="6" x="8" y="16" rx="1"/></svg>',
+                                    paintOnly: '<img src="https://img1.pic.in.th/images/paint.md.png" alt="งานสี" class="w-6 h-6 object-contain" />',
                                     aluminumPaint: baseSvg + '<path d="m9.06 11.9 8.07-8.06a2.85 2.85 0 1 1 4.03 4.03l-8.06 8.08"/><path d="M7.07 14.94c-1.66 0-3 1.35-3 3.02 0 1.33-2.5 1.52-2 2.02 1.08 1.1 2.49 2.02 4 2.02 2.2 0 4-1.8 4-4.04a3.01 3.01 0 0 0-3-3.02z"/></svg>',
-                                    cleaning: baseSvg + '<path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>',
+                                    cleaning: '<img src="https://img1.pic.in.th/images/clean10ebd589103179c6.png" alt="Cleaning" class="w-6 h-6 object-contain" />',
                                     endProduct: baseSvg + '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
                                     texcaWall: baseSvg + '<rect width="18" height="18" x="3" y="3" rx="2"/><path d="M12 9v6"/><path d="M16 15v6"/><path d="M16 3v6"/><path d="M3 15h18"/><path d="M3 9h18"/><path d="M8 15v6"/><path d="M8 3v6"/></svg>',
-                                    topping: baseSvg + '<rect width="18" height="18" x="3" y="3" rx="2"/><path d="M8 12l4-4 4 4"/><path d="M12 16V8"/></svg>',
+                                    topping: '<img src="https://img1.pic.in.th/images/Topping.png" alt="งาน Topping" class="w-6 h-6 object-contain" />',
                                     waterproofing: baseSvg + '<path d="M22 12a10.06 10.06 0 0 0-20 0Z"/><path d="M12 12v8a2 2 0 0 0 4 0"/><path d="M12 2v1"/></svg>',
                                     tiling: baseSvg + '<rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/></svg>',
                                     ceilingRoom: baseSvg + '<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>',
@@ -3216,8 +3216,9 @@
                     );
 
                     const icons = {
-                        skimAndPaint: `<svg class="w-5 h-5 ${iconColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path></svg>`,
-                        topping: `<svg class="w-5 h-5 ${iconColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11L12 15l-7-4M19 15l-7 4-7-4M19 7l-7 4-7-4 7-4 7 4z"></path></svg>`,
+                        skimAndPaint: `<img src="https://img1.pic.in.th/images/paint.md.png" alt="งานสี" class="w-5 h-5 object-contain" />`,
+                        paintOnly: `<img src="https://img1.pic.in.th/images/paint.md.png" alt="งานสี" class="w-5 h-5 object-contain" />`,
+                        topping: `<img src="https://img1.pic.in.th/images/Topping.png" alt="งาน Topping" class="w-5 h-5 object-contain" />`,
                         electrical: `<svg class="w-5 h-5 ${iconColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>`,
                         plumbing: `<svg class="w-5 h-5 ${iconColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z"></path></svg>`,
                         airCon: `<svg class="w-5 h-5 ${iconColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`,
@@ -3228,12 +3229,12 @@
                         tiling: `<svg class="w-5 h-5 ${iconColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>`,
                         aluminum: `<svg class="w-5 h-5 ${iconColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2" stroke-width="2"></rect><line x1="3" y1="9" x2="21" y2="9" stroke-width="2"></line><line x1="9" y1="21" x2="9" y2="9" stroke-width="2"></line></svg>`,
                         furniture: `<svg class="w-5 h-5 ${iconColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>`,
-                        laminate: `<svg class="w-5 h-5 ${iconColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>`,
-                        door: `<svg class="w-5 h-5 ${iconColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2" ry="2" stroke-width="2"></rect><circle cx="15" cy="12" r="1" stroke-width="2"></circle></svg>`,
-                        showerScreen: `<svg class="w-5 h-5 ${iconColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z"></path></svg>`,
+                        laminate: `<img src="https://img1.pic.in.th/images/Untitled-5822b5d8fb838c5cc.png" alt="Laminate" class="w-5 h-5 object-contain" />`,
+                        door: `<img src="https://img1.pic.in.th/images/Door.png" alt="งานประตู" class="w-5 h-5 object-contain" />`,
+                        showerScreen: `<img src="https://img2.pic.in.th/shower-screen.png" alt="Shower Screen" class="w-5 h-5 object-contain" />`,
                         wetWork: `<svg class="w-5 h-5 ${iconColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`,
                         aluminumPaint: `<svg class="w-5 h-5 ${iconColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9.06 11.9 8.07-8.06a2.85 2.85 0 1 1 4.03 4.03l-8.06 8.08"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7.07 14.94c-1.66 0-3 1.35-3 3.02 0 1.33-2.5 1.52-2 2.02 1.08 1.1 2.49 2.02 4 2.02 2.2 0 4-1.8 4-4.04a3.01 3.01 0 0 0-3-3.02z"/></svg>`,
-                        cleaning: `<svg class="w-5 h-5 ${iconColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 17v4"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h4"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 19h4"/></svg>`,
+                        cleaning: `<img src="https://img1.pic.in.th/images/clean10ebd589103179c6.png" alt="Cleaning" class="w-5 h-5 object-contain" />`,
                         endProduct: `<svg class="w-5 h-5 ${iconColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`
                     };
                     return icons[catKey] || `<svg class="w-5 h-5 ${iconColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>`;
