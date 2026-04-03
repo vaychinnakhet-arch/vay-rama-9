@@ -1147,17 +1147,17 @@
             };
 
             const taskDefinitions = {
-                skimAndPaint: { name: 'งานสกิม/ทาสี', reportName: 'งานสกิมและทาสีห้องพัก', reportEmoji: '<img src="https://img1.pic.in.th/images/paint.md.png" alt="งานสี" class="w-6 h-6 inline-block object-contain" />', title: 'STATUS งานสกิม / ทาสี', type: 'progress', tasks: [ { name: 'สกิม', color: 'bg-stone-400', textColor: 'text-white' }, { name: 'ทาสี', color: 'bg-sky-500', textColor: 'text-white' } ] },
-                topping: { name: 'งานเท TOPPING', reportName: 'งานเทปรับระดับพื้นห้องพัก', reportEmoji: '<img src="https://img1.pic.in.th/images/Topping.png" alt="งาน Topping" class="w-6 h-6 inline-block object-contain" />', title: 'STATUS งานเท TOPPING', type: 'progress', tasks: [ { name: 'จับปุ่ม/ขังน้ำ', color: 'bg-orange-400', textColor: 'text-white' }, { name: 'เท Topping', color: 'bg-stone-500', textColor: 'text-white' } ] },
+                skimAndPaint: { name: 'งานสกิม/ทาสี', reportName: 'งานสกิมและทาสีห้องพัก', reportEmoji: '🎨', title: 'STATUS งานสกิม / ทาสี', type: 'progress', tasks: [ { name: 'สกิม', color: 'bg-stone-400', textColor: 'text-white' }, { name: 'ทาสี', color: 'bg-sky-500', textColor: 'text-white' } ] },
+                topping: { name: 'งานเท TOPPING', reportName: 'งานเทปรับระดับพื้นห้องพัก', reportEmoji: '🏗️', title: 'STATUS งานเท TOPPING', type: 'progress', tasks: [ { name: 'จับปุ่ม/ขังน้ำ', color: 'bg-orange-400', textColor: 'text-white' }, { name: 'เท Topping', color: 'bg-stone-500', textColor: 'text-white' } ] },
                 electrical: { name: 'งานไฟฟ้า', reportName: 'งานไฟฟ้า', reportEmoji: '⚡', title: 'STATUS งานไฟฟ้า', type: 'progress', tasks: [ { name: 'เดินท่อ', color: 'bg-yellow-500', textColor: 'text-black' }, { name: 'ร้อยสาย', color: 'bg-yellow-600', textColor: 'text-white' } ] },
                 plumbing: { name: 'งานประปา', reportName: 'งานประปา', reportEmoji: '💧', title: 'STATUS งานประปา', type: 'progress', tasks: [ { name: 'เดินท่อ', color: 'bg-blue-400', textColor: 'text-white' }, { name: 'ทดสอบแรงดัน', color: 'bg-blue-600', textColor: 'text-white' } ] },
-                airCon: { name: 'งานแอร์', reportName: 'งานแอร์', reportEmoji: '❄️', title: 'STATUS งานแอร์', type: 'progress', tasks: [ { name: 'เดินท่อ', color: 'bg-cyan-400', textColor: 'text-black' }, { name: 'ติดตั้งเครื่อง', color: 'bg-cyan-600', textColor: 'text-white' } ] },
+                airCon: { name: 'งานแอร์', reportName: 'งานแอร์', reportEmoji: '🌬️', title: 'STATUS งานแอร์', type: 'progress', tasks: [ { name: 'เดินท่อ', color: 'bg-cyan-400', textColor: 'text-black' }, { name: 'ติดตั้งเครื่อง', color: 'bg-cyan-600', textColor: 'text-white' } ] },
                 ceilingRoom: { name: 'งานฝ้า (ห้องพัก)', reportName: 'งานติดตั้งฝ้าห้องพัก', reportEmoji: '🪜', title: 'STATUS งานติดตั้งฝ้าห้องพัก', type: 'progress', tasks: [ { name: 'ขึ้นโครง', color: 'bg-slate-500', textColor: 'text-white' }, { name: 'ติดแผ่น', color: 'bg-yellow-400', textColor: 'text-black' } ] },
                 ceilingBathroom: { name: 'งานฝ้า (ห้องน้ำ)', reportName: 'งานติดตั้งฝ้าห้องน้ำ', reportEmoji: '🪜', title: 'STATUS งานติดตั้งฝ้าห้องน้ำ', type: 'progress', tasks: [ { name: 'ขึ้นโครง', color: 'bg-slate-600', textColor: 'text-white' }, { name: 'ติดแผ่น', color: 'bg-yellow-500', textColor: 'text-black' } ] },
                 texcaWall: { name: 'งานผนัง TEXCA', reportName: 'งานผนัง TEXCA', reportEmoji: '🧱', title: 'STATUS งานผนัง TEXCA WALL', type: 'progress', tasks: [ { name: 'ตีไลน์', color: 'bg-red-500', textColor: 'text-white' }, { name: 'เขิบ', color: 'bg-stone-400', textColor: 'text-white' }, { name: 'TEXCA', color: 'bg-orange-300', textColor: 'text-black' } ] },
                 electricalRoughIn: { name: 'งานไฟฟ้า', reportName: 'ไฟฟ้า', reportEmoji: '⚡', title: 'STATUS งานไฟฟ้า', type: 'progress', tasks: [ { name: 'เดินท่อ', color: 'bg-yellow-500', textColor: 'text-black' }, { name: 'ร้อยสาย', color: 'bg-yellow-600', textColor: 'text-white' } ] },
                 plumbingRoughIn: { name: 'งานประปา', reportName: 'ประปา', reportEmoji: '💧', title: 'STATUS งานประปา', type: 'progress', tasks: [ { name: 'เดินท่อ', color: 'bg-blue-500', textColor: 'text-black' }, { name: 'ทดสอบแรงดัน', color: 'bg-blue-600', textColor: 'text-white' } ] },
-                airConRoughIn: { name: 'งานแอร์', reportName: 'แอร์', reportEmoji: '❄️', title: 'STATUS งานแอร์', type: 'progress', tasks: [ { name: 'เดินท่อ', color: 'bg-cyan-500', textColor: 'text-black' }, { name: 'ติดตั้งเครื่อง', color: 'bg-cyan-600', textColor: 'text-white' } ] },
+                airConRoughIn: { name: 'งานแอร์', reportName: 'แอร์', reportEmoji: '🌬️', title: 'STATUS งานแอร์', type: 'progress', tasks: [ { name: 'เดินท่อ', color: 'bg-cyan-500', textColor: 'text-black' }, { name: 'ติดตั้งเครื่อง', color: 'bg-cyan-600', textColor: 'text-white' } ] },
                 waterproofing: { name: 'งานกันซึม', reportName: 'งานกันซึม', reportEmoji: '🛡️', title: 'STATUS งานกันซึม', type: 'multi-progress', tasks: [ { name: 'ห้องน้ำ', key: 'bathroom', shortName: 'น้ำ', color: 'bg-indigo-500', textColor: 'text-white' }, { name: 'ระเบียง', key: 'balcony', shortName: 'รบ.', color: 'bg-cyan-500', textColor: 'text-white' } ] },
                 tiling: { 
                     name: 'งานปูกระเบื้อง', 
@@ -1183,15 +1183,15 @@
                         { name: 'บานหน้าต่าง', key: 'window', shortName: 'นต.', color: 'bg-sky-300', textColor: 'text-black' } 
                     ] 
                 },
-                aluminumPaint: { name: 'งานเก็บสีอลูมิเนียม', reportName: 'งานเก็บสีอลูมิเนียม', reportEmoji: '<img src="https://img1.pic.in.th/images/alucolor.png" alt="Aluminum Paint" class="w-6 h-6 inline-block object-contain" />', title: 'STATUS งานเก็บสีอลูมิเนียม', type: 'progress', tasks: [ { name: 'ดำเนินการ', color: 'bg-zinc-400', textColor: 'text-white' }, { name: 'แล้วเสร็จ', color: 'bg-zinc-600', textColor: 'text-white' } ] },
-                cleaning: { name: 'งานทำความสะอาด', reportName: 'งานทำความสะอาด', reportEmoji: '<img src="https://img1.pic.in.th/images/clean10ebd589103179c6.png" alt="Cleaning" class="w-6 h-6 inline-block object-contain" />', title: 'STATUS งานทำความสะอาด', type: 'progress', tasks: [ { name: 'ดำเนินการ', color: 'bg-violet-400', textColor: 'text-white' }, { name: 'แล้วเสร็จ', color: 'bg-violet-600', textColor: 'text-white' } ] },
+                aluminumPaint: { name: 'งานเก็บสีอลูมิเนียม', reportName: 'งานเก็บสีอลูมิเนียม', reportEmoji: '🖌️', title: 'STATUS งานเก็บสีอลูมิเนียม', type: 'progress', tasks: [ { name: 'ดำเนินการ', color: 'bg-zinc-400', textColor: 'text-white' }, { name: 'แล้วเสร็จ', color: 'bg-zinc-600', textColor: 'text-white' } ] },
+                cleaning: { name: 'งานทำความสะอาด', reportName: 'งานทำความสะอาด', reportEmoji: '🧹', title: 'STATUS งานทำความสะอาด', type: 'progress', tasks: [ { name: 'ดำเนินการ', color: 'bg-violet-400', textColor: 'text-white' }, { name: 'แล้วเสร็จ', color: 'bg-violet-600', textColor: 'text-white' } ] },
                 wetWork: { name: 'คะแนน WET WORK', reportName: 'WET WORK', reportEmoji: '💧', title: 'STATUS งาน WET WORK', type: 'inspection', tasks: [ { name: 'CM WW', color: 'bg-orange-400', textColor: 'text-white' }, { name: 'QC WW', color: 'bg-yellow-400', textColor: 'text-black' } ] },
                 furniture: { name: 'งานติดตั้งเฟอร์นิเจอร์', reportName: 'งานติดตั้งเฟอร์นิเจอร์', reportEmoji: '🛋️', title: 'STATUS งานติดตั้งเฟอร์นิเจอร์', type: 'progress', tasks: [ { name: 'ติดตั้งชุดครัว', color: 'bg-amber-500', textColor: 'text-white' }, { name: 'ติดตั้งเฟอร์นิเจอร์', color: 'bg-amber-700', textColor: 'text-white' }, ] },
-                laminate: { name: 'งานปูพื้นไม้ลามิเนต', reportName: 'งานปูพื้นไม้ลามิเนต', reportEmoji: '<img src="https://img1.pic.in.th/images/Untitled-5822b5d8fb838c5cc.png" alt="Laminate" class="w-6 h-6 inline-block object-contain" />', title: 'STATUS งานปูพื้นไม้ลามิเนต', type: 'progress', tasks: [ { name: 'ตรวจรับพื้นที่', color: 'bg-yellow-400', textColor: 'text-black' }, { name: 'ปูพื้นไม้', color: 'bg-amber-800', textColor: 'text-white' }, ] },
+                laminate: { name: 'งานปูพื้นไม้ลามิเนต', reportName: 'งานปูพื้นไม้ลามิเนต', reportEmoji: '🪵', title: 'STATUS งานปูพื้นไม้ลามิเนต', type: 'progress', tasks: [ { name: 'ตรวจรับพื้นที่', color: 'bg-yellow-400', textColor: 'text-black' }, { name: 'ปูพื้นไม้', color: 'bg-amber-800', textColor: 'text-white' }, ] },
                 door: { 
                     name: 'งานติดตั้งประตูไม้', 
                     reportName: 'งานติดตั้งประตูไม้', 
-                    reportEmoji: '<img src="https://img1.pic.in.th/images/Door.png" alt="งานประตู" class="w-6 h-6 inline-block object-contain" />', 
+                    reportEmoji: '🚪', 
                     title: 'STATUS งานติดตั้งประตูไม้', 
                     type: 'multi-progress', 
                     tasks: [ 
@@ -1201,8 +1201,8 @@
                         { name: 'อุปกรณ์ประตู', key: 'hardware', shortName: 'อปก.', color: 'bg-cyan-600', textColor: 'text-white' } 
                     ] 
                 },
-                showerScreen: { name: 'งาน SHOWER SCREEN', reportName: 'งาน SHOWER SCREEN', reportEmoji: '<img src="https://img2.pic.in.th/shower-screen.png" alt="Shower Screen" class="w-6 h-6 inline-block object-contain" />', title: 'STATUS งาน SHOWER SCREEN', type: 'progress', tasks: [ { key: 'inspection', name: 'ตรวจรับพื้นที่', color: 'bg-yellow-400', textColor: 'text-black' }, { key: 'install', name: 'ติดตั้ง', color: 'bg-sky-500', textColor: 'text-white' }, { key: 'finish', name: 'เก็บงาน', color: 'bg-teal-400', textColor: 'text-white' } ] },
-                endProduct: { name: 'คะแนน END PRODUCT', reportName: 'END PRODUCT', reportEmoji: '<img src="https://img1.pic.in.th/images/end.png" alt="End Product" class="w-6 h-6 inline-block object-contain" />', title: 'STATUS งาน END PRODUCT', type: 'inspection', tasks: [ { name: 'CM End', color: 'bg-rose-300', textColor: 'text-black' }, { name: 'QC End', color: 'bg-emerald-400', textColor: 'text-black' }, ] },
+                showerScreen: { name: 'งาน SHOWER SCREEN', reportName: 'งาน SHOWER SCREEN', reportEmoji: '🚿', title: 'STATUS งาน SHOWER SCREEN', type: 'progress', tasks: [ { key: 'inspection', name: 'ตรวจรับพื้นที่', color: 'bg-yellow-400', textColor: 'text-black' }, { key: 'install', name: 'ติดตั้ง', color: 'bg-sky-500', textColor: 'text-white' }, { key: 'finish', name: 'เก็บงาน', color: 'bg-teal-400', textColor: 'text-white' } ] },
+                endProduct: { name: 'คะแนน END PRODUCT', reportName: 'END PRODUCT', reportEmoji: '🏁', title: 'STATUS งาน END PRODUCT', type: 'inspection', tasks: [ { name: 'CM End', color: 'bg-rose-300', textColor: 'text-black' }, { name: 'QC End', color: 'bg-emerald-400', textColor: 'text-black' }, ] },
             };
 
             const commonAreaDefinitions = {
@@ -2157,7 +2157,7 @@
                         return { key: 'kitchenOnly', name: 'งานติดตั้งชุดครัว', reportName: 'ชุดครัว', reportEmoji: '🍳', type: 'progress-kitchen' };
                     }
                     if (key === 'paintOnly') {
-                        return { key: 'paintOnly', name: 'งานสี', reportName: 'งานสี', reportEmoji: '<img src="https://img1.pic.in.th/images/paint.md.png" alt="งานสี" class="w-6 h-6 inline-block object-contain" />', type: 'progress-paint' };
+                        return { key: 'paintOnly', name: 'งานสี', reportName: 'งานสี', reportEmoji: '🎨', type: 'progress-paint' };
                     }
                     if (key === 'skimOnly') {
                         return { key: 'skimOnly', name: 'งานสกิม', reportName: 'งานสกิม', reportEmoji: '🖌️', type: 'progress-skim' };
@@ -2203,41 +2203,9 @@
                             };
                             const colorClass = headerColors[t.key] || 'bg-slate-400';
                             
-                            const getMinimalIcon = (key) => {
-                                const baseSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">';
-                                const icons = {
-                                    electrical: baseSvg + '<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>',
-                                    plumbing: baseSvg + '<path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"></path></svg>',
-                                    airCon: baseSvg + '<path d="M17.7 7.7a2.5 2.5 0 1 1 1.8 4.3H2"/><path d="M9.6 4.6A2 2 0 1 1 11 8H2"/><path d="M12.6 19.4A2 2 0 1 0 14 16H2"/></svg>',
-                                    electricalRoughIn: baseSvg + '<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>',
-                                    plumbingRoughIn: baseSvg + '<path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"></path></svg>',
-                                    airConRoughIn: baseSvg + '<path d="M17.7 7.7a2.5 2.5 0 1 1 1.8 4.3H2"/><path d="M9.6 4.6A2 2 0 1 1 11 8H2"/><path d="M12.6 19.4A2 2 0 1 0 14 16H2"/></svg>',
-                                    door: '<img src="https://img1.pic.in.th/images/Door.png" alt="งานประตู" class="w-6 h-6 object-contain" />',
-                                    aluminum: baseSvg + '<rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><line x1="3" x2="21" y1="9" y2="9"/><line x1="9" x2="9" y1="21" y2="9"/></svg>',
-                                    laminate: '<img src="https://img1.pic.in.th/images/Untitled-5822b5d8fb838c5cc.png" alt="Laminate" class="w-6 h-6 object-contain" />',
-                                    showerScreenInspection: baseSvg + '<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><path d="M11 8v6"/><path d="M8 11h6"/></svg>',
-                                    showerScreen: '<img src="https://img2.pic.in.th/shower-screen.png" alt="Shower Screen" class="w-6 h-6 object-contain" />',
-                                    kitchenOnly: baseSvg + '<path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/><path d="M5 10v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V10"/></svg>',
-                                    paintOnly: '<img src="https://img1.pic.in.th/images/paint.md.png" alt="งานสี" class="w-6 h-6 object-contain" />',
-                                    aluminumPaint: '<img src="https://img1.pic.in.th/images/alucolor.png" alt="Aluminum Paint" class="w-6 h-6 object-contain" />',
-                                    cleaning: '<img src="https://img1.pic.in.th/images/clean10ebd589103179c6.png" alt="Cleaning" class="w-6 h-6 object-contain" />',
-                                    endProduct: '<img src="https://img1.pic.in.th/images/end.png" alt="End Product" class="w-6 h-6 object-contain" />',
-                                    texcaWall: baseSvg + '<rect width="18" height="18" x="3" y="3" rx="2"/><path d="M12 9v6"/><path d="M16 15v6"/><path d="M16 3v6"/><path d="M3 15h18"/><path d="M3 9h18"/><path d="M8 15v6"/><path d="M8 3v6"/></svg>',
-                                    topping: '<img src="https://img1.pic.in.th/images/Topping.png" alt="งาน Topping" class="w-6 h-6 object-contain" />',
-                                    waterproofing: baseSvg + '<path d="M22 12a10.06 10.06 0 0 0-20 0Z"/><path d="M12 12v8a2 2 0 0 0 4 0"/><path d="M12 2v1"/></svg>',
-                                    tiling: baseSvg + '<rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/></svg>',
-                                    ceilingRoom: baseSvg + '<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>',
-                                    ceilingBathroom: baseSvg + '<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>',
-                                    skimOnly: baseSvg + '<path d="m9.06 11.9 8.07-8.06a2.85 2.85 0 1 1 4.03 4.03l-8.06 8.08"/><path d="M7.07 14.94c-1.66 0-3 1.35-3 3.02 0 1.33-2.5 1.52-2 2.02 1.08 1.1 2.49 2.02 4 2.02 2.2 0 4-1.8 4-4.04a3.01 3.01 0 0 0-3-3.02z"/></svg>',
-                                    wetWork: baseSvg + '<path d="m15 12-8.5 8.5c-.83.83-2.17.83-3 0 0 0 0 0 0 0a2.12 2.12 0 0 1 0-3L12 9"/><path d="M17.64 15 22 10.64"/><path d="m20.91 11.7-1.25-1.25c-.6-.6-.93-1.4-.93-2.25v-.86L16.01 4.6a5.56 5.56 0 0 0-3.94-1.64H11.2l-1.6 1.6"/><path d="m18.23 14.36-1.71-1.71c-.6-.6-.93-1.4-.93-2.25v-.86L12.87 6.8a5.56 5.56 0 0 0-3.94-1.64H8.04l-1.6 1.6"/></svg>'
-                                };
-                                return icons[key] || t.reportEmoji;
-                            };
-                            
                             return `
                                 <th class="border p-2 text-xs" style="min-width: 100px;">
                                     <div class="flex items-center justify-center gap-1.5">
-                                        <span class="w-5 h-5 flex items-center justify-center rounded ${colorClass} text-white shadow-sm">${getMinimalIcon(t.key)}</span>
                                         <span class="uppercase tracking-tight font-bold" style="font-size: 18px;">${t.reportName}</span>
                                     </div>
                                 </th>`;
@@ -5875,9 +5843,11 @@
                 let report = `📋 รายงานความก้าวหน้าโครงการ Vay Chinnakhet\n`;
                 report += `🗓️ ประจำวันที่ ${dateString}\n`;
                 
+                const stripHTML = (html) => html.replace(/<[^>]*>?/gm, '');
+                
                 const processCategory = (catKey, floorsToCalc, isSummary) => {
                     const catDef = taskDefinitions[catKey];
-                    let categorySection = `\n${catDef.reportEmoji} ${catDef.reportName}\n`;
+                    let categorySection = `\n${stripHTML(catDef.reportEmoji)} ${catDef.reportName}\n`;
                     if (catDef.type === 'inspection') {
                         let submittedCount = 0;
                         let passedCount = 0;
@@ -5990,7 +5960,7 @@
                        orderedTaskKeys.forEach(catKey => {
                            const catDef = taskDefinitions[catKey];
                            if (catDef.type === 'inspection' && tasks[catKey] && tasks[catKey].length > 0) {
-                               report += `\n${catDef.reportEmoji} ${catDef.reportName}\n`;
+                               report += `\n${stripHTML(catDef.reportEmoji)} ${catDef.reportName}\n`;
                                floors.forEach(floor => {
                                    report += `  --- ชั้น ${floor} ---\n`;
                                    const roomsOnThisFloor = CONFIG.getRoomsOnFloor(floor);
@@ -6053,7 +6023,7 @@
                     });
                     
                     if (catNotes) {
-                        notesSection += `\n${catDef.reportEmoji} ${catDef.reportName}\n${catNotes}`;
+                        notesSection += `\n${stripHTML(catDef.reportEmoji)} ${catDef.reportName}\n${catNotes}`;
                     }
                 });
 
