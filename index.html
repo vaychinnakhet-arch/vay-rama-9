@@ -2397,6 +2397,10 @@
                     mainTable._reportElements = null;
                 }
                 mainTable.classList.remove('hidden');
+                
+                // Reset table border classes (Schedule view might have changed them)
+                mainTable.classList.remove('border-separate', 'border-spacing-0');
+                mainTable.classList.add('border-collapse');
 
                 const floorSelection = document.getElementById('summary-report-floor-selection');
                 if (floorSelection) {
@@ -3471,6 +3475,10 @@
                 mainTable.innerHTML = '';
                 mainTable.classList.remove('hidden');
                 
+                // Use border-separate and border-spacing-0 for better sticky column borders
+                mainTable.classList.remove('border-collapse');
+                mainTable.classList.add('border-separate', 'border-spacing-0');
+                
                 const reportHeader = document.getElementById('report-header');
                 if (reportHeader) reportHeader.classList.remove('hidden');
 
@@ -3492,17 +3500,18 @@
                 const thead = document.createElement('thead');
                 thead.innerHTML = `
                     <tr class="bg-slate-100">
-                        <th class="border p-2 text-xs sticky left-0 z-30 bg-slate-100" rowspan="3" style="min-width: 60px;">อาคาร/ชั้น</th>
-                        <th class="border p-2 text-xs sticky left-[60px] z-30 bg-slate-100" rowspan="3" style="min-width: 40px;"></th>
-                        ${visibleTasks.map(t => `<th class="border p-0 ${t.task.color}" colspan="2"><div class="p-2 text-sm font-bold mx-auto flex items-center justify-center text-center" style="min-width: 90px; max-width: 140px; white-space: normal; line-height: 1.4; word-break: break-word;">${t.task.name}</div></th>`).join('')}
+                        <th class="border-t border-l border-b border-slate-300 p-2 text-xs sticky left-0 z-30 bg-slate-100" rowspan="3" style="min-width: 60px;">อาคาร/ชั้น</th>
+                        <th class="border-t border-l border-b border-slate-300 p-2 text-xs sticky left-[60px] z-30 bg-slate-100" rowspan="3" style="min-width: 40px;"></th>
+                        ${visibleTasks.map(t => `<th class="border-t border-l border-b border-slate-300 p-0 ${t.task.color}" colspan="2"><div class="p-2 text-sm font-bold mx-auto flex items-center justify-center text-center" style="min-width: 90px; max-width: 140px; white-space: normal; line-height: 1.4; word-break: break-word;">${t.task.name}</div></th>`).join('')}
+                        <th class="border-t border-l border-r border-b border-slate-300" rowspan="3" style="width: 0;"></th>
                     </tr>
                     <tr class="bg-slate-50">
-                        ${visibleTasks.map(t => `<th class="border p-1 text-[10px] font-bold text-center ${t.task.color}" colspan="2">${t.task.subName}</th>`).join('')}
+                        ${visibleTasks.map(t => `<th class="border-l border-b border-slate-300 p-1 text-[10px] font-bold text-center ${t.task.color}" colspan="2">${t.task.subName}</th>`).join('')}
                     </tr>
                     <tr class="bg-slate-50">
                         ${visibleTasks.map(() => `
-                            <th class="border p-1 text-[9px] font-medium" style="min-width: 45px;">เริ่ม</th>
-                            <th class="border p-1 text-[9px] font-medium" style="min-width: 45px;">แล้วเสร็จ</th>
+                            <th class="border-l border-b border-slate-300 p-1 text-[9px] font-medium" style="min-width: 45px;">เริ่ม</th>
+                            <th class="border-l border-b border-slate-300 p-1 text-[9px] font-medium" style="min-width: 45px;">แล้วเสร็จ</th>
                         `).join('')}
                     </tr>
                 `;
@@ -3519,7 +3528,7 @@
                             const dateStr = floor.plan[idx];
                             const colorClass = getMonthColorClass(dateStr);
                             const formattedDate = formatThaiDateShort(dateStr);
-                            planCells += `<td class="border p-0 text-[10px] text-center relative hover:opacity-80 transition-opacity ${colorClass}" style="min-width: 45px; height: 24px;">
+                            planCells += `<td class="border-l border-b border-slate-300 p-0 text-[10px] text-center relative hover:opacity-80 transition-opacity ${colorClass}" style="min-width: 45px; height: 24px;">
                                 <div class="absolute inset-0 flex items-center justify-center pointer-events-none font-medium">${formattedDate}</div>
                                 <input type="date" value="${dateStr}" 
                                     class="absolute inset-0 w-full h-full opacity-0 cursor-pointer date-picker-cover z-10"
@@ -3530,9 +3539,10 @@
                     });
                     
                     planRow.innerHTML = `
-                        <td class="border p-2 font-bold text-center sticky left-0 z-20 bg-white" rowspan="2">${floor.id}</td>
-                        <td class="border p-1 text-[10px] text-center sticky left-[60px] z-20 bg-white">แผน</td>
+                        <td class="border-l border-b border-slate-300 p-2 font-bold text-center sticky left-0 z-20 bg-white" rowspan="2">${floor.id}</td>
+                        <td class="border-l border-b border-slate-300 p-1 text-[10px] text-center sticky left-[60px] z-20 bg-white">แผน</td>
                         ${planCells}
+                        <td class="border-l border-r border-b border-slate-300" rowspan="2"></td>
                     `;
                     tbody.appendChild(planRow);
 
@@ -3546,14 +3556,14 @@
                             const colorClass = getMonthColorClass(actualVal !== 'DONE' ? actualVal : planVal);
                             const formattedDate = formatThaiDateShort(actualVal);
                             
-                            actualCells += `<td class="border p-0 text-[10px] text-center relative hover:opacity-80 transition-opacity cursor-pointer ${colorClass}" style="min-width: 45px; height: 24px;" onclick="openActualUpdateModal(${floor.id}, ${t.index}, ${isStart})">
+                            actualCells += `<td class="border-l border-b border-slate-300 p-0 text-[10px] text-center relative hover:opacity-80 transition-opacity cursor-pointer ${colorClass}" style="min-width: 45px; height: 24px;" onclick="openActualUpdateModal(${floor.id}, ${t.index}, ${isStart})">
                                 <div class="absolute inset-0 flex items-center justify-center pointer-events-none font-medium">${formattedDate}</div>
                             </td>`;
                         });
                     });
 
                     actualRow.innerHTML = `
-                        <td class="border p-1 text-[10px] text-center sticky left-[60px] z-20 bg-white">ผล</td>
+                        <td class="border-l border-b border-slate-300 p-1 text-[10px] text-center sticky left-[60px] z-20 bg-white">ผล</td>
                         ${actualCells}
                     `;
                     tbody.appendChild(actualRow);
