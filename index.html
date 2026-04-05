@@ -741,21 +741,24 @@
 
             <!-- Main Content -->
             <main class="p-0 md:p-4 overflow-x-auto">
-                  <table id="main-table" class="w-full border-collapse text-center text-xs md:text-sm">
-                      <!-- JS Generated Content -->
-                  </table>
-
-                  <!-- Legend -->
-                <div id="legend" class="mt-4 mx-2 md:mx-0 p-3 bg-slate-50 border border-slate-200 shadow-sm rounded-xl flex flex-wrap items-center gap-x-4 gap-y-2 text-sm font-medium text-slate-700">
+                <div id="schedule-filter" class="hidden mb-6 mx-2 md:mx-0 p-4 bg-white border border-slate-200 shadow-sm rounded-xl">
                     <!-- JS Generated Content -->
                 </div>
 
-                <div id="schedule-settings" class="hidden mt-4 mx-2 md:mx-0 p-4 bg-white border border-slate-200 shadow-sm rounded-xl">
+                <div id="schedule-settings" class="hidden mb-6 mx-2 md:mx-0 p-4 bg-white border border-slate-200 shadow-sm rounded-xl">
                     <!-- JS Generated Content -->
                 </div>
 
-                <div id="executive-summary-dashboard" class="hidden mt-6 w-full mx-auto">
-                      <!-- JS Generated Content -->
+                <table id="main-table" class="w-full border-collapse text-center text-xs md:text-sm">
+                    <!-- JS Generated Content -->
+                </table>
+
+                <div id="legend" class="mb-4 mx-2 md:mx-0 p-3 bg-slate-50 border border-slate-200 shadow-sm rounded-xl flex flex-wrap items-center gap-x-4 gap-y-2 text-sm font-medium text-slate-700">
+                    <!-- JS Generated Content -->
+                </div>
+
+                <div id="executive-summary-dashboard" class="hidden mt-8 w-full mx-auto">
+                    <!-- JS Generated Content -->
                 </div>
             </main>
         </div>
@@ -819,6 +822,9 @@
                     <button id="captureShareBtn" class="hidden action-btn px-4 py-2 bg-emerald-600 text-white rounded-lg shadow-sm hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 text-sm font-medium inline-flex items-center gap-2 transition-all">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
                         แคปเจอร์แบบแชร์
+                    </button>
+                    <button id="toggleScheduleFilterBtn" onclick="toggleScheduleFilter()" class="hidden action-btn px-4 py-2 bg-slate-100 text-slate-700 border border-slate-200 rounded-lg shadow-sm hover:bg-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 text-sm font-medium inline-flex items-center gap-2 transition-all">
+                        <i data-lucide="filter" class="w-4 h-4"></i> ตัวกรองแผนงาน
                     </button>
                     <button id="toggleScheduleSettingsBtn" onclick="toggleScheduleSettings()" class="hidden action-btn px-4 py-2 bg-slate-800 text-white rounded-lg shadow-sm hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 text-sm font-medium inline-flex items-center gap-2 transition-all">
                         <i data-lucide="settings" class="w-4 h-4"></i> ตั้งค่าแผนงาน
@@ -1325,6 +1331,11 @@
 
                 if (data) {
                     projectData = data.data;
+                    // Load schedule data if it exists in projectData
+                    if (projectData.globalScheduleData) globalScheduleData = projectData.globalScheduleData;
+                    if (projectData.globalScheduleTasks) globalScheduleTasks = projectData.globalScheduleTasks;
+                    if (projectData.globalScheduleSettings) globalScheduleSettings = projectData.globalScheduleSettings;
+                    if (projectData.globalScheduleFilters) globalScheduleFilters = projectData.globalScheduleFilters;
                 } else {
                     console.log("No data in Supabase, creating initial document...");
                     splashLoadingText.textContent = "ไม่พบข้อมูล, กำลังสร้างเอกสารเริ่มต้น...";
@@ -1464,12 +1475,24 @@
                 let completedTasks = 0;
                 let delayedTasks = [];
                 let inProgressTasks = [];
+                let floorReports = [];
                 
                 const today = new Date();
                 today.setHours(0, 0, 0, 0);
 
-                globalScheduleData.forEach(floor => {
-                    globalScheduleTasks.forEach((task, taskIndex) => {
+                const visibleTasks = globalScheduleTasks.map((task, index) => ({ task, index })).filter(({ task, index }) => {
+                    if (task.category === 'wetwork' && !globalScheduleFilters.showWetWork) return false;
+                    if (task.category === 'endproduct' && !globalScheduleFilters.showEndProduct) return false;
+                    if (globalScheduleFilters.hiddenTasks.includes(index)) return false;
+                    return true;
+                });
+
+                globalScheduleData.filter(f => f.id >= globalScheduleFilters.minFloor && f.id <= globalScheduleFilters.maxFloor).forEach(floor => {
+                    let currentFloorActiveTask = null;
+                    
+                    visibleTasks.forEach(t => {
+                        const task = t.task;
+                        const taskIndex = t.index;
                         totalTasks++;
                         const actualStart = floor.actual[taskIndex * 2];
                         const actualEnd = floor.actual[taskIndex * 2 + 1];
@@ -1495,82 +1518,147 @@
                                     }
                                 }
                             }
+
+                            // Identify the first non-completed task for the floor report
+                            if (!currentFloorActiveTask) {
+                                currentFloorActiveTask = {
+                                    task,
+                                    planStart: planStartStr,
+                                    planEnd: planEndStr,
+                                    actualStart,
+                                    actualEnd
+                                };
+                            }
                         }
                     });
+
+                    // Generate professional report for this floor
+                    if (currentFloorActiveTask) {
+                        const { task, planStart, planEnd, actualStart } = currentFloorActiveTask;
+                        const planEndDate = planEnd ? new Date(planEnd) : null;
+                        const planStartDate = planStart ? new Date(planStart) : null;
+                        
+                        let statusText = "";
+                        let statusColor = "text-slate-600";
+                        
+                        if (planEndDate && planEndDate < today) {
+                            const diffDays = Math.ceil((today - planEndDate) / (1000 * 60 * 60 * 24));
+                            statusText = `ล่าช้ากว่าแผนประมาณ ${diffDays} วัน`;
+                            statusColor = "text-rose-600 font-bold";
+                        } else if (planStartDate && planStartDate > today) {
+                            statusText = "ยังไม่ถึงกำหนดเริ่มงาน";
+                            statusColor = "text-slate-400 italic";
+                        } else {
+                            statusText = "ดำเนินการปกติตามแผนงาน";
+                            statusColor = "text-emerald-600 font-bold";
+                        }
+
+                        const formattedEnd = planEnd ? formatThaiDateShort(planEnd) : "-";
+                        const taskName = task.name.replace(/\s*\(\d+\s*วัน\)/, '');
+
+                        floorReports.push(`
+                            <div class="flex items-start gap-4 p-3 rounded-lg border border-slate-100 hover:bg-slate-50 transition-colors">
+                                <div class="flex-shrink-0 w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-lg">
+                                    ${floor.id}
+                                </div>
+                                <div class="flex-grow">
+                                    <div class="flex justify-between items-start mb-1">
+                                        <h4 class="font-bold text-slate-800">ชั้น ${floor.id}</h4>
+                                        <span class="text-xs ${statusColor}">${statusText}</span>
+                                    </div>
+                                    <p class="text-sm text-slate-600">
+                                        สถานะปัจจุบัน: <span class="font-bold text-slate-900">${task.subName} ${taskName}</span>
+                                    </p>
+                                    <p class="text-xs text-slate-500 mt-1">
+                                        กำหนดเสร็จตามแผน: <span class="font-medium text-slate-700">${formattedEnd}</span>
+                                    </p>
+                                </div>
+                            </div>
+                        `);
+                    } else {
+                        floorReports.push(`
+                            <div class="flex items-start gap-4 p-3 rounded-lg border border-slate-100 bg-emerald-50/30">
+                                <div class="flex-shrink-0 w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-lg">
+                                    ${floor.id}
+                                </div>
+                                <div class="flex-grow">
+                                    <div class="flex justify-between items-start mb-1">
+                                        <h4 class="font-bold text-slate-800">ชั้น ${floor.id}</h4>
+                                        <span class="text-xs text-emerald-600 font-bold">เสร็จสมบูรณ์</span>
+                                    </div>
+                                    <p class="text-sm text-slate-600 italic">งานทั้งหมดในหมวดที่เลือกดำเนินการเสร็จสิ้นแล้ว</p>
+                                </div>
+                            </div>
+                        `);
+                    }
                 });
 
                 const overallProgress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
                 const formattedToday = today.toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' });
 
                 dashboard.innerHTML = `
-                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden mb-6">
-                        <div class="bg-indigo-600 px-6 py-4 flex justify-between items-center text-white">
-                            <h2 class="text-xl font-bold flex items-center gap-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>
-                                สรุปภาพรวมแผนงาน
-                            </h2>
-                            <span class="text-sm font-medium bg-white/20 px-3 py-1 rounded-full">ข้อมูล ณ วันที่ ${formattedToday}</span>
+                    <div class="bg-white rounded-2xl shadow-xl border-2 border-black overflow-hidden">
+                        <div class="bg-white px-8 py-7 flex justify-between items-center text-slate-900 border-b-2 border-black">
+                            <div>
+                                <h2 class="text-2xl font-black flex items-center gap-3 tracking-tight">
+                                    <div class="p-2 bg-indigo-50 rounded-lg border border-indigo-100">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-indigo-600"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>
+                                    </div>
+                                    บทวิเคราะห์และสรุปผล (EXECUTIVE SUMMARY)
+                                </h2>
+                                <p class="text-slate-500 text-sm mt-1 font-medium">สรุปสถานะความก้าวหน้าและวิเคราะห์ความล่าช้าแยกรายชั้น</p>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-600 bg-indigo-50 px-4 py-2 rounded-lg border border-indigo-100">
+                                    REPORT DATE: ${formattedToday}
+                                </span>
+                            </div>
                         </div>
                         
-                        <div class="p-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
-                            <!-- Progress Circle -->
-                            <div class="flex flex-col items-center justify-center p-4 bg-slate-50 rounded-xl border border-slate-100">
-                                <div class="relative w-32 h-32 flex items-center justify-center rounded-full bg-indigo-50 border-4 border-indigo-100 mb-4">
-                                    <svg class="absolute inset-0 w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-                                        <circle cx="50" cy="50" r="45" fill="none" stroke="#e0e7ff" stroke-width="10"></circle>
-                                        <circle cx="50" cy="50" r="45" fill="none" stroke="#4f46e5" stroke-width="10" stroke-dasharray="${overallProgress * 2.83} 283" stroke-linecap="round" class="transition-all duration-1000 ease-out"></circle>
-                                    </svg>
-                                    <div class="text-center z-10">
-                                        <span class="text-3xl font-bold text-indigo-700">${overallProgress}%</span>
+                        <div class="p-8 bg-white">
+                            <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+                                <!-- Left Column: Stats & Progress -->
+                                <div class="lg:col-span-4 space-y-8">
+                                    <div class="flex flex-col items-center justify-center p-10 bg-slate-50 rounded-3xl border-2 border-black shadow-inner relative overflow-hidden">
+                                        <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 rounded-full -mr-16 -mt-16 blur-3xl"></div>
+                                        <div class="relative w-44 h-44 flex items-center justify-center rounded-full bg-white shadow-2xl mb-8 border border-slate-100">
+                                            <svg class="absolute inset-0 w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                                                <circle cx="50" cy="50" r="45" fill="none" stroke="#f8fafc" stroke-width="6"></circle>
+                                                <circle cx="50" cy="50" r="45" fill="none" stroke="#4f46e5" stroke-width="6" stroke-dasharray="${overallProgress * 2.83} 283" stroke-linecap="round" class="transition-all duration-1000 ease-out"></circle>
+                                            </svg>
+                                            <div class="text-center z-10">
+                                                <span class="text-5xl font-black text-slate-900 tracking-tighter">${overallProgress}%</span>
+                                                <div class="text-[10px] font-black text-indigo-500 uppercase tracking-[0.2em] mt-2">Overall Progress</div>
+                                            </div>
+                                        </div>
+                                        <h3 class="font-black text-slate-900 text-xl text-center">ความก้าวหน้าโครงการ</h3>
+                                        <p class="text-sm text-slate-500 mt-2 font-medium text-center">ดำเนินการแล้วเสร็จ ${completedTasks} งาน จากทั้งหมด ${totalTasks} งาน</p>
                                     </div>
-                                </div>
-                                <h3 class="font-bold text-slate-700 text-center">ความก้าวหน้าทั้งหมด</h3>
-                                <p class="text-xs text-slate-500 mt-1">เสร็จสิ้น ${completedTasks} จาก ${totalTasks} งาน</p>
-                            </div>
 
-                            <!-- Details -->
-                            <div class="lg:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div class="bg-emerald-50 rounded-xl p-4 border border-emerald-100 flex flex-col">
-                                    <div class="flex items-center gap-2 mb-3 text-emerald-700">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-                                        <h3 class="font-bold text-lg">งานที่เสร็จสิ้นแล้ว</h3>
-                                    </div>
-                                    <div class="text-3xl font-bold text-emerald-600 mb-2">${completedTasks} <span class="text-sm font-medium text-emerald-600/70">งาน</span></div>
-                                    <p class="text-sm text-emerald-600/80 mt-auto">อ้างอิงจากการทำเครื่องหมาย ✓ ในตารางผล</p>
-                                </div>
-
-                                <div class="bg-blue-50 rounded-xl p-4 border border-blue-100 flex flex-col">
-                                    <div class="flex items-center gap-2 mb-3 text-blue-700">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                                        <h3 class="font-bold text-lg">งานที่กำลังดำเนินการ</h3>
-                                    </div>
-                                    <div class="text-3xl font-bold text-blue-600 mb-2">${inProgressTasks.length} <span class="text-sm font-medium text-blue-600/70">งาน</span></div>
-                                    <div class="mt-auto max-h-24 overflow-y-auto pr-2 custom-scrollbar">
-                                        ${inProgressTasks.length > 0 ? 
-                                            `<ul class="text-sm text-blue-700 space-y-1 list-disc list-inside">
-                                                ${inProgressTasks.map(t => `<li>${t}</li>`).join('')}
-                                            </ul>` : 
-                                            '<p class="text-sm text-blue-600/70 italic">ไม่มีงานที่กำลังดำเนินการตามแผน</p>'
-                                        }
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div class="bg-white p-5 rounded-2xl border-2 border-black shadow-sm flex flex-col items-center justify-center">
+                                            <div class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">เเล้วเสร็จ</div>
+                                            <div class="text-2xl font-black text-emerald-600 tracking-tighter">${completedTasks} งาน</div>
+                                        </div>
+                                        <div class="bg-white p-5 rounded-2xl border-2 border-black shadow-sm flex flex-col items-center justify-center">
+                                            <div class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">ล่าช้า</div>
+                                            <div class="text-2xl font-black text-rose-600 tracking-tighter">${delayedTasks.length} งาน</div>
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div class="md:col-span-2 bg-rose-50 rounded-xl p-4 border border-rose-100 flex flex-col">
-                                    <div class="flex items-center gap-2 mb-3 text-rose-700">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-                                        <h3 class="font-bold text-lg">งานที่ล่าช้ากว่าแผน</h3>
+                                <!-- Right Column: Floor by Floor Report -->
+                                <div class="lg:col-span-8">
+                                    <div class="flex items-center justify-between mb-8 border-b-2 border-black pb-4">
+                                        <h3 class="text-lg font-black text-slate-900 flex items-center gap-3">
+                                            <div class="w-2 h-6 bg-indigo-600 rounded-full"></div>
+                                            วิเคราะห์สถานะรายชั้น (Floor-by-Floor Analysis)
+                                        </h3>
+                                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Active Floors Only</span>
                                     </div>
-                                    <div class="flex items-baseline gap-2 mb-2">
-                                        <span class="text-3xl font-bold text-rose-600">${delayedTasks.length}</span>
-                                        <span class="text-sm font-medium text-rose-600/70">งาน (เลยกำหนดแผนแล้วเสร็จ แต่ยังไม่เสร็จ)</span>
-                                    </div>
-                                    <div class="mt-2 max-h-32 overflow-y-auto pr-2 custom-scrollbar">
-                                        ${delayedTasks.length > 0 ? 
-                                            `<div class="flex flex-wrap gap-2">
-                                                ${delayedTasks.map(t => `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-rose-100 text-rose-800 border border-rose-200">${t}</span>`).join('')}
-                                            </div>` : 
-                                            '<p class="text-sm text-rose-600/70 italic">ยอดเยี่ยม! ไม่มีงานที่ล่าช้ากว่าแผน</p>'
-                                        }
+                                    
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 max-h-[550px] overflow-y-auto pr-3 custom-scrollbar">
+                                        ${floorReports.join('')}
                                     </div>
                                 </div>
                             </div>
@@ -2205,7 +2293,8 @@
                 
                 const settingsContainer = document.getElementById('schedule-settings');
                 if (settingsContainer) {
-                    settingsContainer.classList.toggle('hidden', view !== 'schedule');
+                    // Always hide when switching views, user must click to open
+                    settingsContainer.classList.add('hidden');
                 }
 
                 if (taskViewModeToggle) {
@@ -2375,41 +2464,40 @@
                 const { headerColor, stickyHeaderColor } = getHeaderColors();
 
                 const headerHTML = `
-                    <tr class="${headerColor}">
-                        <th class="border p-2 sticky left-0 z-30 ${stickyHeaderColor}" style="min-width: 80px; font-size: 18px;">ห้อง</th>
+                    <tr class="bg-slate-900 text-white">
+                        <th class="border border-slate-700 p-3 sticky left-0 z-30 bg-slate-900 shadow-[2px_0_5px_rgba(0,0,0,0.3)]" style="min-width: 80px; font-size: 18px;">ห้อง</th>
                         ${activeTasks.map(t => {
                             const headerColors = {
-                                electrical: 'bg-yellow-500',
-                                plumbing: 'bg-blue-500',
-                                airCon: 'bg-cyan-500',
-                                electricalRoughIn: 'bg-yellow-500',
-                                plumbingRoughIn: 'bg-blue-500',
-                                airConRoughIn: 'bg-cyan-500',
-                                door: 'bg-transparent',
-                                aluminum: 'bg-slate-500',
-                                laminate: 'bg-transparent',
-                                showerScreenInspection: 'bg-yellow-500',
-                                showerScreen: 'bg-transparent',
-                                kitchenOnly: 'bg-amber-500',
-                                paintOnly: 'bg-transparent',
-                                aluminumPaint: 'bg-transparent',
-                                cleaning: 'bg-transparent',
-                                endProduct: 'bg-transparent',
-                                texcaWall: 'bg-orange-500',
-                                topping: 'bg-transparent',
-                                waterproofing: 'bg-indigo-500',
-                                tiling: 'bg-teal-500',
-                                ceilingRoom: 'bg-slate-500',
-                                ceilingBathroom: 'bg-slate-600',
-                                skimOnly: 'bg-stone-500',
-                                wetWork: 'bg-yellow-500'
+                                electrical: 'bg-yellow-600',
+                                plumbing: 'bg-blue-600',
+                                airCon: 'bg-cyan-600',
+                                electricalRoughIn: 'bg-yellow-600',
+                                plumbingRoughIn: 'bg-blue-600',
+                                airConRoughIn: 'bg-cyan-600',
+                                door: 'bg-slate-800',
+                                aluminum: 'bg-slate-700',
+                                laminate: 'bg-slate-800',
+                                showerScreenInspection: 'bg-yellow-600',
+                                showerScreen: 'bg-slate-800',
+                                kitchenOnly: 'bg-orange-600',
+                                paintOnly: 'bg-indigo-600',
+                                aluminumPaint: 'bg-indigo-600',
+                                skimOnly: 'bg-indigo-500',
+                                cleaning: 'bg-emerald-600',
+                                wetWork: 'bg-slate-900',
+                                endProduct: 'bg-slate-900',
+                                texcaWall: 'bg-orange-600',
+                                topping: 'bg-slate-800',
+                                waterproofing: 'bg-indigo-600',
+                                tiling: 'bg-teal-600'
                             };
-                            const colorClass = headerColors[t.key] || 'bg-slate-400';
+                            const colorClass = headerColors[t.key] || 'bg-slate-800';
                             
                             return `
-                                <th class="border p-2 text-xs" style="min-width: 100px;">
-                                    <div class="flex items-center justify-center gap-1.5">
-                                        <span class="uppercase tracking-tight font-bold" style="font-size: 18px;">${t.reportName}</span>
+                                <th class="border border-slate-700 p-3 text-xs ${colorClass}" style="min-width: 120px;">
+                                    <div class="flex flex-col items-center justify-center gap-1.5">
+                                        <span class="text-lg">${t.reportEmoji || ''}</span>
+                                        <span class="uppercase tracking-tighter font-black" style="font-size: 11px;">${t.reportName}</span>
                                     </div>
                                 </th>`;
                         }).join('')}
@@ -2659,24 +2747,122 @@
             }
 
             let globalScheduleTasks = [
-                { name: 'ตีไลน์ (3วัน)', subName: 'U1', color: 'bg-[#e2efda]', duration: 3 },
-                { name: 'ตั้งเสาเอ็น/เขิบห้องน้ำ+ทางเดิน+ระเบียง (7วัน)', subName: 'U2', color: 'bg-[#e2efda]', duration: 7 },
-                { name: 'งานระบบตีเส้น SPK,M&E ตรวจสอบตำแหน่งท่อฝังพื้น ,เดินระบบ SPK+SLEEVE ท่อผ่านผนัง+ท่อในชาร์ป (SN ,ท่อแอร์ /ท่อลม/ติดดวงโคม) (10วัน)', subName: 'U3-U5', color: 'bg-[#d9d2e9]', duration: 10 },
-                { name: 'ยิงซิลิโคน PC/ เก๊าท์ผนัง PC (7วัน)', subName: 'U6', color: 'bg-[#e2efda]', duration: 7 },
-                { name: 'ติดตั้งแผ่นTexca wall , เก็บอุดรอยต่อแผ่น Texca wall (10วัน)', subName: 'U7-U8', color: 'bg-[#e2efda]', duration: 10 },
-                { name: 'M&E WORK (เดินท่อในผนัง) ติดตั้งเอ้าท์เลท /เบิ้ลผนัง/เทสปั๊มน้ำ , Test Pressure ท่อน้ำ+SPK (10วัน) ,ร้อยสายไฟ/ พ่นดวงโคม/พัดลม', subName: 'U9-U11', color: 'bg-[#d9d2e9]', duration: 10 },
-                { name: 'เทเสาเอ็น/เก๊าท์ท่อฝังผนังครัว /เก๊าท์ ท่อแอร์ , งานฉาบเสาโครงสร้าง / ฉาบผนังรอยต่อ (7วัน)', subName: 'U12-U13', color: 'bg-[#a9d08e]', duration: 7 },
-                { name: 'งานเทท็อปปิ้งพื้นห้องพัก /ห้องน้ำ/ระเบียง , งานติดตั้งราวกันตก ระเบียง(7วัน)', subName: 'U14-U15', color: 'bg-[#a9d08e]', duration: 7 },
-                { name: 'งานกันซึมห้องน้ำ / ระเบียง , งานปูกระเบื้อง (พื้นห้องน้ำ,ผนังห้องน้ำ,ระเบียง,ผนังครัว,พื้นครัว) (14วัน)', subName: 'U16-U17', color: 'bg-[#a9d08e]', duration: 14 },
-                { name: 'งานติดตั้งโครงฝ้า , ปิดแผ่นฝ้า ,ฉาบฝ้าห้องพักห้องน้ำ (10วัน)', subName: 'U18,U20-U21', color: 'bg-[#a9d08e]', duration: 10 },
-                { name: 'งานเทสไฟ/เซอร์กิต เหนือฝ้า(7วัน)', subName: 'U19', color: 'bg-[#d9d2e9]', duration: 7 },
-                { name: 'งานสกิมผนัง,งานขัด+ทาสีรองพื้น 1 รอบ ,เจาะฝ้าดาวน์ไลท์ (10วัน)', subName: 'U22-U23', color: 'bg-[#a9d08e]', duration: 10 },
-                { name: 'ส่ง CM ตรวจ Wet Work ส่ง QC ตรวจ Wet Work(10 วัน)', subName: 'U24-U26', color: 'bg-[#f4b084]', duration: 10 }
+                // Wet Work
+                { name: 'ตีไลน์ (3วัน)', subName: 'U1', color: 'bg-[#e2efda]', duration: 3, category: 'wetwork' },
+                { name: 'ตั้งเสาเอ็น/เขิบห้องน้ำ+ทางเดิน+ระเบียง (7วัน)', subName: 'U2', color: 'bg-[#e2efda]', duration: 7, category: 'wetwork' },
+                { name: 'งานระบบตีเส้น SPK,M&E ตรวจสอบตำแหน่งท่อฝังพื้น ,เดินระบบ SPK+SLEEVE ท่อผ่านผนัง+ท่อในชาร์ป (SN ,ท่อแอร์ /ท่อลม/ติดดวงโคม) (10วัน)', subName: 'U3-U5', color: 'bg-[#d9d2e9]', duration: 10, category: 'wetwork' },
+                { name: 'ยิงซิลิโคน PC/ เก๊าท์ผนัง PC (7วัน)', subName: 'U6', color: 'bg-[#e2efda]', duration: 7, category: 'wetwork' },
+                { name: 'ติดตั้งแผ่นTexca wall , เก็บอุดรอยต่อแผ่น Texca wall (10วัน)', subName: 'U7-U8', color: 'bg-[#e2efda]', duration: 10, category: 'wetwork' },
+                { name: 'M&E WORK (เดินท่อในผนัง) ติดตั้งเอ้าท์เลท /เบิ้ลผนัง/เทสปั๊มน้ำ , Test Pressure ท่อน้ำ+SPK (10วัน) ,ร้อยสายไฟ/ พ่นดวงโคม/พัดลม', subName: 'U9-U11', color: 'bg-[#d9d2e9]', duration: 10, category: 'wetwork' },
+                { name: 'เทเสาเอ็น/เก๊าท์ท่อฝังผนังครัว /เก๊าท์ ท่อแอร์ , งานฉาบเสาโครงสร้าง / ฉาบผนังรอยต่อ (7วัน)', subName: 'U12-U13', color: 'bg-[#a9d08e]', duration: 7, category: 'wetwork' },
+                { name: 'งานเทท็อปปิ้งพื้นห้องพัก /ห้องน้ำ/ระเบียง , งานติดตั้งราวกันตก ระเบียง(7วัน)', subName: 'U14-U15', color: 'bg-[#a9d08e]', duration: 7, category: 'wetwork' },
+                { name: 'งานกันซึมห้องน้ำ / ระเบียง , งานปูกระเบื้อง (พื้นห้องน้ำ,ผนังห้องน้ำ,ระเบียง,ผนังครัว,พื้นครัว) (14วัน)', subName: 'U16-U17', color: 'bg-[#a9d08e]', duration: 14, category: 'wetwork' },
+                { name: 'งานติดตั้งโครงฝ้า , ปิดแผ่นฝ้า ,ฉาบฝ้าห้องพักห้องน้ำ (10วัน)', subName: 'U18,U20-U21', color: 'bg-[#a9d08e]', duration: 10, category: 'wetwork' },
+                { name: 'งานเทสไฟ/เซอร์กิต เหนือฝ้า(7วัน)', subName: 'U19', color: 'bg-[#d9d2e9]', duration: 7, category: 'wetwork' },
+                { name: 'งานสกิมผนัง,งานขัด+ทาสีรองพื้น 1 รอบ ,เจาะฝ้าดาวน์ไลท์ (10วัน)', subName: 'U22-U23', color: 'bg-[#a9d08e]', duration: 10, category: 'wetwork' },
+                { name: 'ส่ง CM ตรวจ Wet Work ส่ง QC ตรวจ Wet Work(10 วัน)', subName: 'U24-U26', color: 'bg-[#f4b084]', duration: 10, category: 'wetwork' },
+                // End Product
+                { name: 'เก็บดีเฟค QC WW 1(สีจริงเที่ยวแรก) (7 วัน)', subName: 'U27', color: 'bg-[#cfe2f3]', duration: 7, category: 'endproduct' },
+                { name: 'งานอะลูมิเนียมติดตั้งกรอบเฟรมบานเลื่อน-อุปกรณ์ แล้วเสร็จ 100% ติดตั้งกระจกระเบียง(7 วัน)', subName: 'U28', color: 'bg-[#cfe2f3]', duration: 7, category: 'endproduct' },
+                { name: 'งานติดตั้งประตูห้องพัก /ห้องน้ำ/ห้องนอน /ประตูชาร์ป แล้วเสร็จ 100%(7วัน)', subName: 'U29', color: 'bg-[#cfe2f3]', duration: 7, category: 'endproduct' },
+                { name: 'ติดตั้งอุปกรณ์ดวงโคม+Consumer+Gill+Air(พร้อมTest) (7วัน)', subName: 'U30', color: 'bg-[#ead1dc]', duration: 7, category: 'endproduct' },
+                { name: 'ติดตั้งสุขภัณฑ์ + อุปกรณ์ในห้องน้ำ (7 วัน)', subName: 'U31', color: 'bg-[#ead1dc]', duration: 7, category: 'endproduct' },
+                { name: 'ปูพื้นไม้ลามิเนต (7วัน)', subName: 'U32', color: 'bg-[#cfe2f3]', duration: 7, category: 'endproduct' },
+                { name: 'ติดตั้ง Shower Screen (7วัน)', subName: 'U33', color: 'bg-[#cfe2f3]', duration: 7, category: 'endproduct' },
+                { name: 'งานเฟอร์นิเจอร์ (SB) 1.ติดตั้งชุดครัว 2.เคาน์เตอร์ห้องน้ำ 3.ติดตั้งกระจกเงา แล้วเสร็จ 100% (7วัน)', subName: 'U34', color: 'bg-[#cfe2f3]', duration: 7, category: 'endproduct' },
+                { name: 'งานสีเที่ยวสุดท้าย แล้วเสร็จ 100%(10วัน)+ติดตั้งปลั๊ก+หน้ากากปลั๊ก', subName: 'U35-U36', color: 'bg-[#cfe2f3]', duration: 10, category: 'endproduct' },
+                { name: 'ส่ง Cm Endproduct เก็บงาน CM End-Product(7วัน)', subName: 'U37', color: 'bg-[#cfe2f3]', duration: 7, category: 'endproduct' },
+                { name: 'ส่ง QC End Product(14 วัน)', subName: 'U38', color: 'bg-[#cfe2f3]', duration: 14, category: 'endproduct' }
             ];
 
             let globalScheduleSettings = {
                 workOnSunday: true,
                 workOnHoliday: true
+            };
+
+            let globalScheduleFilters = {
+                showWetWork: true,
+                showEndProduct: true,
+                hiddenTasks: [],
+                minFloor: 2,
+                maxFloor: 7
+            };
+
+            window.selectAllScheduleTasks = function() {
+                globalScheduleFilters.hiddenTasks = [];
+                renderScheduleFilter();
+                renderScheduleTable();
+                saveProjectDataToDB();
+            };
+
+            window.clearAllScheduleTasks = function() {
+                // Hide all tasks that are currently visible in the filter
+                const visibleTaskIndices = globalScheduleTasks
+                    .map((t, i) => i)
+                    .filter(i => {
+                        const task = globalScheduleTasks[i];
+                        if (task.category === 'wetwork' && !globalScheduleFilters.showWetWork) return false;
+                        if (task.category === 'endproduct' && !globalScheduleFilters.showEndProduct) return false;
+                        return true;
+                    });
+                
+                // Add all visible tasks to hiddenTasks if not already there
+                visibleTaskIndices.forEach(idx => {
+                    if (!globalScheduleFilters.hiddenTasks.includes(idx)) {
+                        globalScheduleFilters.hiddenTasks.push(idx);
+                    }
+                });
+                
+                renderScheduleFilter();
+                renderScheduleTable();
+                saveProjectDataToDB();
+            };
+
+            window.updateMaxFloor = function(newMax) {
+                const val = parseInt(newMax);
+                if (isNaN(val) || val < 2) return;
+                
+                const currentMax = globalScheduleData.length > 0 ? globalScheduleData[globalScheduleData.length - 1].id : 1;
+                
+                if (val > currentMax) {
+                    // Add floors
+                    for (let i = currentMax + 1; i <= val; i++) {
+                        const lastFloor = globalScheduleData[globalScheduleData.length - 1];
+                        // Clone last floor's plan and add 7 days offset as a default
+                        const newPlan = lastFloor.plan.map(dateStr => {
+                            if (!dateStr) return '';
+                            const d = new Date(dateStr);
+                            d.setDate(d.getDate() + 7);
+                            return d.toISOString().split('T')[0];
+                        });
+                        globalScheduleData.push({
+                            id: i,
+                            plan: newPlan,
+                            actual: new Array(48).fill('')
+                        });
+                    }
+                } else if (val < currentMax) {
+                    // Remove floors
+                    globalScheduleData = globalScheduleData.filter(f => f.id <= val);
+                }
+                
+                globalScheduleFilters.maxFloor = val;
+                if (globalScheduleFilters.minFloor > val) globalScheduleFilters.minFloor = val;
+                
+                renderScheduleTable();
+                renderScheduleFilter();
+                renderScheduleSettings();
+                renderExecutiveSummaryDashboard();
+                saveProjectDataToDB();
+            };
+
+            window.updateFloorRange = function(type, value) {
+                const val = parseInt(value);
+                if (type === 'min') globalScheduleFilters.minFloor = val;
+                if (type === 'max') globalScheduleFilters.maxFloor = val;
+                renderScheduleTable();
+                renderScheduleExecutiveSummary(document.getElementById('executive-summary-dashboard'));
+                saveProjectDataToDB();
             };
 
             function formatThaiDateShort(dateStr) {
@@ -2716,7 +2902,28 @@
             window.toggleScheduleSettings = function() {
                 const container = document.getElementById('schedule-settings');
                 if (container) {
-                    container.classList.toggle('hidden');
+                    const isHidden = container.classList.contains('hidden');
+                    if (isHidden) {
+                        renderScheduleSettings();
+                        container.classList.remove('hidden');
+                        container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    } else {
+                        container.classList.add('hidden');
+                    }
+                }
+            };
+
+            window.toggleScheduleFilter = function() {
+                const container = document.getElementById('schedule-filter');
+                if (container) {
+                    const isHidden = container.classList.contains('hidden');
+                    if (isHidden) {
+                        renderScheduleFilter();
+                        container.classList.remove('hidden');
+                        container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    } else {
+                        container.classList.add('hidden');
+                    }
                 }
             };
 
@@ -2736,16 +2943,16 @@
             }
 
             let globalScheduleData = [
-                { id: 2, plan: ['3 พ.ย. 23', '7 พ.ย. 23', '7 พ.ย. 23', '9 พ.ย. 23', '10 พ.ย. 23', '16 พ.ย. 23', '15 พ.ย. 23', '16 พ.ย. 23', '17 พ.ย. 23', '27 พ.ย. 23', '22 พ.ย. 23', '1 ธ.ค. 23', '26 พ.ย. 23', '2 ธ.ค. 23', '28 พ.ย. 23', '4 ธ.ค. 23', '2 ธ.ค. 23', '15 ธ.ค. 23', '9 ธ.ค. 23', '18 ธ.ค. 23', '11 ธ.ค. 23', '17 ธ.ค. 23', '15 ธ.ค. 23', '24 ธ.ค. 23', '19 ธ.ค. 23', '28 ธ.ค. 23'].map(parseThaiDate) },
-                { id: 3, plan: ['6 พ.ย. 23', '12 พ.ย. 23', '9 พ.ย. 23', '15 พ.ย. 23', '9 พ.ย. 23', '18 พ.ย. 23', '12 พ.ย. 23', '18 พ.ย. 23', '14 พ.ย. 23', '23 พ.ย. 23', '19 พ.ย. 23', '28 พ.ย. 23', '23 พ.ย. 23', '29 พ.ย. 23', '25 พ.ย. 23', '1 ธ.ค. 23', '29 พ.ย. 23', '12 ธ.ค. 23', '6 ธ.ค. 23', '15 ธ.ค. 23', '8 ธ.ค. 23', '14 ธ.ค. 23', '12 ธ.ค. 23', '21 ธ.ค. 23', '16 ธ.ค. 23', '25 ธ.ค. 23'].map(parseThaiDate) },
-                { id: 4, plan: ['13 พ.ย. 23', '19 พ.ย. 23', '16 พ.ย. 23', '22 พ.ย. 23', '16 พ.ย. 23', '25 พ.ย. 23', '19 พ.ย. 23', '25 พ.ย. 23', '21 พ.ย. 23', '30 พ.ย. 23', '26 พ.ย. 23', '5 ธ.ค. 23', '30 พ.ย. 23', '6 ธ.ค. 23', '2 ธ.ค. 23', '8 ธ.ค. 23', '6 ธ.ค. 23', '19 ธ.ค. 23', '13 ธ.ค. 23', '22 ธ.ค. 23', '15 ธ.ค. 23', '21 ธ.ค. 23', '19 ธ.ค. 23', '28 ธ.ค. 23', '23 ธ.ค. 23', '1 ม.ค. 24'].map(parseThaiDate) },
-                { id: 5, plan: ['20 พ.ย. 23', '26 พ.ย. 23', '23 พ.ย. 23', '29 พ.ย. 23', '23 พ.ย. 23', '2 ธ.ค. 23', '26 พ.ย. 23', '2 ธ.ค. 23', '28 พ.ย. 23', '7 ธ.ค. 23', '3 ธ.ค. 23', '12 ธ.ค. 23', '7 ธ.ค. 23', '13 ธ.ค. 23', '9 ธ.ค. 23', '15 ธ.ค. 23', '13 ธ.ค. 23', '26 ธ.ค. 23', '20 ธ.ค. 23', '29 ธ.ค. 23', '22 ธ.ค. 23', '28 ธ.ค. 23', '26 ธ.ค. 23', '4 ม.ค. 24', '30 ธ.ค. 23', '8 ม.ค. 24'].map(parseThaiDate) },
-                { id: 6, plan: ['27 พ.ย. 23', '3 ธ.ค. 23', '30 พ.ย. 23', '6 ธ.ค. 23', '30 พ.ย. 23', '9 ธ.ค. 23', '3 ธ.ค. 23', '9 ธ.ค. 23', '5 ธ.ค. 23', '14 ธ.ค. 23', '10 ธ.ค. 23', '19 ธ.ค. 23', '14 ธ.ค. 23', '20 ธ.ค. 23', '16 ธ.ค. 23', '22 ธ.ค. 23', '20 ธ.ค. 23', '2 ม.ค. 24', '27 ธ.ค. 23', '5 ม.ค. 24', '29 ธ.ค. 23', '4 ม.ค. 24', '2 ม.ค. 24', '11 ม.ค. 24', '6 ม.ค. 24', '15 ม.ค. 24'].map(parseThaiDate) },
-                { id: 7, plan: ['4 ธ.ค. 23', '10 ธ.ค. 23', '7 ธ.ค. 23', '13 ธ.ค. 23', '7 ธ.ค. 23', '16 ธ.ค. 23', '10 ธ.ค. 23', '16 ธ.ค. 23', '12 ธ.ค. 23', '21 ธ.ค. 23', '17 ธ.ค. 23', '26 ธ.ค. 23', '21 ธ.ค. 23', '27 ธ.ค. 23', '23 ธ.ค. 23', '29 ธ.ค. 23', '27 ธ.ค. 23', '9 ม.ค. 24', '3 ม.ค. 24', '12 ม.ค. 24', '5 ม.ค. 24', '11 ม.ค. 24', '9 ม.ค. 24', '18 ม.ค. 24', '13 ม.ค. 24', '22 ม.ค. 24'].map(parseThaiDate) }
+                { id: 2, plan: ['3 พ.ย. 23', '7 พ.ย. 23', '7 พ.ย. 23', '9 พ.ย. 23', '10 พ.ย. 23', '16 พ.ย. 23', '15 พ.ย. 23', '16 พ.ย. 23', '17 พ.ย. 23', '27 พ.ย. 23', '22 พ.ย. 23', '1 ธ.ค. 23', '26 พ.ย. 23', '2 ธ.ค. 23', '28 พ.ย. 23', '4 ธ.ค. 23', '2 ธ.ค. 23', '15 ธ.ค. 23', '9 ธ.ค. 23', '18 ธ.ค. 23', '11 ธ.ค. 23', '17 ธ.ค. 23', '15 ธ.ค. 23', '24 ธ.ค. 23', '19 ธ.ค. 23', '28 ธ.ค. 23', '15 ก.ค. 24', '21 ก.ค. 24', '15 ก.ค. 24', '21 ก.ค. 24', '15 ก.ค. 24', '21 ก.ค. 24', '15 ก.ค. 24', '21 ก.ค. 24', '15 ก.ค. 24', '21 ก.ค. 24', '20 ก.ค. 24', '25 ก.ค. 24', '25 ก.ค. 24', '31 ก.ค. 24', '22 ก.ค. 24', '28 ก.ค. 24', '23 ก.ค. 24', '30 ก.ค. 24', '24 ก.ค. 24', '31 ก.ค. 24', '31 ก.ค. 24', '9 ส.ค. 24'].map(parseThaiDate) },
+                { id: 3, plan: ['6 พ.ย. 23', '12 พ.ย. 23', '9 พ.ย. 23', '15 พ.ย. 23', '9 พ.ย. 23', '18 พ.ย. 23', '12 พ.ย. 23', '18 พ.ย. 23', '14 พ.ย. 23', '23 พ.ย. 23', '19 พ.ย. 23', '28 พ.ย. 23', '23 พ.ย. 23', '29 พ.ย. 23', '25 พ.ย. 23', '1 ธ.ค. 23', '29 พ.ย. 23', '12 ธ.ค. 23', '6 ธ.ค. 23', '15 ธ.ค. 23', '8 ธ.ค. 23', '14 ธ.ค. 23', '12 ธ.ค. 23', '21 ธ.ค. 23', '16 ธ.ค. 23', '25 ธ.ค. 23', '22 ก.ค. 24', '28 ก.ค. 24', '22 ก.ค. 24', '28 ก.ค. 24', '22 ก.ค. 24', '28 ก.ค. 24', '22 ก.ค. 24', '28 ก.ค. 24', '22 ก.ค. 24', '28 ก.ค. 24', '27 ก.ค. 24', '1 ส.ค. 24', '1 ส.ค. 24', '7 ส.ค. 24', '29 ก.ค. 24', '4 ส.ค. 24', '30 ก.ค. 24', '6 ส.ค. 24', '31 ก.ค. 24', '7 ส.ค. 24', '10 ส.ค. 24', '24 ส.ค. 24'].map(parseThaiDate) },
+                { id: 4, plan: ['13 พ.ย. 23', '19 พ.ย. 23', '16 พ.ย. 23', '22 พ.ย. 23', '16 พ.ย. 23', '25 พ.ย. 23', '19 พ.ย. 23', '25 พ.ย. 23', '21 พ.ย. 23', '30 พ.ย. 23', '26 พ.ย. 23', '5 ธ.ค. 23', '30 พ.ย. 23', '6 ธ.ค. 23', '2 ธ.ค. 23', '8 ธ.ค. 23', '6 ธ.ค. 23', '19 ธ.ค. 23', '13 ธ.ค. 23', '22 ธ.ค. 23', '15 ธ.ค. 23', '21 ธ.ค. 23', '19 ธ.ค. 23', '28 ธ.ค. 23', '23 ธ.ค. 23', '1 ม.ค. 24', '31 ก.ค. 24', '6 ส.ค. 24', '31 ก.ค. 24', '6 ส.ค. 24', '31 ก.ค. 24', '6 ส.ค. 24', '31 ก.ค. 24', '6 ส.ค. 24', '31 ก.ค. 24', '6 ส.ค. 24', '3 ส.ค. 24', '8 ส.ค. 24', '8 ส.ค. 24', '14 ส.ค. 24', '5 ส.ค. 24', '11 ส.ค. 24', '12 ส.ค. 24', '18 ส.ค. 24', '19 ส.ค. 24', '25 ส.ค. 24', '26 ส.ค. 24', '9 ก.ย. 24'].map(parseThaiDate) },
+                { id: 5, plan: ['20 พ.ย. 23', '26 พ.ย. 23', '23 พ.ย. 23', '29 พ.ย. 23', '23 พ.ย. 23', '2 ธ.ค. 23', '26 พ.ย. 23', '2 ธ.ค. 23', '28 พ.ย. 23', '7 ธ.ค. 23', '3 ธ.ค. 23', '12 ธ.ค. 23', '7 ธ.ค. 23', '13 ธ.ค. 23', '9 ธ.ค. 23', '15 ธ.ค. 23', '13 ธ.ค. 23', '26 ธ.ค. 23', '20 ธ.ค. 23', '29 ธ.ค. 23', '22 ธ.ค. 23', '28 ธ.ค. 23', '26 ธ.ค. 23', '4 ม.ค. 24', '30 ธ.ค. 23', '8 ม.ค. 24', '5 ส.ค. 24', '11 ส.ค. 24', '5 ส.ค. 24', '11 ส.ค. 24', '5 ส.ค. 24', '11 ส.ค. 24', '5 ส.ค. 24', '11 ส.ค. 24', '5 ส.ค. 24', '11 ส.ค. 24', '10 ส.ค. 24', '15 ส.ค. 24', '15 ส.ค. 24', '21 ส.ค. 24', '12 ส.ค. 24', '18 ส.ค. 24', '19 ส.ค. 24', '25 ส.ค. 24', '26 ส.ค. 24', '1 ก.ย. 24', '2 ก.ย. 24', '16 ก.ย. 24'].map(parseThaiDate) },
+                { id: 6, plan: ['27 พ.ย. 23', '3 ธ.ค. 23', '30 พ.ย. 23', '6 ธ.ค. 23', '30 พ.ย. 23', '9 ธ.ค. 23', '3 ธ.ค. 23', '9 ธ.ค. 23', '5 ธ.ค. 23', '14 ธ.ค. 23', '10 ธ.ค. 23', '19 ธ.ค. 23', '14 ธ.ค. 23', '20 ธ.ค. 23', '16 ธ.ค. 23', '22 ธ.ค. 23', '20 ธ.ค. 23', '2 ม.ค. 24', '27 ธ.ค. 23', '5 ม.ค. 24', '29 ธ.ค. 23', '4 ม.ค. 24', '2 ม.ค. 24', '11 ม.ค. 24', '6 ม.ค. 24', '15 ม.ค. 24', '12 ส.ค. 24', '18 ส.ค. 24', '12 ส.ค. 24', '18 ส.ค. 24', '12 ส.ค. 24', '18 ส.ค. 24', '12 ส.ค. 24', '18 ส.ค. 24', '12 ส.ค. 24', '18 ส.ค. 24', '17 ส.ค. 24', '22 ส.ค. 24', '22 ส.ค. 24', '28 ส.ค. 24', '19 ส.ค. 24', '25 ส.ค. 24', '26 ส.ค. 24', '1 ก.ย. 24', '2 ก.ย. 24', '8 ก.ย. 24', '9 ก.ย. 24', '23 ก.ย. 24'].map(parseThaiDate) },
+                { id: 7, plan: ['4 ธ.ค. 23', '10 ธ.ค. 23', '7 ธ.ค. 23', '13 ธ.ค. 23', '7 ธ.ค. 23', '16 ธ.ค. 23', '10 ธ.ค. 23', '16 ธ.ค. 23', '12 ธ.ค. 23', '21 ธ.ค. 23', '17 ธ.ค. 23', '26 ธ.ค. 23', '21 ธ.ค. 23', '27 ธ.ค. 23', '23 ธ.ค. 23', '29 ธ.ค. 23', '27 ธ.ค. 23', '9 ม.ค. 24', '3 ม.ค. 24', '12 ม.ค. 24', '5 ม.ค. 24', '11 ม.ค. 24', '9 ม.ค. 24', '18 ม.ค. 24', '13 ม.ค. 24', '22 ม.ค. 24', '19 ส.ค. 24', '25 ส.ค. 24', '19 ส.ค. 24', '25 ส.ค. 24', '19 ส.ค. 24', '25 ส.ค. 24', '19 ส.ค. 24', '25 ส.ค. 24', '19 ส.ค. 24', '25 ส.ค. 24', '24 ส.ค. 24', '29 ส.ค. 24', '29 ส.ค. 24', '4 ก.ย. 24', '26 ส.ค. 24', '1 ก.ย. 24', '2 ก.ย. 24', '8 ก.ย. 24', '9 ก.ย. 24', '15 ก.ย. 24', '16 ก.ย. 24', '30 ก.ย. 24'].map(parseThaiDate) }
             ];
 
             globalScheduleData.forEach(floor => {
-                if (!floor.actual) floor.actual = new Array(26).fill('');
+                if (!floor.actual) floor.actual = new Array(48).fill('');
             });
 
             function addWorkingDays(startDateStr, daysToAdd) {
@@ -2850,6 +3057,7 @@
                 if (!floor) return;
                 floor.actual[taskIndex * 2 + (isStart ? 0 : 1)] = newValue;
                 renderScheduleTable();
+                saveProjectDataToDB();
             };
 
             window.handleScheduleDateChange = function(floorId, taskIndex, isStart, newValue) {
@@ -2885,66 +3093,377 @@
                 }
 
                 renderScheduleTable();
+                saveProjectDataToDB();
             };
 
             window.updateScheduleSetting = function(key, value) {
                 globalScheduleSettings[key] = value;
                 renderScheduleSettings();
+                saveProjectDataToDB();
             };
 
             window.updateTaskDuration = function(index, value) {
-                globalScheduleTasks[index].duration = parseInt(value) || 0;
-                globalScheduleTasks[index].name = globalScheduleTasks[index].name.replace(/\(\d+\s*วัน\)/, `(${globalScheduleTasks[index].duration}วัน)`);
+                const duration = parseInt(value) || 0;
+                globalScheduleTasks[index].duration = duration;
+                
+                // Update task name with new duration
+                globalScheduleTasks[index].name = globalScheduleTasks[index].name.replace(/\(\d+\s*วัน\)/, `(${duration}วัน)`);
+                
+                // Recalculate all dates in the schedule to reflect duration changes
+                recalculateAllPlanDates();
+
+                // Calculate new totals
+                const wetWorkTasks = globalScheduleTasks.filter(t => t.category === 'wetwork');
+                const endProductTasks = globalScheduleTasks.filter(t => t.category === 'endproduct');
+                const totalWetWork = wetWorkTasks.reduce((sum, t) => sum + t.duration, 0);
+                const totalEndProduct = endProductTasks.reduce((sum, t) => sum + t.duration, 0);
+                const totalAll = totalWetWork + totalEndProduct;
+
+                // Update totals in UI surgically to avoid focus loss
+                const elTotalAll = document.getElementById('total-all-days-val');
+                const elTotalWet = document.getElementById('total-wetwork-days-val');
+                const elTotalEnd = document.getElementById('total-endproduct-days-val');
+                
+                if (elTotalAll) elTotalAll.innerText = `${totalAll} วัน`;
+                if (elTotalWet) elTotalWet.innerText = `${totalWetWork} วัน`;
+                if (elTotalEnd) elTotalEnd.innerText = `${totalEndProduct} วัน`;
+
+                // Re-render other parts that depend on this
                 renderScheduleTable();
-                renderScheduleSettings();
+                renderScheduleFilter();
+                
+                // Update Project Total surgically after table re-render
+                updateProjectTotalDisplay();
+                
+                // We skip renderScheduleSettings() here to keep focus on the current input
+                saveProjectDataToDB();
+            };
+
+            function recalculateAllPlanDates() {
+                globalScheduleData.forEach(floor => {
+                    // Start with the first task's start date as the anchor
+                    let currentStartDate = floor.plan[0];
+                    if (!currentStartDate) return;
+
+                    for (let i = 0; i < globalScheduleTasks.length; i++) {
+                        if (i > 0) {
+                            // Start date of task i is the next working day after end date of task i-1
+                            const prevEndDate = floor.plan[(i - 1) * 2 + 1];
+                            currentStartDate = getNextWorkingDay(prevEndDate);
+                            floor.plan[i * 2] = currentStartDate;
+                        }
+                        
+                        const duration = globalScheduleTasks[i].duration;
+                        const endDate = addWorkingDays(currentStartDate, duration);
+                        floor.plan[i * 2 + 1] = endDate;
+                    }
+                });
+            }
+
+            function updateProjectTotalDisplay() {
+                const elTotalProject = document.getElementById('total-project-days-val');
+                if (!elTotalProject) return;
+
+                const allPlanDates = globalScheduleData
+                    .filter(f => f.id >= globalScheduleFilters.minFloor && f.id <= globalScheduleFilters.maxFloor)
+                    .flatMap(f => f.plan)
+                    .filter(d => d);
+                
+                if (allPlanDates.length > 0) {
+                    const dates = allPlanDates.map(d => new Date(d).getTime());
+                    const minDate = new Date(Math.min(...dates));
+                    const maxDate = new Date(Math.max(...dates));
+                    const diffTime = Math.abs(maxDate - minDate);
+                    const totalProjectDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+                    elTotalProject.innerText = `${totalProjectDays} วัน`;
+                } else {
+                    elTotalProject.innerText = '-';
+                }
+            }
+
+            function renderScheduleFilter() {
+                const container = document.getElementById('schedule-filter');
+                if (!container) return;
+                
+                let html = `
+                    <div class="flex flex-col gap-6">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+                            <h3 class="font-bold text-slate-800 text-xl flex items-center gap-2">
+                                <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.707A1 1 0 013 7.086V4z"></path></svg>
+                                ตัวกรองแผนงาน
+                            </h3>
+                            
+                            <div class="flex flex-wrap items-center gap-4">
+                                <div class="flex items-center gap-2 bg-slate-50 p-1 rounded-lg border border-slate-200">
+                                    <span class="text-xs font-bold text-slate-500 px-2 uppercase tracking-wider">ชั้น:</span>
+                                    <select onchange="updateFloorRange('min', this.value)" class="bg-white border border-slate-200 rounded px-2 py-1 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500">
+                                        ${globalScheduleData.map(f => `<option value="${f.id}" ${globalScheduleFilters.minFloor === f.id ? 'selected' : ''}>ชั้น ${f.id}</option>`).join('')}
+                                    </select>
+                                    <span class="text-slate-400">ถึง</span>
+                                    <select onchange="updateFloorRange('max', this.value)" class="bg-white border border-slate-200 rounded px-2 py-1 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500">
+                                        ${globalScheduleData.map(f => `<option value="${f.id}" ${globalScheduleFilters.maxFloor === f.id ? 'selected' : ''}>ชั้น ${f.id}</option>`).join('')}
+                                    </select>
+                                </div>
+                                
+                                <div class="flex gap-2">
+                                    <button onclick="selectAllScheduleTasks()" class="px-3 py-1.5 text-xs font-bold bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded-lg transition-colors border border-indigo-100">เลือกทั้งหมด</button>
+                                    <button onclick="clearAllScheduleTasks()" class="px-3 py-1.5 text-xs font-bold bg-slate-50 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors border border-slate-200">ล้างทั้งหมด</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <!-- Categories -->
+                            <div>
+                                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">หมวดงานหลัก</h4>
+                                <div class="flex gap-4">
+                                    <label class="flex items-center gap-3 cursor-pointer group">
+                                        <div class="relative flex items-center justify-center">
+                                            <input type="checkbox" class="peer h-5 w-5 cursor-pointer appearance-none rounded border border-slate-300 checked:border-indigo-600 checked:bg-indigo-600 transition-all" 
+                                                ${globalScheduleFilters.showWetWork ? 'checked' : ''} 
+                                                onchange="updateScheduleFilterCategory('wetwork', this.checked)">
+                                            <svg class="absolute h-3.5 w-3.5 text-white opacity-0 peer-checked:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="4"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                                        </div>
+                                        <span class="text-sm font-bold text-slate-700 group-hover:text-indigo-600 transition-colors">Wet Work</span>
+                                    </label>
+                                    <label class="flex items-center gap-3 cursor-pointer group">
+                                        <div class="relative flex items-center justify-center">
+                                            <input type="checkbox" class="peer h-5 w-5 cursor-pointer appearance-none rounded border border-slate-300 checked:border-indigo-600 checked:bg-indigo-600 transition-all" 
+                                                ${globalScheduleFilters.showEndProduct ? 'checked' : ''} 
+                                                onchange="updateScheduleFilterCategory('endproduct', this.checked)">
+                                            <svg class="absolute h-3.5 w-3.5 text-white opacity-0 peer-checked:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="4"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                                        </div>
+                                        <span class="text-sm font-bold text-slate-700 group-hover:text-indigo-600 transition-colors">End Product</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Individual Tasks -->
+                            <div class="md:col-span-2">
+                                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">เลือกงานย่อย</h4>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+                `;
+
+                globalScheduleTasks.forEach((task, idx) => {
+                    let taskNameWithoutDuration = task.name.replace(/\s*\(\d+\s*วัน\)/, '');
+                    let isHidden = globalScheduleFilters.hiddenTasks.includes(idx);
+                    
+                    if ((task.category === 'wetwork' && !globalScheduleFilters.showWetWork) ||
+                        (task.category === 'endproduct' && !globalScheduleFilters.showEndProduct)) {
+                        return;
+                    }
+
+                    html += `
+                        <label class="flex items-start gap-2 cursor-pointer group p-2 rounded-lg hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
+                            <div class="relative flex items-center justify-center mt-0.5">
+                                <input type="checkbox" class="peer h-4 w-4 cursor-pointer appearance-none rounded border border-slate-300 checked:border-indigo-500 checked:bg-indigo-500 transition-all" 
+                                    ${!isHidden ? 'checked' : ''} 
+                                    onchange="updateScheduleFilterTask(${idx}, this.checked)">
+                                <svg class="absolute h-2.5 w-2.5 text-white opacity-0 peer-checked:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="4"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                            </div>
+                            <span class="text-xs font-medium text-slate-600 group-hover:text-slate-900 leading-tight" title="${taskNameWithoutDuration}">
+                                <span class="font-bold text-slate-400 mr-1">${task.subName}</span>
+                                ${taskNameWithoutDuration}
+                            </span>
+                        </label>
+                    `;
+                });
+
+                html += `
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML = html;
+            }
+
+            window.updateScheduleFilterCategory = function(category, isChecked) {
+                if (category === 'wetwork') {
+                    globalScheduleFilters.showWetWork = isChecked;
+                } else if (category === 'endproduct') {
+                    globalScheduleFilters.showEndProduct = isChecked;
+                }
+                renderScheduleFilter();
+                renderScheduleTable();
+                saveProjectDataToDB();
+            };
+
+            window.updateScheduleFilterTask = function(taskIdx, isChecked) {
+                if (isChecked) {
+                    globalScheduleFilters.hiddenTasks = globalScheduleFilters.hiddenTasks.filter(id => id !== taskIdx);
+                } else {
+                    if (!globalScheduleFilters.hiddenTasks.includes(taskIdx)) {
+                        globalScheduleFilters.hiddenTasks.push(taskIdx);
+                    }
+                }
+                renderScheduleTable();
+                saveProjectDataToDB();
             };
 
             function renderScheduleSettings() {
                 const container = document.getElementById('schedule-settings');
                 if (!container) return;
                 
+                const wetWorkTasks = globalScheduleTasks.map((task, index) => ({ task, index }))
+                    .filter(t => t.task.category === 'wetwork');
+                const endProductTasks = globalScheduleTasks.map((task, index) => ({ task, index }))
+                    .filter(t => t.task.category === 'endproduct');
+
+                const totalWetWorkDays = wetWorkTasks.reduce((sum, t) => sum + t.task.duration, 0);
+                const totalEndProductDays = endProductTasks.reduce((sum, t) => sum + t.task.duration, 0);
+                const totalAllDays = totalWetWorkDays + totalEndProductDays;
+
+                const allPlanDates = globalScheduleData
+                    .filter(f => f.id >= globalScheduleFilters.minFloor && f.id <= globalScheduleFilters.maxFloor)
+                    .flatMap(f => f.plan)
+                    .filter(d => d);
+                
+                let totalProjectDays = 0;
+                if (allPlanDates.length > 0) {
+                    const dates = allPlanDates.map(d => new Date(d).getTime());
+                    const minDate = new Date(Math.min(...dates));
+                    const maxDate = new Date(Math.max(...dates));
+                    const diffTime = Math.abs(maxDate - minDate);
+                    totalProjectDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+                }
+
                 let html = `
-                    <div class="flex flex-col gap-4">
-                        <h3 class="font-bold text-slate-700 text-lg">ตั้งค่าแผนงาน</h3>
-                        
-                        <div class="flex gap-6 mb-4">
-                            <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="checkbox" class="w-4 h-4 text-indigo-600 rounded" 
-                                    ${globalScheduleSettings.workOnSunday ? 'checked' : ''} 
-                                    onchange="updateScheduleSetting('workOnSunday', this.checked)">
-                                <span class="text-sm font-medium text-slate-700">ทำงานวันอาทิตย์</span>
-                            </label>
-                            <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="checkbox" class="w-4 h-4 text-indigo-600 rounded" 
-                                    ${globalScheduleSettings.workOnHoliday ? 'checked' : ''} 
-                                    onchange="updateScheduleSetting('workOnHoliday', this.checked)">
-                                <span class="text-sm font-medium text-slate-700">ทำงานวันหยุดนักขัตฤกษ์</span>
-                            </label>
-                        </div>
-
-                        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                `;
-
-                globalScheduleTasks.forEach((task, idx) => {
-                    let taskNameWithoutDuration = task.name.replace(/\s*\(\d+\s*วัน\)/, '');
-                    html += `
-                        <div class="flex flex-col gap-1">
-                            <label class="text-[10px] font-bold text-slate-700 truncate" title="${taskNameWithoutDuration}">${task.subName}: ${taskNameWithoutDuration}</label>
-                            <div class="flex items-center gap-2">
-                                <input type="number" min="1" value="${task.duration}" 
-                                    class="w-16 p-1 border border-slate-300 rounded text-sm text-center"
-                                    onchange="updateTaskDuration(${idx}, this.value)">
-                                <span class="text-xs text-slate-500">วัน</span>
+                    <div class="flex flex-col gap-6">
+                        <div class="flex justify-between items-center">
+                            <h3 class="font-bold text-slate-700 text-lg flex items-center gap-2">
+                                <i data-lucide="settings" class="w-5 h-5 text-indigo-500"></i>
+                                ตั้งค่าแผนงาน (Schedule Configuration)
+                            </h3>
+                            <div class="flex gap-3">
+                                <div class="px-4 py-2 bg-indigo-600 rounded-xl shadow-sm border border-indigo-500 flex flex-col items-center min-w-[140px]">
+                                    <span class="text-[10px] font-black text-indigo-100 uppercase tracking-wider">ระยะเวลารวมต่อ 1 ชั้น</span>
+                                    <span id="total-all-days-val" class="text-lg font-black text-white">${totalAllDays} วัน</span>
+                                </div>
+                                <div class="px-4 py-2 bg-slate-700 rounded-xl shadow-sm border border-slate-600 flex flex-col items-center min-w-[140px]">
+                                    <span class="text-[10px] font-black text-slate-300 uppercase tracking-wider">ระยะเวลารวมทั้งโครงการ</span>
+                                    <span id="total-project-days-val" class="text-lg font-black text-white">${totalProjectDays > 0 ? totalProjectDays + ' วัน' : '-'}</span>
+                                </div>
                             </div>
                         </div>
-                    `;
-                });
+                        
+                        <div class="flex flex-wrap items-center gap-6 p-5 bg-white rounded-2xl border border-slate-200 shadow-sm">
+                            <div class="flex flex-col gap-1">
+                                <label class="text-xs font-black text-slate-500 uppercase tracking-wider">จำนวนชั้นสูงสุด</label>
+                                <div class="flex items-center gap-2">
+                                    <input type="number" min="2" max="100" value="${globalScheduleFilters.maxFloor}" 
+                                        class="w-24 p-2 border-2 border-slate-200 rounded-xl text-sm text-center font-black text-indigo-600 focus:border-indigo-500 outline-none transition-all"
+                                        onchange="updateMaxFloor(this.value)">
+                                    <span class="text-sm font-bold text-slate-400">ชั้น</span>
+                                </div>
+                            </div>
 
-                html += `
+                            <div class="h-12 w-px bg-slate-100 mx-2 hidden md:block"></div>
+
+                            <div class="flex flex-col gap-1">
+                                <label class="text-xs font-black text-slate-500 uppercase tracking-wider">วันทำงาน (Working Days)</label>
+                                <div class="flex gap-6 mt-1">
+                                    <label class="flex items-center gap-3 cursor-pointer group">
+                                        <div class="relative flex items-center">
+                                            <input type="checkbox" class="peer h-5 w-5 cursor-pointer appearance-none rounded border border-slate-300 checked:bg-indigo-600 transition-all" 
+                                                ${globalScheduleSettings.workOnSunday ? 'checked' : ''} 
+                                                onchange="updateScheduleSetting('workOnSunday', this.checked)">
+                                            <svg class="absolute h-3.5 w-3.5 text-white opacity-0 peer-checked:opacity-100 pointer-events-none left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                        </div>
+                                        <span class="text-sm font-bold text-slate-600 group-hover:text-indigo-600 transition-colors">ทำงานวันอาทิตย์</span>
+                                    </label>
+                                    <label class="flex items-center gap-3 cursor-pointer group">
+                                        <div class="relative flex items-center">
+                                            <input type="checkbox" class="peer h-5 w-5 cursor-pointer appearance-none rounded border border-slate-300 checked:bg-indigo-600 transition-all" 
+                                                ${globalScheduleSettings.workOnHoliday ? 'checked' : ''} 
+                                                onchange="updateScheduleSetting('workOnHoliday', this.checked)">
+                                            <svg class="absolute h-3.5 w-3.5 text-white opacity-0 peer-checked:opacity-100 pointer-events-none left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                        </div>
+                                        <span class="text-sm font-bold text-slate-600 group-hover:text-indigo-600 transition-colors">ทำงานวันหยุดนักขัตฤกษ์</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                            <!-- Wet Work Section -->
+                            <div class="p-6 bg-emerald-50/40 rounded-2xl border-2 border-emerald-100 shadow-sm">
+                                <div class="flex justify-between items-center mb-6 border-b-2 border-emerald-100 pb-3">
+                                    <div class="flex items-center gap-3">
+                                        <div class="p-2 bg-emerald-500 rounded-lg shadow-sm">
+                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-black text-emerald-900 text-base">Zone Wet Work</h4>
+                                            <p class="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">ขั้นตอน U1 - U26</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-[10px] font-black text-emerald-500 uppercase tracking-wider mb-1">รวมระยะเวลา</div>
+                                        <div id="total-wetwork-days-val" class="text-xl font-black text-emerald-700">${totalWetWorkDays} วัน</div>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                                    ${wetWorkTasks.map(t => {
+                                        const task = t.task;
+                                        const idx = t.index;
+                                        let taskNameWithoutDuration = task.name.replace(/\s*\(\d+\s*วัน\)/, '');
+                                        return `
+                                            <div class="bg-white p-3 rounded-xl border border-emerald-100 shadow-sm hover:border-emerald-300 transition-all">
+                                                <label class="text-[10px] font-black text-slate-500 uppercase tracking-tight block mb-2 truncate" title="${taskNameWithoutDuration}">${task.subName}: ${taskNameWithoutDuration}</label>
+                                                <div class="flex items-center gap-2">
+                                                    <input type="number" min="1" value="${task.duration}" 
+                                                        class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-center font-bold text-emerald-700 focus:bg-white focus:border-emerald-500 outline-none transition-all"
+                                                        onchange="updateTaskDuration(${idx}, this.value)">
+                                                    <span class="text-[10px] font-bold text-slate-400 uppercase">วัน</span>
+                                                </div>
+                                            </div>
+                                        `;
+                                    }).join('')}
+                                </div>
+                            </div>
+
+                            <!-- End Product Section -->
+                            <div class="p-6 bg-blue-50/40 rounded-2xl border-2 border-blue-100 shadow-sm">
+                                <div class="flex justify-between items-center mb-6 border-b-2 border-blue-100 pb-3">
+                                    <div class="flex items-center gap-3">
+                                        <div class="p-2 bg-blue-500 rounded-lg shadow-sm">
+                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-black text-blue-900 text-base">Zone End Product</h4>
+                                            <p class="text-[10px] font-bold text-blue-600 uppercase tracking-widest">ขั้นตอน U27 - U38</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-[10px] font-black text-blue-500 uppercase tracking-wider mb-1">รวมระยะเวลา</div>
+                                        <div id="total-endproduct-days-val" class="text-xl font-black text-blue-700">${totalEndProductDays} วัน</div>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                                    ${endProductTasks.map(t => {
+                                        const task = t.task;
+                                        const idx = t.index;
+                                        let taskNameWithoutDuration = task.name.replace(/\s*\(\d+\s*วัน\)/, '');
+                                        return `
+                                            <div class="bg-white p-3 rounded-xl border border-blue-100 shadow-sm hover:border-blue-300 transition-all">
+                                                <label class="text-[10px] font-black text-slate-500 uppercase tracking-tight block mb-2 truncate" title="${taskNameWithoutDuration}">${task.subName}: ${taskNameWithoutDuration}</label>
+                                                <div class="flex items-center gap-2">
+                                                    <input type="number" min="1" value="${task.duration}" 
+                                                        class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-center font-bold text-blue-700 focus:bg-white focus:border-blue-500 outline-none transition-all"
+                                                        onchange="updateTaskDuration(${idx}, this.value)">
+                                                    <span class="text-[10px] font-bold text-slate-400 uppercase">วัน</span>
+                                                </div>
+                                            </div>
+                                        `;
+                                    }).join('')}
+                                </div>
+                            </div>
                         </div>
                     </div>
                 `;
                 container.innerHTML = html;
+                if (typeof lucide !== 'undefined') lucide.createIcons();
             }
 
             function renderScheduleTable() {
@@ -2956,19 +3475,32 @@
                 if (reportHeader) reportHeader.classList.remove('hidden');
 
                 renderExecutiveSummaryDashboard();
+                renderScheduleFilter();
+
+                const visibleTasks = globalScheduleTasks.map((task, index) => ({ task, index })).filter(({ task, index }) => {
+                    if (task.category === 'wetwork' && !globalScheduleFilters.showWetWork) return false;
+                    if (task.category === 'endproduct' && !globalScheduleFilters.showEndProduct) return false;
+                    if (globalScheduleFilters.hiddenTasks.includes(index)) return false;
+                    return true;
+                });
+
+                if (visibleTasks.length === 0) {
+                    mainTable.innerHTML = '<tr><td class="p-4 text-center text-slate-500">ไม่พบข้อมูลตามเงื่อนไขที่เลือก</td></tr>';
+                    return;
+                }
 
                 const thead = document.createElement('thead');
                 thead.innerHTML = `
                     <tr class="bg-slate-100">
                         <th class="border p-2 text-xs sticky left-0 z-30 bg-slate-100" rowspan="3" style="min-width: 60px;">อาคาร/ชั้น</th>
                         <th class="border p-2 text-xs sticky left-[60px] z-30 bg-slate-100" rowspan="3" style="min-width: 40px;"></th>
-                        ${globalScheduleTasks.map(t => `<th class="border p-0 ${t.color}" colspan="2"><div class="p-2 text-sm font-bold mx-auto flex items-center justify-center text-center" style="min-width: 90px; max-width: 140px; white-space: normal; line-height: 1.4; word-break: break-word;">${t.name}</div></th>`).join('')}
+                        ${visibleTasks.map(t => `<th class="border p-0 ${t.task.color}" colspan="2"><div class="p-2 text-sm font-bold mx-auto flex items-center justify-center text-center" style="min-width: 90px; max-width: 140px; white-space: normal; line-height: 1.4; word-break: break-word;">${t.task.name}</div></th>`).join('')}
                     </tr>
                     <tr class="bg-slate-50">
-                        ${globalScheduleTasks.map(t => `<th class="border p-1 text-[10px] font-bold text-center ${t.color}" colspan="2">${t.subName}</th>`).join('')}
+                        ${visibleTasks.map(t => `<th class="border p-1 text-[10px] font-bold text-center ${t.task.color}" colspan="2">${t.task.subName}</th>`).join('')}
                     </tr>
                     <tr class="bg-slate-50">
-                        ${globalScheduleTasks.map(() => `
+                        ${visibleTasks.map(() => `
                             <th class="border p-1 text-[9px] font-medium" style="min-width: 45px;">เริ่ม</th>
                             <th class="border p-1 text-[9px] font-medium" style="min-width: 45px;">แล้วเสร็จ</th>
                         `).join('')}
@@ -2977,22 +3509,24 @@
                 mainTable.appendChild(thead);
 
                 const tbody = document.createElement('tbody');
-                globalScheduleData.forEach(floor => {
+                globalScheduleData.filter(f => f.id >= globalScheduleFilters.minFloor && f.id <= globalScheduleFilters.maxFloor).forEach(floor => {
                     // Plan Row
                     const planRow = document.createElement('tr');
                     let planCells = '';
-                    floor.plan.forEach((dateStr, idx) => {
-                        const taskIndex = Math.floor(idx / 2);
-                        const isStart = idx % 2 === 0;
-                        const colorClass = getMonthColorClass(dateStr);
-                        const formattedDate = formatThaiDateShort(dateStr);
-                        planCells += `<td class="border p-0 text-[10px] text-center relative hover:opacity-80 transition-opacity ${colorClass}" style="min-width: 45px; height: 24px;">
-                            <div class="absolute inset-0 flex items-center justify-center pointer-events-none font-medium">${formattedDate}</div>
-                            <input type="date" value="${dateStr}" 
-                                class="absolute inset-0 w-full h-full opacity-0 cursor-pointer date-picker-cover z-10"
-                                onclick="try { this.showPicker() } catch(e) {}"
-                                onchange="handleScheduleDateChange(${floor.id}, ${taskIndex}, ${isStart}, this.value)">
-                        </td>`;
+                    visibleTasks.forEach(t => {
+                        [true, false].forEach(isStart => {
+                            const idx = t.index * 2 + (isStart ? 0 : 1);
+                            const dateStr = floor.plan[idx];
+                            const colorClass = getMonthColorClass(dateStr);
+                            const formattedDate = formatThaiDateShort(dateStr);
+                            planCells += `<td class="border p-0 text-[10px] text-center relative hover:opacity-80 transition-opacity ${colorClass}" style="min-width: 45px; height: 24px;">
+                                <div class="absolute inset-0 flex items-center justify-center pointer-events-none font-medium">${formattedDate}</div>
+                                <input type="date" value="${dateStr}" 
+                                    class="absolute inset-0 w-full h-full opacity-0 cursor-pointer date-picker-cover z-10"
+                                    onclick="try { this.showPicker() } catch(e) {}"
+                                    onchange="handleScheduleDateChange(${floor.id}, ${t.index}, ${isStart}, this.value)">
+                            </td>`;
+                        });
                     });
                     
                     planRow.innerHTML = `
@@ -3005,14 +3539,14 @@
                     // Actual Row
                     const actualRow = document.createElement('tr');
                     let actualCells = '';
-                    globalScheduleTasks.forEach((task, taskIndex) => {
+                    visibleTasks.forEach(t => {
                         [true, false].forEach(isStart => {
-                            const actualVal = floor.actual[taskIndex * 2 + (isStart ? 0 : 1)] || '';
-                            const planVal = floor.plan[taskIndex * 2 + (isStart ? 0 : 1)];
+                            const actualVal = floor.actual[t.index * 2 + (isStart ? 0 : 1)] || '';
+                            const planVal = floor.plan[t.index * 2 + (isStart ? 0 : 1)];
                             const colorClass = getMonthColorClass(actualVal !== 'DONE' ? actualVal : planVal);
                             const formattedDate = formatThaiDateShort(actualVal);
                             
-                            actualCells += `<td class="border p-0 text-[10px] text-center relative hover:opacity-80 transition-opacity cursor-pointer ${colorClass}" style="min-width: 45px; height: 24px;" onclick="openActualUpdateModal(${floor.id}, ${taskIndex}, ${isStart})">
+                            actualCells += `<td class="border p-0 text-[10px] text-center relative hover:opacity-80 transition-opacity cursor-pointer ${colorClass}" style="min-width: 45px; height: 24px;" onclick="openActualUpdateModal(${floor.id}, ${t.index}, ${isStart})">
                                 <div class="absolute inset-0 flex items-center justify-center pointer-events-none font-medium">${formattedDate}</div>
                             </td>`;
                         });
@@ -3025,13 +3559,6 @@
                     tbody.appendChild(actualRow);
                 });
                 mainTable.appendChild(tbody);
-                
-                // Show settings
-                const settingsContainer = document.getElementById('schedule-settings');
-                if (settingsContainer) {
-                    settingsContainer.classList.add('hidden'); // Hidden by default
-                    renderScheduleSettings();
-                }
             }
 
             function renderCommonAreaTable() {
@@ -3845,14 +4372,33 @@
                 const isQCSummaryView = currentView === 'qcSummary';
                 const categoryDef = taskDefinitions[currentCategory];
 
-                document.getElementById('task-selection-container').style.display = isCommonView || isQCSummaryView || currentView === 'summaryReport' || currentView === 'schedule' ? 'none' : 'block';
-                document.getElementById('legend').style.display = isCommonView || currentView === 'summaryReport' || currentView === 'schedule' ? 'none' : 'flex';
-                document.getElementById('openReportModalBtn').style.display = isCommonView || currentView === 'summaryReport' || currentView === 'schedule' ? 'none' : 'inline-flex';
-                document.getElementById('openCommonAreaReportModalBtn').style.display = isCommonView ? 'inline-flex' : 'none';
+                const taskSelectionContainer = document.getElementById('task-selection-container');
+                if (taskSelectionContainer) {
+                    taskSelectionContainer.style.display = isCommonView || isQCSummaryView || currentView === 'summaryReport' || currentView === 'schedule' ? 'none' : 'block';
+                }
+                
+                const legend = document.getElementById('legend');
+                if (legend) {
+                    legend.style.display = isCommonView || currentView === 'summaryReport' || currentView === 'schedule' ? 'none' : 'flex';
+                }
+                
+                const openReportModalBtn = document.getElementById('openReportModalBtn');
+                if (openReportModalBtn) {
+                    openReportModalBtn.style.display = isCommonView || currentView === 'summaryReport' || currentView === 'schedule' ? 'none' : 'inline-flex';
+                }
+                
+                const openCommonAreaReportModalBtn = document.getElementById('openCommonAreaReportModalBtn');
+                if (openCommonAreaReportModalBtn) {
+                    openCommonAreaReportModalBtn.style.display = isCommonView ? 'inline-flex' : 'none';
+                }
                 
                 const toggleScheduleSettingsBtn = document.getElementById('toggleScheduleSettingsBtn');
                 if (toggleScheduleSettingsBtn) {
                     toggleScheduleSettingsBtn.classList.toggle('hidden', currentView !== 'schedule');
+                }
+                const toggleScheduleFilterBtn = document.getElementById('toggleScheduleFilterBtn');
+                if (toggleScheduleFilterBtn) {
+                    toggleScheduleFilterBtn.classList.toggle('hidden', currentView !== 'schedule');
                 }
                 
                 let title = '';
@@ -4097,6 +4643,12 @@
 
             async function saveProjectDataToDB() {
                 try {
+                    // Sync schedule data to projectData before saving
+                    projectData.globalScheduleData = globalScheduleData;
+                    projectData.globalScheduleTasks = globalScheduleTasks;
+                    projectData.globalScheduleSettings = globalScheduleSettings;
+                    projectData.globalScheduleFilters = globalScheduleFilters;
+
                     const { error } = await supabaseClient
                         .from(CONFIG.DB_TABLE_NAME)
                         .update({ data: projectData })
