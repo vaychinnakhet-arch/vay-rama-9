@@ -30,6 +30,19 @@
             font-family: 'Sarabun', sans-serif;
             background-color: #f1f5f9; /* slate-100 */
         }
+        
+        /* Make date input clickable anywhere */
+        input[type="date"].date-picker-cover::-webkit-calendar-picker-indicator {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
         body.modal-open {
             overflow: hidden;
         }
@@ -679,6 +692,16 @@
                     </div>
                     <p class="mt-4 text-sm font-bold text-indigo-600">ดูรายงานสรุปทั้งหมด</p>
                 </div>
+                <!-- Schedule Plan -->
+                <div class="splash-card p-8 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-slate-50 transition-colors" onclick="enterAppView('schedule')">
+                    <h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-6">แผนงาน</h2>
+                     <div class="flex items-center justify-center flex-1">
+                        <div class="p-4 bg-cyan-50 rounded-full text-cyan-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                        </div>
+                    </div>
+                    <p class="mt-4 text-sm font-bold text-cyan-600">ดูแผนงานโครงการ</p>
+                </div>
             </div>
 
             <!-- Task Navigation Cards -->
@@ -727,6 +750,10 @@
                     <!-- JS Generated Content -->
                 </div>
 
+                <div id="schedule-settings" class="hidden mt-4 mx-2 md:mx-0 p-4 bg-white border border-slate-200 shadow-sm rounded-xl">
+                    <!-- JS Generated Content -->
+                </div>
+
                 <div id="executive-summary-dashboard" class="hidden mt-6 w-full mx-auto">
                       <!-- JS Generated Content -->
                 </div>
@@ -747,6 +774,7 @@
                             <button id="view-qc-summary-btn" class="view-toggle-btn px-4 py-1.5 rounded-md">สรุป QC</button>
                             <button id="view-summary-report-btn" class="view-toggle-btn px-4 py-1.5 rounded-md">รายงานสรุป</button>
                             <button id="view-common-btn" class="view-toggle-btn px-4 py-1.5 rounded-md">ส่วนกลาง</button>
+                            <button id="view-schedule-btn" class="view-toggle-btn px-4 py-1.5 rounded-md">แผนงาน</button>
                         </div>
                     </div>
 
@@ -791,6 +819,9 @@
                     <button id="captureShareBtn" class="hidden action-btn px-4 py-2 bg-emerald-600 text-white rounded-lg shadow-sm hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 text-sm font-medium inline-flex items-center gap-2 transition-all">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
                         แคปเจอร์แบบแชร์
+                    </button>
+                    <button id="toggleScheduleSettingsBtn" onclick="toggleScheduleSettings()" class="hidden action-btn px-4 py-2 bg-slate-800 text-white rounded-lg shadow-sm hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 text-sm font-medium inline-flex items-center gap-2 transition-all">
+                        <i data-lucide="settings" class="w-4 h-4"></i> ตั้งค่าแผนงาน
                     </button>
                     <button id="captureNewBtn" class="action-btn px-4 py-2 bg-blue-600 text-white rounded-lg shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 text-sm font-medium inline-flex items-center gap-2 transition-all">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
@@ -1997,17 +2028,24 @@
                 const comBtn = document.getElementById('view-common-btn');
                 const qcBtn = document.getElementById('view-qc-summary-btn');
                 const reportBtn = document.getElementById('view-summary-report-btn');
+                const scheduleBtn = document.getElementById('view-schedule-btn');
                 
                 resBtn.classList.toggle('active', view === 'residential');
                 comBtn.classList.toggle('active', view === 'common');
                 qcBtn.classList.toggle('active', view === 'qcSummary');
                 reportBtn.classList.toggle('active', view === 'summaryReport');
+                if (scheduleBtn) scheduleBtn.classList.toggle('active', view === 'schedule');
 
                 // Show/Hide summary report mode toggle
                 const reportModeToggle = document.getElementById('summary-report-mode-toggle');
                 const headerStyleToggle = document.getElementById('report-header-style-toggle');
                 const taskViewModeToggle = document.getElementById('task-view-mode-toggle');
                 
+                const settingsContainer = document.getElementById('schedule-settings');
+                if (settingsContainer) {
+                    settingsContainer.classList.toggle('hidden', view !== 'schedule');
+                }
+
                 if (taskViewModeToggle) {
                     const categoryDef = taskDefinitions[currentCategory];
                     const isMultiProgress = categoryDef && categoryDef.type === 'multi-progress';
@@ -2028,7 +2066,7 @@
                 }
 
                 if (headerStyleToggle) {
-                    const isResidentialOrSummary = view === 'residential' || view === 'summaryReport';
+                    const isResidentialOrSummary = view === 'residential' || view === 'summaryReport' || view === 'schedule';
                     headerStyleToggle.classList.toggle('hidden', !isResidentialOrSummary);
                     if (isResidentialOrSummary) {
                         document.getElementById('header-style-dark-btn').classList.toggle('active', reportHeaderStyle === 'dark');
@@ -2046,7 +2084,7 @@
 
                 const toggleSummaryBtn = document.getElementById('toggleExecutiveSummaryBtn');
                 const toggleOverallBtn = document.getElementById('overall-progress-toggle-btn');
-                const isResidentialOrSummary = view === 'residential' || view === 'summaryReport';
+                const isResidentialOrSummary = view === 'residential' || view === 'summaryReport' || view === 'schedule';
                 
                 if (toggleSummaryBtn) {
                     toggleSummaryBtn.classList.toggle('hidden', !isResidentialOrSummary);
@@ -2131,6 +2169,9 @@
                 } else if (currentView === 'summaryReport') {
                     captureArea.classList.remove('common-view-active');
                     renderSummaryReportTable();
+                } else if (currentView === 'schedule') {
+                    captureArea.classList.remove('common-view-active');
+                    renderScheduleTable();
                 }
                 updateUI();
             }
@@ -2454,7 +2495,303 @@
                     lucide.createIcons();
                 }
             }
-            
+
+            let globalScheduleTasks = [
+                { name: 'ตีไลน์ (3วัน)', subName: 'U1', color: 'bg-[#e2efda]', duration: 3 },
+                { name: 'ตั้งเสาเอ็น/เขิบห้องน้ำ+ทางเดิน+ระเบียง (7วัน)', subName: 'U2', color: 'bg-[#e2efda]', duration: 7 },
+                { name: 'งานระบบตีเส้น SPK,M&E ตรวจสอบตำแหน่งท่อฝังพื้น ,เดินระบบ SPK+SLEEVE ท่อผ่านผนัง+ท่อในชาร์ป (SN ,ท่อแอร์ /ท่อลม/ติดดวงโคม) (10วัน)', subName: 'U3-U5', color: 'bg-[#d9d2e9]', duration: 10 },
+                { name: 'ยิงซิลิโคน PC/ เก๊าท์ผนัง PC (7วัน)', subName: 'U6', color: 'bg-[#e2efda]', duration: 7 },
+                { name: 'ติดตั้งแผ่นTexca wall , เก็บอุดรอยต่อแผ่น Texca wall (10วัน)', subName: 'U7-U8', color: 'bg-[#e2efda]', duration: 10 },
+                { name: 'M&E WORK (เดินท่อในผนัง) ติดตั้งเอ้าท์เลท /เบิ้ลผนัง/เทสปั๊มน้ำ , Test Pressure ท่อน้ำ+SPK (10วัน) ,ร้อยสายไฟ/ พ่นดวงโคม/พัดลม', subName: 'U9-U11', color: 'bg-[#d9d2e9]', duration: 10 },
+                { name: 'เทเสาเอ็น/เก๊าท์ท่อฝังผนังครัว /เก๊าท์ ท่อแอร์ , งานฉาบเสาโครงสร้าง / ฉาบผนังรอยต่อ (7วัน)', subName: 'U12-U13', color: 'bg-[#a9d08e]', duration: 7 },
+                { name: 'งานเทท็อปปิ้งพื้นห้องพัก /ห้องน้ำ/ระเบียง , งานติดตั้งราวกันตก ระเบียง(7วัน)', subName: 'U14-U15', color: 'bg-[#a9d08e]', duration: 7 },
+                { name: 'งานกันซึมห้องน้ำ / ระเบียง , งานปูกระเบื้อง (พื้นห้องน้ำ,ผนังห้องน้ำ,ระเบียง,ผนังครัว,พื้นครัว) (14วัน)', subName: 'U16-U17', color: 'bg-[#a9d08e]', duration: 14 },
+                { name: 'งานติดตั้งโครงฝ้า , ปิดแผ่นฝ้า ,ฉาบฝ้าห้องพักห้องน้ำ (10วัน)', subName: 'U18,U20-U21', color: 'bg-[#a9d08e]', duration: 10 },
+                { name: 'งานเทสไฟ/เซอร์กิต เหนือฝ้า(7วัน)', subName: 'U19', color: 'bg-[#d9d2e9]', duration: 7 },
+                { name: 'งานสกิมผนัง,งานขัด+ทาสีรองพื้น 1 รอบ ,เจาะฝ้าดาวน์ไลท์ (10วัน)', subName: 'U22-U23', color: 'bg-[#a9d08e]', duration: 10 },
+                { name: 'ส่ง CM ตรวจ Wet Work ส่ง QC ตรวจ Wet Work(10 วัน)', subName: 'U24-U26', color: 'bg-[#f4b084]', duration: 10 }
+            ];
+
+            let globalScheduleSettings = {
+                workOnSunday: true,
+                workOnHoliday: true
+            };
+
+            function formatThaiDateShort(dateStr) {
+                if (!dateStr) return '';
+                const date = new Date(dateStr);
+                if (isNaN(date.getTime())) return '';
+                const months = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+                const d = date.getDate();
+                const m = months[date.getMonth()];
+                const y = (date.getFullYear() + 543).toString().slice(-2);
+                return `${d} ${m} ${y}`;
+            }
+
+            function getMonthColorClass(dateStr) {
+                if (!dateStr) return 'bg-white text-slate-700';
+                const date = new Date(dateStr);
+                if (isNaN(date.getTime())) return 'bg-white text-slate-700';
+                const month = date.getMonth();
+                const colors = [
+                    'bg-blue-100 text-blue-900',    // Jan
+                    'bg-pink-100 text-pink-900',    // Feb
+                    'bg-green-100 text-green-900',   // Mar
+                    'bg-yellow-100 text-yellow-900',  // Apr
+                    'bg-purple-100 text-purple-900',  // May
+                    'bg-teal-100 text-teal-900',     // Jun
+                    'bg-indigo-100 text-indigo-900',  // Jul
+                    'bg-rose-100 text-rose-900',     // Aug
+                    'bg-orange-100 text-orange-900',  // Sep
+                    'bg-cyan-100 text-cyan-900',     // Oct
+                    'bg-fuchsia-100 text-fuchsia-900', // Nov
+                    'bg-emerald-100 text-emerald-900'  // Dec
+                ];
+                return colors[month];
+            }
+
+            window.toggleScheduleSettings = function() {
+                const container = document.getElementById('schedule-settings');
+                if (container) {
+                    container.classList.toggle('hidden');
+                }
+            };
+
+            function parseThaiDate(thaiStr) {
+                if (!thaiStr) return '';
+                const months = {
+                    'ม.ค.': '01', 'ก.พ.': '02', 'มี.ค.': '03', 'เม.ย.': '04',
+                    'พ.ค.': '05', 'มิ.ย.': '06', 'ก.ค.': '07', 'ส.ค.': '08',
+                    'ก.ย.': '09', 'ต.ค.': '10', 'พ.ย.': '11', 'ธ.ค.': '12'
+                };
+                const parts = thaiStr.trim().split(' ');
+                if (parts.length !== 3) return '';
+                let d = parts[0].padStart(2, '0');
+                let m = months[parts[1]];
+                let y = '20' + parts[2];
+                return `${y}-${m}-${d}`;
+            }
+
+            let globalScheduleData = [
+                { id: 2, plan: ['3 พ.ย. 23', '7 พ.ย. 23', '7 พ.ย. 23', '9 พ.ย. 23', '10 พ.ย. 23', '16 พ.ย. 23', '15 พ.ย. 23', '16 พ.ย. 23', '17 พ.ย. 23', '27 พ.ย. 23', '22 พ.ย. 23', '1 ธ.ค. 23', '26 พ.ย. 23', '2 ธ.ค. 23', '28 พ.ย. 23', '4 ธ.ค. 23', '2 ธ.ค. 23', '15 ธ.ค. 23', '9 ธ.ค. 23', '18 ธ.ค. 23', '11 ธ.ค. 23', '17 ธ.ค. 23', '15 ธ.ค. 23', '24 ธ.ค. 23', '19 ธ.ค. 23', '28 ธ.ค. 23'].map(parseThaiDate) },
+                { id: 3, plan: ['6 พ.ย. 23', '12 พ.ย. 23', '9 พ.ย. 23', '15 พ.ย. 23', '9 พ.ย. 23', '18 พ.ย. 23', '12 พ.ย. 23', '18 พ.ย. 23', '14 พ.ย. 23', '23 พ.ย. 23', '19 พ.ย. 23', '28 พ.ย. 23', '23 พ.ย. 23', '29 พ.ย. 23', '25 พ.ย. 23', '1 ธ.ค. 23', '29 พ.ย. 23', '12 ธ.ค. 23', '6 ธ.ค. 23', '15 ธ.ค. 23', '8 ธ.ค. 23', '14 ธ.ค. 23', '12 ธ.ค. 23', '21 ธ.ค. 23', '16 ธ.ค. 23', '25 ธ.ค. 23'].map(parseThaiDate) },
+                { id: 4, plan: ['13 พ.ย. 23', '19 พ.ย. 23', '16 พ.ย. 23', '22 พ.ย. 23', '16 พ.ย. 23', '25 พ.ย. 23', '19 พ.ย. 23', '25 พ.ย. 23', '21 พ.ย. 23', '30 พ.ย. 23', '26 พ.ย. 23', '5 ธ.ค. 23', '30 พ.ย. 23', '6 ธ.ค. 23', '2 ธ.ค. 23', '8 ธ.ค. 23', '6 ธ.ค. 23', '19 ธ.ค. 23', '13 ธ.ค. 23', '22 ธ.ค. 23', '15 ธ.ค. 23', '21 ธ.ค. 23', '19 ธ.ค. 23', '28 ธ.ค. 23', '23 ธ.ค. 23', '1 ม.ค. 24'].map(parseThaiDate) },
+                { id: 5, plan: ['20 พ.ย. 23', '26 พ.ย. 23', '23 พ.ย. 23', '29 พ.ย. 23', '23 พ.ย. 23', '2 ธ.ค. 23', '26 พ.ย. 23', '2 ธ.ค. 23', '28 พ.ย. 23', '7 ธ.ค. 23', '3 ธ.ค. 23', '12 ธ.ค. 23', '7 ธ.ค. 23', '13 ธ.ค. 23', '9 ธ.ค. 23', '15 ธ.ค. 23', '13 ธ.ค. 23', '26 ธ.ค. 23', '20 ธ.ค. 23', '29 ธ.ค. 23', '22 ธ.ค. 23', '28 ธ.ค. 23', '26 ธ.ค. 23', '4 ม.ค. 24', '30 ธ.ค. 23', '8 ม.ค. 24'].map(parseThaiDate) },
+                { id: 6, plan: ['27 พ.ย. 23', '3 ธ.ค. 23', '30 พ.ย. 23', '6 ธ.ค. 23', '30 พ.ย. 23', '9 ธ.ค. 23', '3 ธ.ค. 23', '9 ธ.ค. 23', '5 ธ.ค. 23', '14 ธ.ค. 23', '10 ธ.ค. 23', '19 ธ.ค. 23', '14 ธ.ค. 23', '20 ธ.ค. 23', '16 ธ.ค. 23', '22 ธ.ค. 23', '20 ธ.ค. 23', '2 ม.ค. 24', '27 ธ.ค. 23', '5 ม.ค. 24', '29 ธ.ค. 23', '4 ม.ค. 24', '2 ม.ค. 24', '11 ม.ค. 24', '6 ม.ค. 24', '15 ม.ค. 24'].map(parseThaiDate) },
+                { id: 7, plan: ['4 ธ.ค. 23', '10 ธ.ค. 23', '7 ธ.ค. 23', '13 ธ.ค. 23', '7 ธ.ค. 23', '16 ธ.ค. 23', '10 ธ.ค. 23', '16 ธ.ค. 23', '12 ธ.ค. 23', '21 ธ.ค. 23', '17 ธ.ค. 23', '26 ธ.ค. 23', '21 ธ.ค. 23', '27 ธ.ค. 23', '23 ธ.ค. 23', '29 ธ.ค. 23', '27 ธ.ค. 23', '9 ม.ค. 24', '3 ม.ค. 24', '12 ม.ค. 24', '5 ม.ค. 24', '11 ม.ค. 24', '9 ม.ค. 24', '18 ม.ค. 24', '13 ม.ค. 24', '22 ม.ค. 24'].map(parseThaiDate) }
+            ];
+
+            function addWorkingDays(startDateStr, daysToAdd) {
+                if (!startDateStr) return '';
+                let date = new Date(startDateStr);
+                if (isNaN(date.getTime())) return '';
+                
+                let added = 0;
+                let daysToActuallyAdd = Math.max(0, daysToAdd - 1);
+
+                while (added < daysToActuallyAdd) {
+                    date.setDate(date.getDate() + 1);
+                    let dayOfWeek = date.getDay();
+                    let isSunday = dayOfWeek === 0;
+                    let isHoliday = false; 
+
+                    if ((!isSunday || globalScheduleSettings.workOnSunday) && 
+                        (!isHoliday || globalScheduleSettings.workOnHoliday)) {
+                        added++;
+                    }
+                }
+                return date.toISOString().split('T')[0];
+            }
+
+            function getNextWorkingDay(dateStr) {
+                if (!dateStr) return '';
+                let date = new Date(dateStr);
+                if (isNaN(date.getTime())) return '';
+                
+                let found = false;
+                while (!found) {
+                    date.setDate(date.getDate() + 1);
+                    let dayOfWeek = date.getDay();
+                    let isSunday = dayOfWeek === 0;
+                    let isHoliday = false;
+                    
+                    if ((!isSunday || globalScheduleSettings.workOnSunday) && 
+                        (!isHoliday || globalScheduleSettings.workOnHoliday)) {
+                        found = true;
+                    }
+                }
+                return date.toISOString().split('T')[0];
+            }
+
+            window.handleScheduleDateChange = function(floorId, taskIndex, isStart, newValue) {
+                const floor = globalScheduleData.find(f => f.id === floorId);
+                if (!floor) return;
+
+                floor.plan[taskIndex * 2 + (isStart ? 0 : 1)] = newValue;
+
+                if (isStart && newValue) {
+                    const duration = globalScheduleTasks[taskIndex].duration;
+                    const endDate = addWorkingDays(newValue, duration);
+                    floor.plan[taskIndex * 2 + 1] = endDate;
+
+                    let currentEndDate = endDate;
+                    for (let i = taskIndex + 1; i < globalScheduleTasks.length; i++) {
+                        const nextStartDate = getNextWorkingDay(currentEndDate);
+                        floor.plan[i * 2] = nextStartDate;
+                        
+                        const nextDuration = globalScheduleTasks[i].duration;
+                        currentEndDate = addWorkingDays(nextStartDate, nextDuration);
+                        floor.plan[i * 2 + 1] = currentEndDate;
+                    }
+                } else if (!isStart && newValue) {
+                    let currentEndDate = newValue;
+                    for (let i = taskIndex + 1; i < globalScheduleTasks.length; i++) {
+                        const nextStartDate = getNextWorkingDay(currentEndDate);
+                        floor.plan[i * 2] = nextStartDate;
+                        
+                        const nextDuration = globalScheduleTasks[i].duration;
+                        currentEndDate = addWorkingDays(nextStartDate, nextDuration);
+                        floor.plan[i * 2 + 1] = currentEndDate;
+                    }
+                }
+
+                renderScheduleTable();
+            };
+
+            window.updateScheduleSetting = function(key, value) {
+                globalScheduleSettings[key] = value;
+                renderScheduleSettings();
+            };
+
+            window.updateTaskDuration = function(index, value) {
+                globalScheduleTasks[index].duration = parseInt(value) || 0;
+                globalScheduleTasks[index].name = globalScheduleTasks[index].name.replace(/\(\d+\s*วัน\)/, `(${globalScheduleTasks[index].duration}วัน)`);
+                renderScheduleTable();
+                renderScheduleSettings();
+            };
+
+            function renderScheduleSettings() {
+                const container = document.getElementById('schedule-settings');
+                if (!container) return;
+                
+                let html = `
+                    <div class="flex flex-col gap-4">
+                        <h3 class="font-bold text-slate-700 text-lg">ตั้งค่าแผนงาน</h3>
+                        
+                        <div class="flex gap-6 mb-4">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" class="w-4 h-4 text-indigo-600 rounded" 
+                                    ${globalScheduleSettings.workOnSunday ? 'checked' : ''} 
+                                    onchange="updateScheduleSetting('workOnSunday', this.checked)">
+                                <span class="text-sm font-medium text-slate-700">ทำงานวันอาทิตย์</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" class="w-4 h-4 text-indigo-600 rounded" 
+                                    ${globalScheduleSettings.workOnHoliday ? 'checked' : ''} 
+                                    onchange="updateScheduleSetting('workOnHoliday', this.checked)">
+                                <span class="text-sm font-medium text-slate-700">ทำงานวันหยุดนักขัตฤกษ์</span>
+                            </label>
+                        </div>
+
+                        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                `;
+
+                globalScheduleTasks.forEach((task, idx) => {
+                    let taskNameWithoutDuration = task.name.replace(/\s*\(\d+\s*วัน\)/, '');
+                    html += `
+                        <div class="flex flex-col gap-1">
+                            <label class="text-[10px] font-bold text-slate-700 truncate" title="${taskNameWithoutDuration}">${task.subName}: ${taskNameWithoutDuration}</label>
+                            <div class="flex items-center gap-2">
+                                <input type="number" min="1" value="${task.duration}" 
+                                    class="w-16 p-1 border border-slate-300 rounded text-sm text-center"
+                                    onchange="updateTaskDuration(${idx}, this.value)">
+                                <span class="text-xs text-slate-500">วัน</span>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                html += `
+                        </div>
+                    </div>
+                `;
+                container.innerHTML = html;
+            }
+
+            function renderScheduleTable() {
+                const mainTable = document.getElementById('main-table');
+                mainTable.innerHTML = '';
+                mainTable.classList.remove('hidden');
+                
+                const reportHeader = document.getElementById('report-header');
+                if (reportHeader) reportHeader.classList.remove('hidden');
+
+                const thead = document.createElement('thead');
+                thead.innerHTML = `
+                    <tr class="bg-slate-100">
+                        <th class="border p-2 text-xs sticky left-0 z-30 bg-slate-100" rowspan="3" style="min-width: 60px;">อาคาร/ชั้น</th>
+                        <th class="border p-2 text-xs sticky left-[60px] z-30 bg-slate-100" rowspan="3" style="min-width: 40px;"></th>
+                        ${globalScheduleTasks.map(t => `<th class="border p-0 ${t.color}" colspan="2"><div class="p-2 text-[10px] mx-auto flex items-center justify-center text-center" style="min-width: 120px; max-width: 160px; white-space: normal; line-height: 1.4; word-break: break-word;">${t.name}</div></th>`).join('')}
+                    </tr>
+                    <tr class="bg-slate-50">
+                        ${globalScheduleTasks.map(t => `<th class="border p-1 text-[10px] font-bold text-center ${t.color}" colspan="2">${t.subName}</th>`).join('')}
+                    </tr>
+                    <tr class="bg-slate-50">
+                        ${globalScheduleTasks.map(() => `
+                            <th class="border p-1 text-[9px] font-medium" style="min-width: 50px;">เริ่ม</th>
+                            <th class="border p-1 text-[9px] font-medium" style="min-width: 50px;">แล้วเสร็จ</th>
+                        `).join('')}
+                    </tr>
+                `;
+                mainTable.appendChild(thead);
+
+                const tbody = document.createElement('tbody');
+                globalScheduleData.forEach(floor => {
+                    // Plan Row
+                    const planRow = document.createElement('tr');
+                    let planCells = '';
+                    floor.plan.forEach((dateStr, idx) => {
+                        const taskIndex = Math.floor(idx / 2);
+                        const isStart = idx % 2 === 0;
+                        const colorClass = getMonthColorClass(dateStr);
+                        const formattedDate = formatThaiDateShort(dateStr);
+                        planCells += `<td class="border p-0 text-[10px] text-center relative hover:opacity-80 transition-opacity ${colorClass}" style="min-width: 70px; height: 24px;">
+                            <div class="absolute inset-0 flex items-center justify-center pointer-events-none font-medium">${formattedDate}</div>
+                            <input type="date" value="${dateStr}" 
+                                class="absolute inset-0 w-full h-full opacity-0 cursor-pointer date-picker-cover z-10"
+                                onclick="try { this.showPicker() } catch(e) {}"
+                                onchange="handleScheduleDateChange(${floor.id}, ${taskIndex}, ${isStart}, this.value)">
+                        </td>`;
+                    });
+                    
+                    planRow.innerHTML = `
+                        <td class="border p-2 font-bold text-center sticky left-0 z-20 bg-white" rowspan="2">${floor.id}</td>
+                        <td class="border p-1 text-[10px] text-center sticky left-[60px] z-20 bg-white">แผน</td>
+                        ${planCells}
+                    `;
+                    tbody.appendChild(planRow);
+
+                    // Actual Row
+                    const actualRow = document.createElement('tr');
+                    actualRow.innerHTML = `
+                        <td class="border p-1 text-[10px] text-center sticky left-[60px] z-20 bg-white">ผล</td>
+                        ${globalScheduleTasks.map(() => `
+                            <td class="border p-1 text-[10px] text-center"></td>
+                            <td class="border p-1 text-[10px] text-center"></td>
+                        `).join('')}
+                    `;
+                    tbody.appendChild(actualRow);
+                });
+                mainTable.appendChild(tbody);
+                
+                // Show settings
+                const settingsContainer = document.getElementById('schedule-settings');
+                if (settingsContainer) {
+                    settingsContainer.classList.add('hidden'); // Hidden by default
+                    renderScheduleSettings();
+                }
+            }
+
             function renderCommonAreaTable() {
                 const mainTable = document.getElementById('main-table');
                 mainTable.innerHTML = '';
@@ -3266,10 +3603,15 @@
                 const isQCSummaryView = currentView === 'qcSummary';
                 const categoryDef = taskDefinitions[currentCategory];
 
-                document.getElementById('task-selection-container').style.display = isCommonView || isQCSummaryView || currentView === 'summaryReport' ? 'none' : 'block';
-                document.getElementById('legend').style.display = isCommonView || currentView === 'summaryReport' ? 'none' : 'flex';
-                document.getElementById('openReportModalBtn').style.display = isCommonView || currentView === 'summaryReport' ? 'none' : 'inline-flex';
+                document.getElementById('task-selection-container').style.display = isCommonView || isQCSummaryView || currentView === 'summaryReport' || currentView === 'schedule' ? 'none' : 'block';
+                document.getElementById('legend').style.display = isCommonView || currentView === 'summaryReport' || currentView === 'schedule' ? 'none' : 'flex';
+                document.getElementById('openReportModalBtn').style.display = isCommonView || currentView === 'summaryReport' || currentView === 'schedule' ? 'none' : 'inline-flex';
                 document.getElementById('openCommonAreaReportModalBtn').style.display = isCommonView ? 'inline-flex' : 'none';
+                
+                const toggleScheduleSettingsBtn = document.getElementById('toggleScheduleSettingsBtn');
+                if (toggleScheduleSettingsBtn) {
+                    toggleScheduleSettingsBtn.classList.toggle('hidden', currentView !== 'schedule');
+                }
                 
                 let title = '';
                 if (isCommonView) {
@@ -3282,8 +3624,10 @@
                     } else if (summaryReportMode === 'endProduct') {
                         title = 'รายงานสรุป END PRODUCT';
                     }
+                } else if (currentView === 'schedule') {
+                    title = 'แผนงานโครงการ';
                 } else {
-                    title = categoryDef.title || `STATUS ${categoryDef.name}`;
+                    title = categoryDef ? (categoryDef.title || `STATUS ${categoryDef.name}`) : '';
                 }
                 
                 const thaiDate = new Date().toLocaleDateString('th-TH', {
@@ -6491,11 +6835,13 @@
                 const viewQCSummaryBtn = document.getElementById('view-qc-summary-btn');
                 const viewCommonBtn = document.getElementById('view-common-btn');
                 const viewSummaryReportBtn = document.getElementById('view-summary-report-btn');
+                const viewScheduleBtn = document.getElementById('view-schedule-btn');
 
                 viewResidentialBtn.addEventListener('click', () => enterAppView('residential'));
                 viewQCSummaryBtn.addEventListener('click', () => enterAppView('qcSummary'));
                 viewCommonBtn.addEventListener('click', () => enterAppView('common'));
                 viewSummaryReportBtn.addEventListener('click', () => enterAppView('summaryReport'));
+                if (viewScheduleBtn) viewScheduleBtn.addEventListener('click', () => enterAppView('schedule'));
 
                 document.getElementById('summary-report-wet-btn').addEventListener('click', () => {
                     summaryReportMode = 'wetWork';
