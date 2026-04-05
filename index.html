@@ -1112,6 +1112,43 @@
         </div>
     </div>
 
+    <!-- Actual Update Modal -->
+    <div id="actualUpdateModal" class="modal fixed inset-0 w-full h-full items-center justify-center z-[60] hidden backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="actual-update-title">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-sm mx-4 overflow-hidden flex flex-col">
+            <div class="px-4 py-3 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                <h3 class="font-bold text-slate-800" id="actual-update-title">อัปเดตผลการดำเนินงาน</h3>
+                <button onclick="closeActualUpdateModal()" class="text-slate-400 hover:text-slate-600">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div class="p-4 flex flex-col gap-3">
+                <p id="actual-update-subtitle" class="text-sm text-slate-600 mb-2"></p>
+                
+                <div class="flex flex-col gap-2">
+                    <label class="text-sm font-medium text-slate-700">เลือกวันที่จริง</label>
+                    <input type="date" id="actual-update-date" class="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none">
+                    <button onclick="saveActualDate()" class="w-full py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors">
+                        บันทึกวันที่
+                    </button>
+                </div>
+
+                <div class="relative flex py-2 items-center">
+                    <div class="flex-grow border-t border-slate-200"></div>
+                    <span class="flex-shrink-0 mx-4 text-slate-400 text-xs">หรือ</span>
+                    <div class="flex-grow border-t border-slate-200"></div>
+                </div>
+
+                <button onclick="saveActualDone()" class="w-full py-2 bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-lg font-medium hover:bg-emerald-200 transition-colors flex items-center justify-center gap-2">
+                    <i data-lucide="check-circle-2" class="w-4 h-4"></i> ทำเครื่องหมายว่าเสร็จแล้ว (✓)
+                </button>
+
+                <button onclick="clearActualData()" class="w-full py-2 mt-2 bg-rose-50 text-rose-600 border border-rose-100 rounded-lg font-medium hover:bg-rose-100 transition-colors flex items-center justify-center gap-2">
+                    <i data-lucide="trash-2" class="w-4 h-4"></i> ล้างข้อมูล
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Toast Notification -->
     <div id="toast" class="fixed top-5 right-5 bg-slate-800 text-white px-6 py-3 rounded-lg shadow-lg transform translate-x-[120%] transition-transform duration-300 ease-in-out z-[100]">
         <p id="toast-message"></p>
@@ -1422,15 +1459,140 @@
                 renderTable(); // Also re-render table if needed
             };
 
+            function renderScheduleExecutiveSummary(dashboard) {
+                let totalTasks = 0;
+                let completedTasks = 0;
+                let delayedTasks = [];
+                let inProgressTasks = [];
+                
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                globalScheduleData.forEach(floor => {
+                    globalScheduleTasks.forEach((task, taskIndex) => {
+                        totalTasks++;
+                        const actualStart = floor.actual[taskIndex * 2];
+                        const actualEnd = floor.actual[taskIndex * 2 + 1];
+                        const planStartStr = floor.plan[taskIndex * 2];
+                        const planEndStr = floor.plan[taskIndex * 2 + 1];
+                        
+                        const isDone = actualStart === 'DONE' || actualEnd === 'DONE';
+                        
+                        if (isDone) {
+                            completedTasks++;
+                        } else {
+                            if (planEndStr) {
+                                const planEndDate = new Date(planEndStr);
+                                planEndDate.setHours(0, 0, 0, 0);
+                                
+                                if (planEndDate < today) {
+                                    delayedTasks.push(`ชั้น ${floor.id}: ${task.subName}`);
+                                } else if (planStartStr) {
+                                    const planStartDate = new Date(planStartStr);
+                                    planStartDate.setHours(0, 0, 0, 0);
+                                    if (planStartDate <= today && planEndDate >= today) {
+                                        inProgressTasks.push(`ชั้น ${floor.id}: ${task.subName}`);
+                                    }
+                                }
+                            }
+                        }
+                    });
+                });
+
+                const overallProgress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+                const formattedToday = today.toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' });
+
+                dashboard.innerHTML = `
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden mb-6">
+                        <div class="bg-indigo-600 px-6 py-4 flex justify-between items-center text-white">
+                            <h2 class="text-xl font-bold flex items-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>
+                                สรุปภาพรวมแผนงาน
+                            </h2>
+                            <span class="text-sm font-medium bg-white/20 px-3 py-1 rounded-full">ข้อมูล ณ วันที่ ${formattedToday}</span>
+                        </div>
+                        
+                        <div class="p-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
+                            <!-- Progress Circle -->
+                            <div class="flex flex-col items-center justify-center p-4 bg-slate-50 rounded-xl border border-slate-100">
+                                <div class="relative w-32 h-32 flex items-center justify-center rounded-full bg-indigo-50 border-4 border-indigo-100 mb-4">
+                                    <svg class="absolute inset-0 w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                                        <circle cx="50" cy="50" r="45" fill="none" stroke="#e0e7ff" stroke-width="10"></circle>
+                                        <circle cx="50" cy="50" r="45" fill="none" stroke="#4f46e5" stroke-width="10" stroke-dasharray="${overallProgress * 2.83} 283" stroke-linecap="round" class="transition-all duration-1000 ease-out"></circle>
+                                    </svg>
+                                    <div class="text-center z-10">
+                                        <span class="text-3xl font-bold text-indigo-700">${overallProgress}%</span>
+                                    </div>
+                                </div>
+                                <h3 class="font-bold text-slate-700 text-center">ความก้าวหน้าทั้งหมด</h3>
+                                <p class="text-xs text-slate-500 mt-1">เสร็จสิ้น ${completedTasks} จาก ${totalTasks} งาน</p>
+                            </div>
+
+                            <!-- Details -->
+                            <div class="lg:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="bg-emerald-50 rounded-xl p-4 border border-emerald-100 flex flex-col">
+                                    <div class="flex items-center gap-2 mb-3 text-emerald-700">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                                        <h3 class="font-bold text-lg">งานที่เสร็จสิ้นแล้ว</h3>
+                                    </div>
+                                    <div class="text-3xl font-bold text-emerald-600 mb-2">${completedTasks} <span class="text-sm font-medium text-emerald-600/70">งาน</span></div>
+                                    <p class="text-sm text-emerald-600/80 mt-auto">อ้างอิงจากการทำเครื่องหมาย ✓ ในตารางผล</p>
+                                </div>
+
+                                <div class="bg-blue-50 rounded-xl p-4 border border-blue-100 flex flex-col">
+                                    <div class="flex items-center gap-2 mb-3 text-blue-700">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                                        <h3 class="font-bold text-lg">งานที่กำลังดำเนินการ</h3>
+                                    </div>
+                                    <div class="text-3xl font-bold text-blue-600 mb-2">${inProgressTasks.length} <span class="text-sm font-medium text-blue-600/70">งาน</span></div>
+                                    <div class="mt-auto max-h-24 overflow-y-auto pr-2 custom-scrollbar">
+                                        ${inProgressTasks.length > 0 ? 
+                                            `<ul class="text-sm text-blue-700 space-y-1 list-disc list-inside">
+                                                ${inProgressTasks.map(t => `<li>${t}</li>`).join('')}
+                                            </ul>` : 
+                                            '<p class="text-sm text-blue-600/70 italic">ไม่มีงานที่กำลังดำเนินการตามแผน</p>'
+                                        }
+                                    </div>
+                                </div>
+
+                                <div class="md:col-span-2 bg-rose-50 rounded-xl p-4 border border-rose-100 flex flex-col">
+                                    <div class="flex items-center gap-2 mb-3 text-rose-700">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                                        <h3 class="font-bold text-lg">งานที่ล่าช้ากว่าแผน</h3>
+                                    </div>
+                                    <div class="flex items-baseline gap-2 mb-2">
+                                        <span class="text-3xl font-bold text-rose-600">${delayedTasks.length}</span>
+                                        <span class="text-sm font-medium text-rose-600/70">งาน (เลยกำหนดแผนแล้วเสร็จ แต่ยังไม่เสร็จ)</span>
+                                    </div>
+                                    <div class="mt-2 max-h-32 overflow-y-auto pr-2 custom-scrollbar">
+                                        ${delayedTasks.length > 0 ? 
+                                            `<div class="flex flex-wrap gap-2">
+                                                ${delayedTasks.map(t => `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-rose-100 text-rose-800 border border-rose-200">${t}</span>`).join('')}
+                                            </div>` : 
+                                            '<p class="text-sm text-rose-600/70 italic">ยอดเยี่ยม! ไม่มีงานที่ล่าช้ากว่าแผน</p>'
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
             function renderExecutiveSummaryDashboard() {
                 const dashboard = document.getElementById('executive-summary-dashboard');
-                const isResidential = currentView === 'residential';
+                const isResidentialOrSchedule = currentView === 'residential' || currentView === 'schedule';
 
-                if (!showExecutiveSummary || !isResidential) {
+                if (!showExecutiveSummary || !isResidentialOrSchedule) {
                     dashboard.classList.add('hidden');
                     return;
                 }
                 dashboard.classList.remove('hidden');
+
+                if (currentView === 'schedule') {
+                    renderScheduleExecutiveSummary(dashboard);
+                    return;
+                }
 
                 let taskKey = currentCategory;
 
@@ -2519,6 +2681,7 @@
 
             function formatThaiDateShort(dateStr) {
                 if (!dateStr) return '';
+                if (dateStr === 'DONE') return '<span class="text-green-600 font-bold text-sm">✓</span>';
                 const date = new Date(dateStr);
                 if (isNaN(date.getTime())) return '';
                 const months = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
@@ -2581,6 +2744,10 @@
                 { id: 7, plan: ['4 ธ.ค. 23', '10 ธ.ค. 23', '7 ธ.ค. 23', '13 ธ.ค. 23', '7 ธ.ค. 23', '16 ธ.ค. 23', '10 ธ.ค. 23', '16 ธ.ค. 23', '12 ธ.ค. 23', '21 ธ.ค. 23', '17 ธ.ค. 23', '26 ธ.ค. 23', '21 ธ.ค. 23', '27 ธ.ค. 23', '23 ธ.ค. 23', '29 ธ.ค. 23', '27 ธ.ค. 23', '9 ม.ค. 24', '3 ม.ค. 24', '12 ม.ค. 24', '5 ม.ค. 24', '11 ม.ค. 24', '9 ม.ค. 24', '18 ม.ค. 24', '13 ม.ค. 24', '22 ม.ค. 24'].map(parseThaiDate) }
             ];
 
+            globalScheduleData.forEach(floor => {
+                if (!floor.actual) floor.actual = new Array(26).fill('');
+            });
+
             function addWorkingDays(startDateStr, daysToAdd) {
                 if (!startDateStr) return '';
                 let date = new Date(startDateStr);
@@ -2622,6 +2789,68 @@
                 }
                 return date.toISOString().split('T')[0];
             }
+
+            let currentActualUpdateContext = null;
+
+            window.openActualUpdateModal = function(floorId, taskIndex, isStart) {
+                const floor = globalScheduleData.find(f => f.id === floorId);
+                const task = globalScheduleTasks[taskIndex];
+                if (!floor || !task) return;
+
+                currentActualUpdateContext = { floorId, taskIndex, isStart };
+
+                const subtitleEl = document.getElementById('actual-update-subtitle');
+                const dateInput = document.getElementById('actual-update-date');
+
+                subtitleEl.textContent = `ชั้น ${floor.id} - ${task.name} (${isStart ? 'เริ่ม' : 'แล้วเสร็จ'})`;
+
+                const currentValue = floor.actual[taskIndex * 2 + (isStart ? 0 : 1)];
+                if (currentValue && currentValue !== 'DONE') {
+                    dateInput.value = currentValue;
+                } else {
+                    dateInput.value = '';
+                }
+
+                openModal('actualUpdateModal');
+                if (window.lucide) lucide.createIcons();
+            };
+
+            window.closeActualUpdateModal = function() {
+                closeModal('actualUpdateModal');
+                currentActualUpdateContext = null;
+            };
+
+            window.saveActualDate = function() {
+                if (!currentActualUpdateContext) return;
+                const { floorId, taskIndex, isStart } = currentActualUpdateContext;
+                const dateVal = document.getElementById('actual-update-date').value;
+                
+                if (dateVal) {
+                    handleActualDateChange(floorId, taskIndex, isStart, dateVal);
+                }
+                closeActualUpdateModal();
+            };
+
+            window.saveActualDone = function() {
+                if (!currentActualUpdateContext) return;
+                const { floorId, taskIndex, isStart } = currentActualUpdateContext;
+                handleActualDateChange(floorId, taskIndex, isStart, 'DONE');
+                closeActualUpdateModal();
+            };
+
+            window.clearActualData = function() {
+                if (!currentActualUpdateContext) return;
+                const { floorId, taskIndex, isStart } = currentActualUpdateContext;
+                handleActualDateChange(floorId, taskIndex, isStart, '');
+                closeActualUpdateModal();
+            };
+
+            window.handleActualDateChange = function(floorId, taskIndex, isStart, newValue) {
+                const floor = globalScheduleData.find(f => f.id === floorId);
+                if (!floor) return;
+                floor.actual[taskIndex * 2 + (isStart ? 0 : 1)] = newValue;
+                renderScheduleTable();
+            };
 
             window.handleScheduleDateChange = function(floorId, taskIndex, isStart, newValue) {
                 const floor = globalScheduleData.find(f => f.id === floorId);
@@ -2726,20 +2955,22 @@
                 const reportHeader = document.getElementById('report-header');
                 if (reportHeader) reportHeader.classList.remove('hidden');
 
+                renderExecutiveSummaryDashboard();
+
                 const thead = document.createElement('thead');
                 thead.innerHTML = `
                     <tr class="bg-slate-100">
                         <th class="border p-2 text-xs sticky left-0 z-30 bg-slate-100" rowspan="3" style="min-width: 60px;">อาคาร/ชั้น</th>
                         <th class="border p-2 text-xs sticky left-[60px] z-30 bg-slate-100" rowspan="3" style="min-width: 40px;"></th>
-                        ${globalScheduleTasks.map(t => `<th class="border p-0 ${t.color}" colspan="2"><div class="p-2 text-[10px] mx-auto flex items-center justify-center text-center" style="min-width: 120px; max-width: 160px; white-space: normal; line-height: 1.4; word-break: break-word;">${t.name}</div></th>`).join('')}
+                        ${globalScheduleTasks.map(t => `<th class="border p-0 ${t.color}" colspan="2"><div class="p-2 text-sm font-bold mx-auto flex items-center justify-center text-center" style="min-width: 90px; max-width: 140px; white-space: normal; line-height: 1.4; word-break: break-word;">${t.name}</div></th>`).join('')}
                     </tr>
                     <tr class="bg-slate-50">
                         ${globalScheduleTasks.map(t => `<th class="border p-1 text-[10px] font-bold text-center ${t.color}" colspan="2">${t.subName}</th>`).join('')}
                     </tr>
                     <tr class="bg-slate-50">
                         ${globalScheduleTasks.map(() => `
-                            <th class="border p-1 text-[9px] font-medium" style="min-width: 50px;">เริ่ม</th>
-                            <th class="border p-1 text-[9px] font-medium" style="min-width: 50px;">แล้วเสร็จ</th>
+                            <th class="border p-1 text-[9px] font-medium" style="min-width: 45px;">เริ่ม</th>
+                            <th class="border p-1 text-[9px] font-medium" style="min-width: 45px;">แล้วเสร็จ</th>
                         `).join('')}
                     </tr>
                 `;
@@ -2755,7 +2986,7 @@
                         const isStart = idx % 2 === 0;
                         const colorClass = getMonthColorClass(dateStr);
                         const formattedDate = formatThaiDateShort(dateStr);
-                        planCells += `<td class="border p-0 text-[10px] text-center relative hover:opacity-80 transition-opacity ${colorClass}" style="min-width: 70px; height: 24px;">
+                        planCells += `<td class="border p-0 text-[10px] text-center relative hover:opacity-80 transition-opacity ${colorClass}" style="min-width: 45px; height: 24px;">
                             <div class="absolute inset-0 flex items-center justify-center pointer-events-none font-medium">${formattedDate}</div>
                             <input type="date" value="${dateStr}" 
                                 class="absolute inset-0 w-full h-full opacity-0 cursor-pointer date-picker-cover z-10"
@@ -2773,12 +3004,23 @@
 
                     // Actual Row
                     const actualRow = document.createElement('tr');
+                    let actualCells = '';
+                    globalScheduleTasks.forEach((task, taskIndex) => {
+                        [true, false].forEach(isStart => {
+                            const actualVal = floor.actual[taskIndex * 2 + (isStart ? 0 : 1)] || '';
+                            const planVal = floor.plan[taskIndex * 2 + (isStart ? 0 : 1)];
+                            const colorClass = getMonthColorClass(actualVal !== 'DONE' ? actualVal : planVal);
+                            const formattedDate = formatThaiDateShort(actualVal);
+                            
+                            actualCells += `<td class="border p-0 text-[10px] text-center relative hover:opacity-80 transition-opacity cursor-pointer ${colorClass}" style="min-width: 45px; height: 24px;" onclick="openActualUpdateModal(${floor.id}, ${taskIndex}, ${isStart})">
+                                <div class="absolute inset-0 flex items-center justify-center pointer-events-none font-medium">${formattedDate}</div>
+                            </td>`;
+                        });
+                    });
+
                     actualRow.innerHTML = `
                         <td class="border p-1 text-[10px] text-center sticky left-[60px] z-20 bg-white">ผล</td>
-                        ${globalScheduleTasks.map(() => `
-                            <td class="border p-1 text-[10px] text-center"></td>
-                            <td class="border p-1 text-[10px] text-center"></td>
-                        `).join('')}
+                        ${actualCells}
                     `;
                     tbody.appendChild(actualRow);
                 });
