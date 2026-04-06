@@ -2477,9 +2477,9 @@
 
             function getHeaderColors() {
                 return {
-                    headerColor: reportHeaderStyle === 'light' ? 'bg-slate-200 text-slate-800' : 'bg-[#1e3a8a] text-white',
-                    subHeaderColor: reportHeaderStyle === 'light' ? 'bg-slate-50 text-slate-800' : 'bg-slate-800 text-white',
-                    stickyHeaderColor: reportHeaderStyle === 'light' ? 'bg-slate-200' : 'bg-[#1e3a8a]'
+                    headerColor: reportHeaderStyle === 'light' ? 'bg-slate-50 text-slate-800' : 'bg-[#1e3a8a] text-white',
+                    subHeaderColor: reportHeaderStyle === 'light' ? 'bg-white text-slate-800' : 'bg-slate-800 text-white',
+                    stickyHeaderColor: reportHeaderStyle === 'light' ? 'bg-slate-50' : 'bg-[#1e3a8a]'
                 };
             }
 
@@ -2569,40 +2569,13 @@
                 const { headerColor, stickyHeaderColor } = getHeaderColors();
 
                 const headerHTML = `
-                    <tr class="bg-slate-900 text-white">
-                        <th class="border border-slate-700 p-3 sticky left-0 z-30 bg-slate-900 shadow-[2px_0_5px_rgba(0,0,0,0.3)]" style="min-width: 80px; font-size: 18px;">ห้อง</th>
+                    <tr class="${headerColor}">
+                        <th class="border p-3 sticky left-0 z-30 ${stickyHeaderColor} shadow-[2px_0_5px_rgba(0,0,0,0.1)]" style="min-width: 80px; font-size: 14px;">ห้อง</th>
                         ${activeTasks.map(t => {
-                            const headerColors = {
-                                electrical: 'bg-yellow-600',
-                                plumbing: 'bg-blue-600',
-                                airCon: 'bg-cyan-600',
-                                electricalRoughIn: 'bg-yellow-600',
-                                plumbingRoughIn: 'bg-blue-600',
-                                airConRoughIn: 'bg-cyan-600',
-                                door: 'bg-slate-800',
-                                aluminum: 'bg-slate-700',
-                                laminate: 'bg-slate-800',
-                                showerScreenInspection: 'bg-yellow-600',
-                                showerScreen: 'bg-slate-800',
-                                kitchenOnly: 'bg-orange-600',
-                                paintOnly: 'bg-indigo-600',
-                                aluminumPaint: 'bg-indigo-600',
-                                skimOnly: 'bg-indigo-500',
-                                cleaning: 'bg-emerald-600',
-                                wetWork: 'bg-slate-900',
-                                endProduct: 'bg-slate-900',
-                                texcaWall: 'bg-orange-600',
-                                topping: 'bg-slate-800',
-                                waterproofing: 'bg-indigo-600',
-                                tiling: 'bg-teal-600'
-                            };
-                            const colorClass = headerColors[t.key] || 'bg-slate-800';
-                            
                             return `
-                                <th class="border border-slate-700 p-3 text-xs ${colorClass}" style="min-width: 120px;">
+                                <th class="border p-3 text-xs" style="min-width: 120px;">
                                     <div class="flex flex-col items-center justify-center gap-1.5">
-                                        <span class="text-lg">${t.reportEmoji || ''}</span>
-                                        <span class="uppercase tracking-tighter font-black" style="font-size: 11px;">${t.reportName}</span>
+                                        <span class="uppercase tracking-tighter font-bold" style="font-size: 12px;">${t.reportName}</span>
                                     </div>
                                 </th>`;
                         }).join('')}
@@ -3790,25 +3763,27 @@
                 });
 
                 const thead = document.createElement('thead');
+                const { headerColor, subHeaderColor, stickyHeaderColor } = getHeaderColors();
+                
                 let headerRow1 = `
-                    <tr class="bg-slate-50">
-                        <th class="border-t border-l border-b border-black p-3 text-sm font-bold text-slate-700 sticky left-0 z-40 bg-slate-50 shadow-[1px_0_0_0_#000]" rowspan="2" style="min-width: 60px;">ชั้น</th>
+                    <tr class="${headerColor}">
+                        <th class="border-t border-l border-b border-black p-3 text-sm font-bold sticky left-0 z-40 ${stickyHeaderColor} shadow-[1px_0_0_0_#000]" rowspan="2" style="min-width: 60px;">ชั้น</th>
                         <th class="border-t border-l border-b border-black p-2 text-xs font-bold bg-amber-500 text-white uppercase tracking-wider" colspan="2">เหนือฝ้า</th>
                         <th class="border-t border-l border-b border-black p-2 text-xs font-bold bg-sky-500 text-white uppercase tracking-wider" colspan="2">QC WW</th>
                         <th class="border-t border-l border-b border-black p-2 text-xs font-bold bg-teal-500 text-white uppercase tracking-wider" colspan="2">QC END</th>
-                        <th class="border-t border-l border-b border-black bg-slate-50" rowspan="2" style="min-width: 40px;"></th>
-                        ${monthGroups.map((m, idx) => `<th class="border-t border-l border-b ${idx === monthGroups.length - 1 ? 'border-r' : ''} border-black p-2 text-sm font-bold text-slate-700 bg-slate-200" colspan="${m.count}">${m.month}</th>`).join('')}
+                        <th class="border-t border-l border-b border-black ${headerColor}" rowspan="2" style="min-width: 40px;"></th>
+                        ${monthGroups.map((m, idx) => `<th class="border-t border-l border-b ${idx === monthGroups.length - 1 ? 'border-r' : ''} border-black p-2 text-sm font-bold ${headerColor}" colspan="${m.count}">${m.month}</th>`).join('')}
                     </tr>
                 `;
                 let headerRow2 = `
-                    <tr class="bg-slate-50">
+                    <tr class="${headerColor}">
                         <th class="border-l border-b border-black p-1.5 text-xs font-medium bg-amber-400 text-amber-900">ทั้งหมด</th>
                         <th class="border-l border-b border-black p-1.5 text-xs font-medium bg-amber-400 text-amber-900">ส่ง</th>
                         <th class="border-l border-b border-black p-1.5 text-xs font-medium bg-sky-400 text-sky-900">ทั้งหมด</th>
                         <th class="border-l border-b border-black p-1.5 text-xs font-medium bg-sky-400 text-sky-900">ส่ง</th>
                         <th class="border-l border-b border-black p-1.5 text-xs font-medium bg-teal-400 text-teal-900">ทั้งหมด</th>
                         <th class="border-l border-b border-black p-1.5 text-xs font-medium bg-teal-400 text-teal-900">ส่ง</th>
-                        ${QC_HANDOVER_WEEKS.map((w, idx) => `<th class="border-l border-b ${idx === QC_HANDOVER_WEEKS.length - 1 ? 'border-r' : ''} border-black p-2 text-xs font-medium text-slate-600 bg-slate-100 min-w-[70px]">${w.dates}</th>`).join('')}
+                        ${QC_HANDOVER_WEEKS.map((w, idx) => `<th class="border-l border-b ${idx === QC_HANDOVER_WEEKS.length - 1 ? 'border-r' : ''} border-black p-2 text-xs font-medium ${subHeaderColor} min-w-[70px]">${w.dates}</th>`).join('')}
                     </tr>
                 `;
                 thead.innerHTML = headerRow1 + headerRow2;
