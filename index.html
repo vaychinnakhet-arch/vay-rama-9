@@ -5941,6 +5941,10 @@
 
                     if (error) throw error;
 
+                    // Update local state and re-render immediately
+                    projectData = updatedData;
+                    renderTable();
+
                     showToast('บันทึกข้อมูลสำเร็จ');
                     closeModal('updateModal');
                 } catch (error) {
@@ -6277,6 +6281,11 @@
                         .update({ data: updatedData })
                         .eq('id', CONFIG.DB_ROW_ID);
                     if (error) throw error;
+                    
+                    // Update local state and re-render immediately
+                    projectData = updatedData;
+                    renderQuickUpdateTaskList();
+                    
                     showToast(`${catDef.name} ของห้อง ${floor}/${room} ถูกอัพเดทแล้ว`);
                 } catch (error) {
                     console.error("Quick update failed:", error);
@@ -6284,8 +6293,7 @@
                     // Re-render to revert optimistic UI changes
                     renderQuickUpdateTaskList();
                 } finally {
-                    // The realtime listener will handle the re-render, so we just remove the spinner
-                     if(subTaskContainer.contains(spinnerOverlay)) {
+                    if(subTaskContainer.contains(spinnerOverlay)) {
                         subTaskContainer.removeChild(spinnerOverlay);
                     }
                 }
@@ -6328,6 +6336,10 @@
                                         .update({ data: importedData })
                                         .eq('id', CONFIG.DB_ROW_ID);
                                     if (error) throw error;
+                                    
+                                    projectData = importedData;
+                                    renderTable();
+                                    
                                     showToast('นำเข้าข้อมูลเรียบร้อยแล้ว');
                                 } catch (err) {
                                     console.error("Supabase update failed:", err);
@@ -8046,6 +8058,10 @@
                                 .update({ data: initialData })
                                 .eq('id', CONFIG.DB_ROW_ID);
                             if (error) throw error;
+                            
+                            projectData = initialData;
+                            renderTable();
+                            
                             showToast("รีเซ็ตข้อมูลบนเซิร์ฟเวอร์แล้ว");
                         } catch (err) {
                             console.error("Error resetting data:", err);
@@ -8255,18 +8271,10 @@
                     
                     let target;
                     if (e.type.includes('touch')) {
-                        const touch = e.touches[0];
-                        const deltaX = Math.abs(touch.clientX - touchStartX);
-                        const deltaY = Math.abs(touch.clientY - touchStartY);
-                        
-                        // If moved more than 10px, consider it a scroll
-                        if (deltaX > 10 || deltaY > 10) {
-                            isTouchScrolling = true;
-                            isSelecting = false;
-                            clearSelection();
-                            return;
+                        if (e.cancelable) {
+                            e.preventDefault(); // Prevent scrolling while dragging to select
                         }
-                        
+                        const touch = e.touches[0];
                         target = document.elementFromPoint(touch.clientX, touch.clientY);
                     } else {
                         target = e.target;
@@ -8284,17 +8292,8 @@
                 function handleSelectionEnd(e) {
                     if (e.type === 'touchcancel') {
                         isSelecting = false;
-                        isTouchScrolling = false;
                         clearSelection();
                         return;
-                    }
-
-                    if (e.type.includes('touch') || e.type === 'touchend') {
-                        if (isTouchScrolling) {
-                            isSelecting = false;
-                            isTouchScrolling = false;
-                            return;
-                        }
                     }
                     
                     if (isSelecting) {
