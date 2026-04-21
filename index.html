@@ -55,6 +55,18 @@
             width: max-content !important;
             min-width: 100vw !important;
         }
+
+        /* Force landscape layout for capture regardless of device orientation */
+        .is-line-capturing .md\:flex-row { flex-direction: row !important; }
+        .is-line-capturing .lg\:flex-row { flex-direction: row !important; }
+        .is-line-capturing .md\:w-\[40\%\] { width: 40% !important; }
+        .is-line-capturing .md\:w-\[60\%\] { width: 60% !important; }
+        .is-line-capturing .lg\:w-\[320px\] { width: 320px !important; flex: none !important; }
+        .is-line-capturing .lg\:col-span-4 { grid-column: span 4 / span 4 !important; }
+        .is-line-capturing .lg\:col-span-8 { grid-column: span 8 / span 8 !important; }
+        .is-line-capturing .md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+        .is-line-capturing .lg\:grid-cols-12 { grid-template-columns: repeat(12, minmax(0, 1fr)) !important; }
+
         .is-line-capturing #capture-area {
             width: max-content !important; /* Let it expand to content width */
             max-width: none !important;
@@ -6448,7 +6460,7 @@
                 
                 const table = document.getElementById('main-table');
                 const fullWidth = (table && !table.classList.contains('hidden')) 
-                    ? Math.max(table.scrollWidth, table.offsetWidth) 
+                    ? Math.max(table.scrollWidth, table.offsetWidth, 1200) 
                     : Math.max(captureArea.scrollWidth, 1200);
                 
                 // Force inline widths to prevent clipping
@@ -6564,7 +6576,7 @@
                 
                 const table = document.getElementById('main-table');
                 const fullWidth = (table && !table.classList.contains('hidden')) 
-                    ? Math.max(table.scrollWidth, table.offsetWidth) 
+                    ? Math.max(table.scrollWidth, table.offsetWidth, 1200) 
                     : Math.max(captureArea.scrollWidth, 1200);
                 
                 // Force inline widths to prevent clipping
