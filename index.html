@@ -1783,6 +1783,9 @@
                 let floorStats = {};
                 let subTaskStats = {};
                 let floorTaskStatus = {};
+                
+                let epOverallStats = { total: 0, submitted: 0, passed: 0, failed: 0, pending: 0 };
+                let epFloorStats = {};
 
                 // Initialize subtask stats
                 catDef.tasks.forEach(t => {
@@ -1791,6 +1794,7 @@
 
                 CONFIG.FLOORS.forEach(f => {
                     floorTaskStatus[f] = {};
+                    epFloorStats[f] = { total: 0, submitted: 0, passed: 0, failed: 0, pending: 0 };
                     catDef.tasks.forEach(t => {
                         floorTaskStatus[f][t.key || t.name] = { total: 0, completed: 0, inProgress: 0, name: t.name };
                     });
@@ -1866,12 +1870,42 @@
                             });
                         }
 
-                        if (progress >= 100) {
-                            floorCompleted++;
-                        } else if (progress > 0) {
-                            totalInProgress++;
+                        if (taskKey === 'endProduct') {
+                            let hasScore = (unitData.qcScore || unitData.cmScore) > 0;
+                            let score = unitData.qcScore || unitData.cmScore || 0;
+                            let isPending = !!unitData.inInspection;
+
+                            epOverallStats.total++;
+                            epFloorStats[floor].total++;
+                            
+                            if (hasScore || isPending) {
+                                epOverallStats.submitted++;
+                                epFloorStats[floor].submitted++;
+                            }
+                            
+                            if (hasScore && score >= 85) {
+                                epOverallStats.passed++;
+                                epFloorStats[floor].passed++;
+                                floorCompleted++;
+                            } else if (hasScore && score < 85) {
+                                epOverallStats.failed++;
+                                epFloorStats[floor].failed++;
+                                totalInProgress++;
+                            } else if (isPending) {
+                                epOverallStats.pending++;
+                                epFloorStats[floor].pending++;
+                                totalInProgress++;
+                            } else {
+                                totalNotStarted++;
+                            }
                         } else {
-                            totalNotStarted++;
+                            if (progress >= 100) {
+                                floorCompleted++;
+                            } else if (progress > 0) {
+                                totalInProgress++;
+                            } else {
+                                totalNotStarted++;
+                            }
                         }
                     }
                     
@@ -1900,6 +1934,41 @@
                             </div>
                             
                             <div class="p-6 flex-1 flex flex-col md:flex-row gap-8">
+                                ${taskKey === 'endProduct' ? `
+                                <!-- END PRODUCT Custom Summary -->
+                                <div class="w-full">
+                                    <div class="mb-8 p-6 bg-slate-50 rounded-2xl border border-slate-200">
+                                        <h3 class="text-lg font-black text-slate-800 mb-4">ภาพรวมโครงการ (Overall)</h3>
+                                        <p class="text-slate-700 text-base leading-loose">
+                                            ห้องทั้งหมด <span class="font-bold text-indigo-700">${epOverallStats.total}</span> ห้อง 
+                                            &nbsp;&bull;&nbsp; ส่งตรวจ <span class="font-bold text-blue-600">${epOverallStats.submitted}</span> ห้อง 
+                                            &nbsp;&bull;&nbsp; ผ่าน <span class="font-bold text-emerald-600">${epOverallStats.passed}</span> ห้อง 
+                                            &nbsp;&bull;&nbsp; ไม่ผ่าน <span class="font-bold text-rose-600">${epOverallStats.failed}</span> ห้อง 
+                                            &nbsp;&bull;&nbsp; อยู่ระหว่างรอคะเเนน <span class="font-bold text-amber-600">${epOverallStats.pending}</span> ห้อง
+                                        </p>
+                                    </div>
+                                    
+                                    <div>
+                                        <h3 class="text-[#94a3b8] font-black text-xl mb-4 tracking-widest uppercase">สรุปรายชั้น (FLOOR BREAKDOWN)</h3>
+                                        <div class="space-y-4">
+                                            ${[...CONFIG.FLOORS].reverse().map(floor => {
+                                                const stats = epFloorStats[floor];
+                                                return `
+                                                <div class="p-4 bg-white rounded-xl border border-slate-100 shadow-sm">
+                                                    <p class="text-slate-700 text-sm md:text-base leading-relaxed">
+                                                        <span class="font-black text-slate-900">ชั้น ${floor}</span> จำนวน <span class="font-bold text-slate-800">${stats.total}</span> ห้อง 
+                                                        &nbsp;&bull;&nbsp; ส่งตรวจ <span class="font-bold text-blue-600">${stats.submitted}</span> ห้อง 
+                                                        &nbsp;&bull;&nbsp; ผ่าน <span class="font-bold text-emerald-600">${stats.passed}</span> ห้อง 
+                                                        &nbsp;&bull;&nbsp; ไม่ผ่าน <span class="font-bold text-rose-600">${stats.failed}</span> ห้อง 
+                                                        &nbsp;&bull;&nbsp; อยู่ระหว่างรอคะเเนน <span class="font-bold text-amber-600">${stats.pending}</span> ห้อง
+                                                    </p>
+                                                </div>
+                                                `;
+                                            }).join('')}
+                                        </div>
+                                    </div>
+                                </div>
+                                ` : `
                                 <!-- Task Breakdown -->
                                 <div class="w-full md:w-[40%]">
                                     <h3 class="text-[#94a3b8] font-black text-xl mb-6 tracking-widest uppercase">TASK BREAKDOWN</h3>
@@ -1979,6 +2048,7 @@
                                         }).join('')}
                                     </div>
                                 </div>
+                                `}
                             </div>
                         </div>
                         
