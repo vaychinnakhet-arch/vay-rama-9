@@ -6479,9 +6479,9 @@
                     const finalWidth = captureArea.scrollWidth;
                     const finalHeight = captureArea.scrollHeight;
 
-                    // Use a lower scale on mobile to prevent memory crashes (like on Z Fold 7)
+                    // Maximize sharpness by setting scale to 3, but fall back to 2 on mobile to prevent crashes
                     const isMobile = window.innerWidth <= 768;
-                    const captureScale = isMobile ? 1.5 : 2;
+                    const captureScale = isMobile ? 3 : 4;
 
                     html2canvas(captureArea, {
                         scale: captureScale,
@@ -6595,9 +6595,9 @@
                     const finalWidth = captureArea.scrollWidth;
                     const finalHeight = captureArea.scrollHeight;
 
-                    // Use a lower scale on mobile to prevent memory crashes
+                    // Maximize sharpness
                     const isMobile = window.innerWidth <= 768;
-                    const captureScale = isMobile ? 1.5 : 2;
+                    const captureScale = isMobile ? 3 : 4;
 
                     // Use html-to-image which handles SVGs and scaling much better
                     htmlToImage.toPng(captureArea, {
@@ -8039,7 +8039,7 @@
                 downloadBtn.innerHTML = 'กำลังเตรียม...';
                 downloadBtn.disabled = true;
 
-                html2canvas(infographicElement.querySelector(':first-child'), { scale: 2, useCORS: true, backgroundColor: '#ffffff' })
+                html2canvas(infographicElement.querySelector(':first-child'), { scale: window.innerWidth <= 768 ? 3 : 4, useCORS: true, backgroundColor: '#ffffff' })
                 .then(canvas => {
                     const link = document.createElement('a');
                     link.download = `infographic-report-${Date.now()}.png`;
@@ -8353,27 +8353,36 @@
                     
                     let target;
                     if (e.type.includes('touch')) {
-                        if (e.cancelable) {
-                            e.preventDefault(); // Prevent scrolling while dragging to select
-                        }
                         const touch = e.touches[0];
-                        target = document.elementFromPoint(touch.clientX, touch.clientY);
+                        const dx = Math.abs(touch.clientX - touchStartX);
+                        const dy = Math.abs(touch.clientY - touchStartY);
+                        
+                        // If moved more than 5px, the user is scrolling. Abort selection!
+                        if (dx > 5 || dy > 5) {
+                            isTouchScrolling = true;
+                            isSelecting = false;
+                            clearSelection();
+                            return; // Do NOT preventDefault, allow native scrolling
+                        }
+                        
+                        // On mobile, we avoid drag-selecting multiple cells to preserve scrolling
+                        return;
                     } else {
                         target = e.target;
-                    }
-                    
-                    if (!target) return;
-                    if (target.nodeType === 3) target = target.parentNode; // Handle text nodes
-                    const cell = target.closest('.table-cell');
-                    if (cell && !selectedCells.has(cell)) {
-                        cell.classList.add('selection-active');
-                        selectedCells.add(cell);
+                        if (!target) return;
+                        if (target.nodeType === 3) target = target.parentNode; // Handle text nodes
+                        const cell = target.closest('.table-cell');
+                        if (cell && !selectedCells.has(cell)) {
+                            cell.classList.add('selection-active');
+                            selectedCells.add(cell);
+                        }
                     }
                 }
 
                 function handleSelectionEnd(e) {
-                    if (e.type === 'touchcancel') {
+                    if (e.type === 'touchcancel' || isTouchScrolling) {
                         isSelecting = false;
+                        isTouchScrolling = false;
                         clearSelection();
                         return;
                     }
