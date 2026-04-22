@@ -6479,9 +6479,8 @@
                     const finalWidth = captureArea.scrollWidth;
                     const finalHeight = captureArea.scrollHeight;
 
-                    // Maximize sharpness by setting scale to 3, but fall back to 2 on mobile to prevent crashes
-                    const isMobile = window.innerWidth <= 768;
-                    const captureScale = isMobile ? 3 : 4;
+                    // Use optimal scale explicitly for chat apps like LINE. Too high (3-4) causes aggressive compression and blurry text.
+                    const captureScale = 2;
 
                     html2canvas(captureArea, {
                         scale: captureScale,
@@ -6595,9 +6594,8 @@
                     const finalWidth = captureArea.scrollWidth;
                     const finalHeight = captureArea.scrollHeight;
 
-                    // Maximize sharpness
-                    const isMobile = window.innerWidth <= 768;
-                    const captureScale = isMobile ? 3 : 4;
+                    // Use optimal scale explicitly for chat apps like LINE
+                    const captureScale = 2;
 
                     // Use html-to-image which handles SVGs and scaling much better
                     htmlToImage.toPng(captureArea, {
@@ -8039,7 +8037,7 @@
                 downloadBtn.innerHTML = 'กำลังเตรียม...';
                 downloadBtn.disabled = true;
 
-                html2canvas(infographicElement.querySelector(':first-child'), { scale: window.innerWidth <= 768 ? 3 : 4, useCORS: true, backgroundColor: '#ffffff' })
+                html2canvas(infographicElement.querySelector(':first-child'), { scale: 2, useCORS: true, backgroundColor: '#ffffff' })
                 .then(canvas => {
                     const link = document.createElement('a');
                     link.download = `infographic-report-${Date.now()}.png`;
