@@ -8307,34 +8307,53 @@
                 let touchStartY = 0;
                 let isTouchScrolling = false;
                 let lastTouchTime = 0;
+                let touchHoldTimer = null;
+                let isTouchDragSelecting = false;
+                let initialTouchTarget = null;
 
                 function handleSelectionStart(e) {
                     if (e.type.includes('touch')) {
                         lastTouchTime = Date.now();
+                        initialTouchTarget = e.touches[0].target;
+                        touchStartX = e.touches[0].clientX;
+                        touchStartY = e.touches[0].clientY;
+                        isTouchScrolling = false;
+                        isTouchDragSelecting = false;
+                        
+                        // Start hold timer to differentiate between tap/scroll and drag-select
+                        clearTimeout(touchHoldTimer);
+                        touchHoldTimer = setTimeout(() => {
+                            if (!isTouchScrolling) {
+                                isTouchDragSelecting = true;
+                                if (navigator.vibrate) navigator.vibrate(50); // slight feedback
+                                
+                                let target = initialTouchTarget;
+                                if (target && target.nodeType === 3) target = target.parentNode;
+                                const cell = target ? target.closest('.table-cell') : null;
+                                if (cell) {
+                                    clearSelection();
+                                    cell.classList.add('selection-active');
+                                    selectedCells.add(cell);
+                                }
+                            }
+                        }, 400); // 400ms hold enters drag-select mode
+                        return;
                     } else {
-                        // Ignore simulated mouse events after touch
+                        // Ignore simulated mouse events right after touch
                         if (Date.now() - lastTouchTime < 500) {
                             return;
                         }
                     }
 
-                    let target = e.type.includes('touch') ? e.touches[0].target : e.target;
+                    let target = e.target;
                     if (target.nodeType === 3) target = target.parentNode; // Handle text nodes
                     const cell = target.closest('.table-cell');
                     if (!cell) return;
                     
-                    if (e.type.includes('touch')) {
-                        touchStartX = e.touches[0].clientX;
-                        touchStartY = e.touches[0].clientY;
-                        isTouchScrolling = false;
-                        // Do not preventDefault to allow native scrolling on touch devices
-                    } else {
-                        e.preventDefault();
-                    }
-                    
+                    e.preventDefault();
                     isSelecting = true;
 
-                    if (currentView === 'qcSummary' || (!e.ctrlKey && !e.type.includes('touch'))) {
+                    if (currentView === 'qcSummary' || !e.ctrlKey) {
                         clearSelection();
                     }
                     
@@ -8347,44 +8366,93 @@
                 }
 
                 function handleSelectionMove(e) {
-                    if (!isSelecting) return;
-                    
-                    let target;
                     if (e.type.includes('touch')) {
                         const touch = e.touches[0];
                         const dx = Math.abs(touch.clientX - touchStartX);
                         const dy = Math.abs(touch.clientY - touchStartY);
                         
-                        // If moved more than 5px, the user is scrolling. Abort selection!
-                        if (dx > 5 || dy > 5) {
-                            isTouchScrolling = true;
-                            isSelecting = false;
-                            clearSelection();
-                            return; // Do NOT preventDefault, allow native scrolling
+                        if (!isTouchDragSelecting) {
+                            // If they moved distance > 10px before the hold timer executed, it's a scroll
+                            if (dx > 10 || dy > 10) {
+                                isTouchScrolling = true;
+                                clearTimeout(touchHoldTimer);
+                            }
+                            return; // Do NOT preventDefault, let native scroll happen
                         }
                         
-                        // On mobile, we avoid drag-selecting multiple cells to preserve scrolling
-                        return;
-                    } else {
-                        target = e.target;
+                        // User is in drag-select mode
+                        if (e.cancelable) e.preventDefault(); // Stop native scroll while drawing selection box
+                        
+                        const target = document.elementFromPoint(touch.clientX, touch.clientY);
                         if (!target) return;
-                        if (target.nodeType === 3) target = target.parentNode; // Handle text nodes
-                        const cell = target.closest('.table-cell');
+                        
+                        let node = target.nodeType === 3 ? target.parentNode : target;
+                        const cell = node.closest('.table-cell');
                         if (cell && !selectedCells.has(cell)) {
+                            // Restrict multi-select tasks of the same type if possible, or just add
                             cell.classList.add('selection-active');
                             selectedCells.add(cell);
                         }
+                        return;
+                    }
+                    
+                    // Mouse logic
+                    if (!isSelecting) return;
+                    let target = e.target;
+                    if (!target) return;
+                    if (target.nodeType === 3) target = target.parentNode;
+                    const cell = target.closest('.table-cell');
+                    if (cell && !selectedCells.has(cell)) {
+                        cell.classList.add('selection-active');
+                        selectedCells.add(cell);
                     }
                 }
 
                 function handleSelectionEnd(e) {
-                    if (e.type === 'touchcancel' || isTouchScrolling) {
-                        isSelecting = false;
+                    if (e.type.includes('touch') || e.type === 'touchcancel') {
+                        clearTimeout(touchHoldTimer);
+                        
+                        // Handle quick tap
+                        if (!isTouchDragSelecting && !isTouchScrolling && e.type !== 'touchcancel') {
+                            let target = initialTouchTarget;
+                            if (target && target.nodeType === 3) target = target.parentNode;
+                            const cell = target ? target.closest('.table-cell') : null;
+                            if (cell) {
+                                clearSelection();
+                                cell.classList.add('selection-active');
+                                selectedCells.add(cell);
+                            }
+                        }
+                        
+                        if (e.type === 'touchcancel' || (isTouchScrolling && !isTouchDragSelecting)) {
+                            isTouchScrolling = false;
+                            isTouchDragSelecting = false;
+                            clearSelection(); // Abort tracking
+                            return;
+                        }
+                        
                         isTouchScrolling = false;
-                        clearSelection();
+                        isTouchDragSelecting = false;
+                        
+                        if (selectedCells.size > 0) {
+                            if (currentView === 'qcSummary' && selectedCells.size > 1) {
+                                showToast("ไม่สามารถเลือกหลายรายการในมุมมองสรุป QC ได้", 2500);
+                                clearSelection();
+                                return;
+                            }
+                            const firstCell = selectedCells.values().next().value;
+                             if (currentView === 'qcSummary') {
+                                const qcType = firstCell.dataset.qcType;
+                                if (qcType && taskDefinitions[qcType]) {
+                                    currentCategory = qcType;
+                                }
+                            }
+                            openUpdateModal(firstCell);
+                        }
                         return;
                     }
-                    
+
+                    // Mouse logic
                     if (isSelecting) {
                         isSelecting = false;
                         if (currentView === 'qcSummary' && selectedCells.size > 1) {
