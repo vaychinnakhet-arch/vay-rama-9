@@ -8310,9 +8310,11 @@
                 let touchHoldTimer = null;
                 let isTouchDragSelecting = false;
                 let initialTouchTarget = null;
+                let isTouchActive = false;
 
                 function handleSelectionStart(e) {
                     if (e.type.includes('touch')) {
+                        isTouchActive = true;
                         lastTouchTime = Date.now();
                         initialTouchTarget = e.touches[0].target;
                         touchStartX = e.touches[0].clientX;
@@ -8410,6 +8412,8 @@
 
                 function handleSelectionEnd(e) {
                     if (e.type.includes('touch') || e.type === 'touchcancel') {
+                        if (!isTouchActive) return; // Ignore touchend if it didn't start on the table
+                        
                         clearTimeout(touchHoldTimer);
                         
                         // Handle quick tap
@@ -8427,12 +8431,16 @@
                         if (e.type === 'touchcancel' || (isTouchScrolling && !isTouchDragSelecting)) {
                             isTouchScrolling = false;
                             isTouchDragSelecting = false;
+                            isTouchActive = false;
+                            initialTouchTarget = null;
                             clearSelection(); // Abort tracking
                             return;
                         }
                         
                         isTouchScrolling = false;
                         isTouchDragSelecting = false;
+                        isTouchActive = false;
+                        initialTouchTarget = null;
                         
                         if (selectedCells.size > 0) {
                             if (currentView === 'qcSummary' && selectedCells.size > 1) {
