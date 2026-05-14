@@ -4431,8 +4431,11 @@
                         <th class="border p-2 ${headerColor}" colspan="${CONFIG.MAX_ROOMS}"><span>ROOM No.</span></th>
                         <th class="border-y separator-cell" rowspan="2"></th>
                         <th class="border p-2 ${headerColor}" rowspan="2"><span>จำนวน</span></th>
-                        <th class="border p-2 bg-teal-200 text-slate-800" rowspan="2"><span>เสร็จ</span></th>
-                        <th class="border p-2 bg-rose-200 text-slate-800" rowspan="2"><span>คงเหลือ</span></th>
+                        <th class="border p-2 bg-teal-100 text-slate-800" rowspan="2"><span>เสร็จ</span></th>
+                        <th class="border p-2 bg-rose-100 text-slate-800" rowspan="2"><span>คงเหลือ</span></th>
+                        <th class="border-y separator-cell" rowspan="2"></th>
+                        <th class="border p-2 bg-teal-200 text-slate-800" rowspan="2"><span>ห้องเสร็จ</span></th>
+                        <th class="border p-2 bg-rose-200 text-slate-800" rowspan="2"><span>ห้องเหลือ</span></th>
                     </tr>
                     <tr>`;
                     for (let i = 1; i <= CONFIG.MAX_ROOMS; i++) {
@@ -4516,6 +4519,7 @@
                                 cell.innerHTML = `<span class="percentage-text">${progress}%</span>`;
                                 cell.dataset.floor = floor;
                                 cell.dataset.room = room;
+                                cell.dataset.taskKey = task.key;
                                 row.appendChild(cell);
                             }
 
@@ -4524,37 +4528,56 @@
                                 separator.className = 'border-y separator-cell';
                                 separator.rowSpan = detailedTasks.length;
                                 row.appendChild(separator);
-                                let floorTaskCountsHTML = '<div class="flex flex-col p-1 space-y-0.5 text-xs text-left">';
-                                detailedTasks.forEach((task, index) => {
-                                    let startedCount = 0;
-                                    for(let r=1; r<=roomsOnThisFloor; r++) {
-                                        if( (projectData[currentCategory]?.[floor]?.[r]?.[`progress_${task.key}`] || 0) > 0) startedCount++;
-                                    }
-                                    totals[task.key] = (totals[task.key] || 0) + startedCount;
-                                    const borderClass = index === detailedTasks.length - 1 ? '' : 'border-b border-slate-200';
-                                    floorTaskCountsHTML += `<div class="grid grid-cols-2 gap-2 py-1 ${borderClass}"><span>${task.name}:</span><span class="font-semibold text-right">${startedCount}</span></div>`;
-                                });
-                                floorTaskCountsHTML += '</div>';
-                                const topBorderClass = (floor === CONFIG.FLOORS[0]) ? '' : 'border-t-slate-300 border-t-2';
-                                
-                                const summaryCell = document.createElement('td');
-                                summaryCell.className = `border ${topBorderClass} p-0 summary-cell align-top`;
-                                summaryCell.rowSpan = detailedTasks.length;
-                                summaryCell.innerHTML = floorTaskCountsHTML;
-                                row.appendChild(summaryCell);
-
-                                const completedCell = document.createElement('td');
-                                completedCell.className = `border ${topBorderClass} p-2 text-green-700 font-semibold summary-cell align-middle`;
-                                completedCell.rowSpan = detailedTasks.length;
-                                completedCell.innerHTML = `<span>${floorCompletedCount}</span>`;
-                                row.appendChild(completedCell);
-
-                                const remainingCell = document.createElement('td');
-                                remainingCell.className = `border ${topBorderClass} p-2 text-red-700 font-semibold summary-cell align-middle`;
-                                remainingCell.rowSpan = detailedTasks.length;
-                                remainingCell.innerHTML = `<span>${roomsOnThisFloor - floorCompletedCount}</span>`;
-                                row.appendChild(remainingCell);
                             }
+
+                            let taskTotalUnits = 0;
+                            let taskCompletedUnits = 0;
+                            for(let r=1; r<=roomsOnThisFloor; r++) {
+                                if(!task.condition || task.condition(floor, r)) {
+                                    taskTotalUnits++;
+                                    if ((projectData[currentCategory]?.[floor]?.[r]?.[`progress_${task.key}`] || 0) >= 100) {
+                                        taskCompletedUnits++;
+                                    }
+                                }
+                            }
+
+                            const topBorderClass = (floor === CONFIG.FLOORS[0]) ? '' : 'border-t-slate-300 border-t-[1px]';
+                            const rowTopBorderClass = (taskIndex === 0) ? topBorderClass : 'border-t border-slate-200';
+
+                            const summaryCell = document.createElement('td');
+                            summaryCell.className = `border ${rowTopBorderClass} p-2 font-semibold text-center text-slate-700 bg-slate-50 text-[11px] summary-cell align-middle`;
+                            summaryCell.innerHTML = `<span>${taskTotalUnits}</span>`;
+                            row.appendChild(summaryCell);
+
+                            const completedCell = document.createElement('td');
+                            completedCell.className = `border ${rowTopBorderClass} p-2 text-teal-700 font-semibold text-center text-[11px] bg-teal-50 summary-cell align-middle`;
+                            completedCell.innerHTML = `<span>${taskCompletedUnits}</span>`;
+                            row.appendChild(completedCell);
+
+                            const remainingCell = document.createElement('td');
+                            remainingCell.className = `border ${rowTopBorderClass} p-2 text-rose-700 font-semibold text-center text-[11px] bg-rose-50 summary-cell align-middle`;
+                            remainingCell.innerHTML = `<span>${taskTotalUnits - taskCompletedUnits}</span>`;
+                            row.appendChild(remainingCell);
+                            
+                            if (taskIndex === 0) {
+                                const separator2 = document.createElement('td');
+                                separator2.className = 'border-y separator-cell';
+                                separator2.rowSpan = detailedTasks.length;
+                                row.appendChild(separator2);
+
+                                const overallCompletedCell = document.createElement('td');
+                                overallCompletedCell.className = `border ${topBorderClass} p-2 text-teal-800 font-bold bg-teal-100 summary-cell align-middle`;
+                                overallCompletedCell.rowSpan = detailedTasks.length;
+                                overallCompletedCell.innerHTML = `<span>${floorCompletedCount}</span>`;
+                                row.appendChild(overallCompletedCell);
+
+                                const overallRemainingCell = document.createElement('td');
+                                overallRemainingCell.className = `border ${topBorderClass} p-2 text-rose-800 font-bold bg-rose-100 summary-cell align-middle`;
+                                overallRemainingCell.rowSpan = detailedTasks.length;
+                                overallRemainingCell.innerHTML = `<span>${roomsOnThisFloor - floorCompletedCount}</span>`;
+                                row.appendChild(overallRemainingCell);
+                            }
+
                             tbody.appendChild(row);
                         });
                     } else {
@@ -4777,15 +4800,61 @@
                     const detailedTasks = categoryDef.tasks;
                     const summaryCell = document.createElement('td');
                     summaryCell.className = 'border p-0 summary-cell align-top';
-                    let footerTaskCountsHTML = '<div class="flex flex-col p-1 space-y-0.5 text-xs text-left">';
+                    let qtyHTML = '<div class="flex flex-col text-[11px] w-full h-full">';
+                    let cmpHTML = '<div class="flex flex-col text-[11px] w-full h-full">';
+                    let remHTML = '<div class="flex flex-col text-[11px] w-full h-full">';
+                    
                     detailedTasks.forEach((task, index) => {
-                        const total = totals[task.key] || 0;
                         const borderClass = index === detailedTasks.length - 1 ? '' : 'border-b border-slate-200';
-                        footerTaskCountsHTML += `<div class="grid grid-cols-2 gap-2 py-1 ${borderClass}"><span>${task.name}:</span><span class="font-semibold text-right">${total}</span></div>`;
+                        let taskTotalUnits = 0;
+                        let taskCompletedUnits = 0;
+                        
+                        CONFIG.FLOORS.forEach(f => {
+                            const roomsCount = CONFIG.getRoomsOnFloor(f);
+                            for (let r=1; r<=roomsCount; r++) {
+                                if (!task.condition || task.condition(f, r)) {
+                                    taskTotalUnits++;
+                                    if ((projectData[currentCategory]?.[f]?.[r]?.[`progress_${task.key}`] || 0) >= 100) {
+                                        taskCompletedUnits++;
+                                    }
+                                }
+                            }
+                        });
+
+                        qtyHTML += `<div class="py-1 px-2 ${borderClass} font-semibold">${taskTotalUnits}</div>`;
+                        cmpHTML += `<div class="py-1 px-2 ${borderClass} text-teal-700 font-semibold flex items-center justify-center">${taskCompletedUnits}</div>`;
+                        remHTML += `<div class="py-1 px-2 ${borderClass} text-rose-700 font-semibold flex items-center justify-center">${taskTotalUnits - taskCompletedUnits}</div>`;
                     });
-                    footerTaskCountsHTML += '</div>';
-                    summaryCell.innerHTML = footerTaskCountsHTML;
+                    qtyHTML += '</div>';
+                    cmpHTML += '</div>';
+                    remHTML += '</div>';
+
+                    summaryCell.innerHTML = qtyHTML;
                     row.appendChild(summaryCell);
+
+                    const completedCell = document.createElement('td');
+                    completedCell.className = 'border p-0 summary-cell bg-teal-50 align-top';
+                    completedCell.innerHTML = cmpHTML;
+                    row.appendChild(completedCell);
+
+                    const remainingCell = document.createElement('td');
+                    remainingCell.className = 'border p-0 summary-cell bg-rose-50 align-top';
+                    remainingCell.innerHTML = remHTML;
+                    row.appendChild(remainingCell);
+                    
+                    const separator2 = document.createElement('td');
+                    separator2.className = 'border-y separator-cell';
+                    row.appendChild(separator2);
+                    
+                    const overallTotalCompleted = document.createElement('td');
+                    overallTotalCompleted.className = 'border p-2 bg-teal-200 text-teal-900 font-black summary-cell align-middle';
+                    overallTotalCompleted.innerHTML = `<span>${totalCompleted}</span>`;
+                    row.appendChild(overallTotalCompleted);
+
+                    const overallTotalRemaining = document.createElement('td');
+                    overallTotalRemaining.className = 'border p-2 bg-rose-200 text-rose-900 font-black summary-cell align-middle';
+                    overallTotalRemaining.innerHTML = `<span>${CONFIG.TOTAL_UNITS - totalCompleted}</span>`;
+                    row.appendChild(overallTotalRemaining);
                 } else {
                     totals.forEach((total, index) => {
                         let bgColor = 'bg-slate-100';
@@ -4800,15 +4869,17 @@
                     });
                 }
                 
-                const completedCell = document.createElement('td');
-                completedCell.className = 'border p-2 bg-teal-100';
-                completedCell.innerHTML = `<span>${totalCompleted}</span>`;
-                row.appendChild(completedCell);
-                
-                const remainingCell = document.createElement('td');
-                remainingCell.className = 'border p-2 bg-rose-100';
-                remainingCell.innerHTML = `<span>${totalRemaining}</span>`;
-                row.appendChild(remainingCell);
+                if (!isDetailedView) {
+                    const completedCell = document.createElement('td');
+                    completedCell.className = 'border p-2 bg-teal-100 font-bold';
+                    completedCell.innerHTML = `<span>${totalCompleted}</span>`;
+                    row.appendChild(completedCell);
+                    
+                    const remainingCell = document.createElement('td');
+                    remainingCell.className = 'border p-2 bg-rose-100 font-bold';
+                    remainingCell.innerHTML = `<span>${totalRemaining}</span>`;
+                    row.appendChild(remainingCell);
+                }
                 
                 tfoot.appendChild(row);
 
@@ -5880,7 +5951,19 @@
                     const view = document.getElementById('modal-multi-progress-view');
                     const isMultiSelect = selectedCells.size > 1;
                     view.innerHTML = '';
+                    // Determine which tasks to show based on selected cells
+                    let tasksToShow = new Set();
+                    selectedCells.forEach(cell => {
+                        if (cell.dataset.taskKey) {
+                            tasksToShow.add(cell.dataset.taskKey);
+                        } else {
+                            categoryDef.tasks.forEach(t => tasksToShow.add(t.key));
+                        }
+                    });
+
                     categoryDef.tasks.forEach(task => {
+                        if (!tasksToShow.has(task.key)) return;
+                        
                         let isApplicable = false;
                         selectedCells.forEach(cell => {
                             if (!task.condition || task.condition(parseInt(cell.dataset.floor), parseInt(cell.dataset.room))) {
@@ -6100,19 +6183,22 @@
                 } else if (categoryDef.type === 'multi-progress') {
                     const inputs = document.querySelectorAll('.multi-progress-input');
                     selectedCells.forEach(cell => {
-                        const { floor, room } = cell.dataset;
+                        const { floor, room, taskKey } = cell.dataset;
                         if (!data[currentCategory]) data[currentCategory] = {};
                         if (!data[currentCategory][floor]) data[currentCategory][floor] = {};
                         if (!data[currentCategory][floor][room]) data[currentCategory][floor][room] = {};
                         const unitData = data[currentCategory][floor][room];
                         inputs.forEach(input => {
+                            const inputTaskKey = input.dataset.key;
+                            if (taskKey && taskKey !== inputTaskKey) return;
+
                             const valueStr = input.value;
                             if (valueStr !== '') {
                                 const value = parseInt(valueStr, 10);
                                 if (!isNaN(value) && value >= 0 && value <= 100) {
-                                    const task = categoryDef.tasks.find(t => t.key === input.dataset.key);
+                                    const task = categoryDef.tasks.find(t => t.key === inputTaskKey);
                                     if (task && task.condition && !task.condition(parseInt(floor), parseInt(room))) return;
-                                    unitData[`progress_${input.dataset.key}`] = value;
+                                    unitData[`progress_${inputTaskKey}`] = value;
                                 }
                             }
                         });
@@ -7304,7 +7390,6 @@
                 let completedRooms = 0, inProgressRooms = 0, totalRooms = 0;
                 const catDef = taskDefinitions[categoryKey];
                 const relevantTasks = selectedSubTaskIndexes.map(idx => catDef.tasks[idx]);
-                const relevantTaskKeys = relevantTasks.map(t => t.key);
 
                 floorsToCalc.forEach(floor => {
                     const roomsOnThisFloor = CONFIG.getRoomsOnFloor(floor);
@@ -7317,8 +7402,15 @@
                         totalRooms++;
 
                         const unitData = projectData[categoryKey][floor][room];
-                        let isRoomComplete = relevantTaskKeys.every(taskKey => (unitData[`progress_${taskKey}`] || 0) >= 100);
-                        let isRoomInProgress = !isRoomComplete && relevantTaskKeys.some(taskKey => (unitData[`progress_${taskKey}`] || 0) > 0);
+                        let isRoomComplete = relevantTasks.every(task => {
+                            if (task.condition && !task.condition(floor, room)) return true;
+                            return (unitData[`progress_${task.key}`] || 0) >= 100;
+                        });
+                        let isRoomInProgress = !isRoomComplete && relevantTasks.some(task => {
+                            if (task.condition && !task.condition(floor, room)) return false;
+                            return (unitData[`progress_${task.key}`] || 0) > 0;
+                        });
+                        
                         if (isRoomComplete) completedRooms++;
                         else if (isRoomInProgress) inProgressRooms++;
                     }
@@ -7682,7 +7774,11 @@
                                     });
                                     
                                     if (subTotal > 0) {
-                                        line += `\n    - ${subTask.name}: แล้วเสร็จ ${subCompleted}/${subTotal} บาน, กำลังดำเนินการ ${subInProgress} บาน`;
+                                        let unitName = 'ห้อง';
+                                        if (catKey === 'door' && subTask.key !== 'hardware') unitName = 'บาน';
+                                        if (catKey === 'door' && subTask.key === 'hardware') unitName = 'ชุด';
+                                        if (catKey === 'aluminum') unitName = 'ชุด';
+                                        line += `\n    - ${subTask.name}: แล้วเสร็จ ${subCompleted}/${subTotal} ${unitName}, กำลังดำเนินการ ${subInProgress} ${unitName}, คงเหลือ ${subTotal - subCompleted} ${unitName}`;
                                     }
                                 });
                             }
@@ -8122,7 +8218,19 @@
                 document.querySelectorAll('.quick-progress-btn').forEach(btn => {
                     btn.addEventListener('click', (e) => {
                         const val = e.target.getAttribute('data-value');
-                        document.getElementById('progress-input').value = val;
+                        
+                        const standardInput = document.getElementById('progress-input');
+                        if (standardInput && !document.getElementById('modal-progress-view').classList.contains('hidden')) {
+                            standardInput.value = val;
+                        }
+
+                        const multiView = document.getElementById('modal-multi-progress-view');
+                        if (multiView && !multiView.classList.contains('hidden')) {
+                            const multiInputs = multiView.querySelectorAll('.multi-progress-input');
+                            multiInputs.forEach(input => {
+                                input.value = val;
+                            });
+                        }
                     });
                 });
                 
