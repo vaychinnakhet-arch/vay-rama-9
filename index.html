@@ -67,6 +67,11 @@
         .is-line-capturing .md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
         .is-line-capturing .lg\:grid-cols-12 { grid-template-columns: repeat(12, minmax(0, 1fr)) !important; }
 
+        .is-line-capturing * {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
         .is-line-capturing #capture-area {
             width: max-content !important; /* Let it expand to content width */
             max-width: none !important;
@@ -849,9 +854,17 @@
                             <i data-lucide="upload" class="w-3.5 h-3.5"></i>
                             <span class="hidden sm:inline">นำเข้า</span>
                         </label>
-                        <button id="exportDataBtn" class="action-btn px-3 py-1.5 bg-white border border-slate-200 text-slate-700 rounded-lg shadow-sm hover:bg-slate-50 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-1 text-xs font-medium inline-flex items-center gap-1.5 transition-all" title="ส่งออกข้อมูล">
+                        <button id="exportExcelBtn" class="action-btn px-3 py-1.5 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-lg shadow-sm hover:bg-emerald-100 hover:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-1 text-xs font-medium inline-flex items-center gap-1.5 transition-all" title="ส่งออกตารางข้อมูลเป็น Excel">
+                            <i data-lucide="table" class="w-3.5 h-3.5"></i>
+                            <span class="hidden sm:inline">Excel</span>
+                        </button>
+                        <button id="exportMultiExcelBtn" class="action-btn px-3 py-1.5 bg-sky-50 border border-sky-200 text-sky-700 rounded-lg shadow-sm hover:bg-sky-100 hover:border-sky-300 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-1 text-xs font-medium inline-flex items-center gap-1.5 transition-all" title="ส่งออก Excel หลาย Sheet">
+                            <i data-lucide="layers" class="w-3.5 h-3.5"></i>
+                            <span class="hidden xl:inline">Excel (Multi)</span>
+                        </button>
+                        <button id="exportDataBtn" class="action-btn px-3 py-1.5 bg-white border border-slate-200 text-slate-700 rounded-lg shadow-sm hover:bg-slate-50 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-1 text-xs font-medium inline-flex items-center gap-1.5 transition-all" title="ส่งออกไฟล์ข้อมูล JSON">
                             <i data-lucide="download" class="w-3.5 h-3.5"></i>
-                            <span class="hidden sm:inline">ส่งออก</span>
+                            <span class="hidden sm:inline">JSON</span>
                         </button>
                         <button id="clearDataBtn" class="action-btn px-3 py-1.5 bg-white border border-rose-200 text-rose-600 rounded-lg shadow-sm hover:bg-rose-50 hover:border-rose-300 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-1 text-xs font-medium inline-flex items-center gap-1.5 transition-all" title="รีเซ็ตข้อมูล">
                             <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
@@ -1183,6 +1196,46 @@
         </div>
     </div>
 
+    <!-- Multi-Sheet Excel Export Modal -->
+    <div id="multiSheetExcelModal" class="modal fixed inset-0 w-full h-full items-center justify-center z-[55] hidden backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="multi-sheet-title">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 overflow-hidden flex flex-col">
+            <div class="px-5 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                <div class="flex items-center gap-3">
+                    <div class="p-2 bg-emerald-100 rounded-lg text-emerald-600">
+                        <i data-lucide="layers" class="w-5 h-5"></i>
+                    </div>
+                    <h3 class="font-bold text-slate-800 text-lg" id="multi-sheet-title">ส่งออก Excel (หลาย Sheet)</h3>
+                </div>
+                <button onclick="closeModal('multiSheetExcelModal')" class="text-slate-400 hover:text-slate-600 transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            
+            <div class="p-6">
+                <p class="text-sm text-slate-600 mb-4">เลือกงานที่ต้องการส่งออก แต่ละงานจะถูกแยกเป็น Sheet ในไฟล์เดียวกัน</p>
+                
+                <div class="mb-4">
+                    <button id="multiExcelSelectAllBtn" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 mr-3">เลือกทั้งหมด</button>
+                    <button id="multiExcelDeselectAllBtn" class="text-xs font-semibold text-slate-500 hover:text-slate-700">ยกเลิกการเลือก</button>
+                </div>
+
+                <div id="multiExcelCheckboxContainer" class="max-h-64 overflow-y-auto pr-2 flex flex-col gap-2 custom-scrollbar">
+                    <!-- Checkboxes will be populated here -->
+                </div>
+            </div>
+            
+            <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-end gap-3 rounded-b-xl">
+                <button onclick="closeModal('multiSheetExcelModal')" class="px-4 py-2 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-100 font-medium transition-colors text-sm">
+                    ยกเลิก
+                </button>
+                <button id="confirmMultiExcelBtn" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg flex items-center gap-2 font-medium transition-all shadow-sm text-sm">
+                    <i data-lucide="download" class="w-4 h-4"></i>
+                    ดาวน์โหลด
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Actual Update Modal -->
     <div id="actualUpdateModal" class="modal fixed inset-0 w-full h-full items-center justify-center z-[60] hidden backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="actual-update-title">
         <div class="bg-white rounded-xl shadow-xl w-full max-w-sm mx-4 overflow-hidden flex flex-col">
@@ -1494,8 +1547,20 @@
                         }
                         if (status === 'CHANNEL_ERROR') {
                              console.error('Realtime channel error:', err);
-                             showNotificationModal("Connection Error", "การเชื่อมต่อ Real-time ล้มเหลว กรุณาตรวจสอบว่าเปิดใช้งาน Publications ใน Supabase แล้ว");
-                             splashLoadingText.textContent = "การเชื่อมต่อ Real-time ล้มเหลว";
+                             
+                             // Suppress modal for 1006 (Abnormal Close) which usually means weak connection / auto-reconnecting
+                             const is1006Error = err && (
+                                (typeof err === 'string' && err.includes('1006')) || 
+                                (err.message && err.message.includes('1006')) ||
+                                (err.code === 1006)
+                             );
+                             
+                             if (!is1006Error) {
+                                showNotificationModal("Connection Error", "การเชื่อมต่อ Real-time ล้มเหลว กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ตของคุณ");
+                                splashLoadingText.textContent = "การเชื่อมต่อ Real-time ขัดข้อง";
+                             } else {
+                                console.log("Socket closed (1006), waiting for auto-reconnect...");
+                             }
                         }
                     });
             }
@@ -4448,8 +4513,9 @@
                         <th class="border p-2 ${headerColor}" colspan="${CONFIG.MAX_ROOMS}"><span>ROOM No.</span></th>
                         <th class="border-y separator-cell" rowspan="2"></th>
                         <th class="border p-2 ${headerColor}" colspan="${isInspection ? 3 : categoryTasks.length}"><span>${isInspection ? 'สรุปผลตรวจ' : 'จำนวน'}</span></th>
-                        <th class="border p-2 bg-teal-200 text-slate-800" rowspan="2"><span>ผ่าน/เสร็จ</span></th>
-                        <th class="border p-2 bg-rose-200 text-slate-800" rowspan="2"><span>คงเหลือ</span></th>
+                        <th class="border-y separator-cell" rowspan="2"></th>
+                        <th class="border p-2 bg-teal-200 text-slate-800" rowspan="2"><span>ห้องเสร็จ</span></th>
+                        <th class="border p-2 bg-rose-200 text-slate-800" rowspan="2"><span>ห้องเหลือ</span></th>
                     </tr>
                     <tr>`;
                     for (let i = 1; i <= CONFIG.MAX_ROOMS; i++) {
@@ -4768,13 +4834,17 @@
                         }
                         const floorRemaining = roomsOnThisFloor - floorCompleted;
                         
+                        const summarySeparator = document.createElement('td');
+                        summarySeparator.className = 'border-y separator-cell';
+                        row.appendChild(summarySeparator);
+                        
                         const completedCell = document.createElement('td');
-                        completedCell.className = 'border p-2 text-green-700 font-semibold summary-cell';
+                        completedCell.className = 'border p-2 text-teal-800 bg-teal-50 font-semibold summary-cell align-middle';
                         completedCell.innerHTML = `<span>${floorCompleted}</span>`;
                         row.appendChild(completedCell);
 
                         const remainingCell = document.createElement('td');
-                        remainingCell.className = 'border p-2 text-red-700 font-semibold summary-cell';
+                        remainingCell.className = 'border p-2 text-rose-800 bg-rose-50 font-semibold summary-cell align-middle';
                         remainingCell.innerHTML = `<span>${floorRemaining}</span>`;
                         row.appendChild(remainingCell);
 
@@ -4870,13 +4940,17 @@
                 }
                 
                 if (!isDetailedView) {
+                    const summarySeparator = document.createElement('td');
+                    summarySeparator.className = 'border-y separator-cell';
+                    row.appendChild(summarySeparator);
+                    
                     const completedCell = document.createElement('td');
-                    completedCell.className = 'border p-2 bg-teal-100 font-bold';
+                    completedCell.className = 'border p-2 bg-teal-200 text-teal-900 font-bold align-middle summary-cell';
                     completedCell.innerHTML = `<span>${totalCompleted}</span>`;
                     row.appendChild(completedCell);
                     
                     const remainingCell = document.createElement('td');
-                    remainingCell.className = 'border p-2 bg-rose-100 font-bold';
+                    remainingCell.className = 'border p-2 bg-rose-200 text-rose-900 font-bold align-middle summary-cell';
                     remainingCell.innerHTML = `<span>${totalRemaining}</span>`;
                     row.appendChild(remainingCell);
                 }
@@ -6467,6 +6541,283 @@
                 }
             }
             
+            function exportToExcel() {
+                const tableId = currentView === 'summaryReport' ? 'summary-report-table' : 'main-table';
+                const originalTable = document.getElementById(tableId);
+                
+                if (!originalTable || originalTable.classList.contains('hidden') || originalTable.innerHTML.trim() === '') {
+                    showToast('ไม่มีข้อมูลสำหรับส่งออก Excel', 'error');
+                    return;
+                }
+                
+                // clone table
+                const clonedTable = originalTable.cloneNode(true);
+                
+                // We need to inline all important styles so it looks "เป๊ะๆ"
+                const originalCells = originalTable.querySelectorAll('th, td, div, span, p');
+                const clonedCells = clonedTable.querySelectorAll('th, td, div, span, p');
+                
+                for (let i = 0; i < originalCells.length; i++) {
+                    const orig = originalCells[i];
+                    const cln = clonedCells[i];
+                    const computed = window.getComputedStyle(orig);
+                    
+                    // basic styles we want to keep
+                    cln.style.backgroundColor = computed.backgroundColor;
+                    cln.style.color = computed.color;
+                    cln.style.textAlign = computed.textAlign;
+                    cln.style.fontWeight = computed.fontWeight;
+                    cln.style.fontSize = computed.fontSize;
+                    
+                    // Add solid borders for Excel correctly
+                    if (orig.tagName === 'TH' || orig.tagName === 'TD') {
+                        cln.style.border = '1px solid #cbd5e1';
+                        cln.style.verticalAlign = computed.verticalAlign;
+                    }
+                    
+                    // Remove interactive elements like buttons, checkboxes
+                    if (orig.tagName === 'BUTTON' || orig.tagName === 'INPUT' || orig.classList.contains('lucide') || orig.tagName === 'SVG' || orig.closest('button')) {
+                        cln.remove();
+                    }
+                }
+                
+                let reportTitle = 'รายงานความก้าวหน้าโครงการ Vay Rama 9';
+                const statusTitleEl = document.getElementById('status-title');
+                if (statusTitleEl && statusTitleEl.textContent) {
+                    reportTitle += ' - ' + statusTitleEl.textContent;
+                }
+                
+                let updateDateText = '';
+                const updateDateEl = document.getElementById('update-date');
+                if (updateDateEl && updateDateEl.textContent) {
+                    updateDateText = 'วันที่รายงาน: ' + updateDateEl.textContent;
+                }
+                
+                let legendText = '';
+                const legendEl = document.getElementById('legend');
+                if (legendEl && legendEl.style.display !== 'none') {
+                    const spans = Array.from(legendEl.querySelectorAll('span'));
+                    if (spans.length > 0) {
+                        legendText = 'ขั้นตอน: ' + spans.map(s => s.textContent.trim()).filter(t => t).join(' ➔ ');
+                    }
+                }
+                
+                // Create HTML structure for excel
+                const htmlTemplate = `
+                    <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+                    <head>
+                        <meta charset="utf-8">
+                        <style>
+                            table { border-collapse: collapse; min-width: 100%; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+                            td, th { border: 1px solid #cbd5e1; padding: 6px; white-space: nowrap; } 
+                            /* Force number format to be text except if we want it to be numbers. Actually letting Excel decide is better for numbers, but Thai text sometimes needs it. \\@ forces text */
+                        </style>
+                    </head>
+                    <body>
+                        <table style="border: none;">
+                            <tr><td colspan="10" style="font-size: 18px; font-weight: bold; border: none;">${reportTitle}</td></tr>
+                            <tr><td colspan="10" style="font-size: 14px; border: none; padding-bottom: ${legendText ? '5px' : '15px'};">${updateDateText}</td></tr>
+                            ${legendText ? `<tr><td colspan="10" style="font-size: 13px; font-weight: bold; border: none; padding-bottom: 15px; color: #475569;">${legendText}</td></tr>` : ''}
+                        </table>
+                        ${clonedTable.outerHTML}
+                    </body>
+                    </html>
+                `;
+                
+                // create a Blob
+                const blob = new Blob(['\uFEFF', htmlTemplate], { type: 'application/vnd.ms-excel' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `Vay-Chinnakhet-Report-${Date.now()}.xls`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+                showToast('ส่งออก Excel สำเร็จ', 'success');
+            }
+
+            function openMultiSheetExcelModal() {
+                const container = document.getElementById('multiExcelCheckboxContainer');
+                container.innerHTML = '';
+                
+                // We add categories that are normally exportable
+                const allCats = Object.keys(taskDefinitions);
+                
+                allCats.forEach(catKey => {
+                    const catDef = taskDefinitions[catKey];
+                    const label = document.createElement('label');
+                    label.className = 'flex items-center p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer transition-colors';
+                    label.innerHTML = `
+                        <input type="checkbox" value="${catKey}" class="multi-excel-cb w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500 cursor-pointer" checked>
+                        <span class="ml-3 text-sm font-medium text-slate-700">${catDef.name}</span>
+                    `;
+                    container.appendChild(label);
+                });
+                
+                openModal('multiSheetExcelModal');
+            }
+
+            document.getElementById('multiExcelSelectAllBtn').addEventListener('click', () => {
+                document.querySelectorAll('.multi-excel-cb').forEach(cb => cb.checked = true);
+            });
+            document.getElementById('multiExcelDeselectAllBtn').addEventListener('click', () => {
+                document.querySelectorAll('.multi-excel-cb').forEach(cb => cb.checked = false);
+            });
+            
+            document.getElementById('confirmMultiExcelBtn').addEventListener('click', async () => {
+                const selectedCats = Array.from(document.querySelectorAll('.multi-excel-cb:checked')).map(cb => cb.value);
+                if (selectedCats.length === 0) {
+                    showToast('กรุณาเลือกอย่างน้อย 1 งาน', 'warning');
+                    return;
+                }
+                
+                showToast('กำลังเตรียมไฟล์ Excel กรุณารอสักครู่ (อาจใช้เวลาสักครู่เนื่องจากมีหลาย Sheet)...', 'info');
+                closeModal('multiSheetExcelModal');
+                
+                // Save current view
+                const previousView = currentView;
+                const previousCategory = currentCategory;
+                
+                let excelFileString = `MIME-Version: 1.0\r\n` +
+                                      `X-Document-Type: Workbook\r\n` +
+                                      `Content-Type: multipart/related; boundary=\"----BOUNDARY\"\r\n\r\n` +
+                                      `------BOUNDARY\r\n` +
+                                      `Content-Location: file:///C:/workbook.htm\r\n` +
+                                      `Content-Type: text/html; charset=utf-8\r\n\r\n` +
+                                      `<html xmlns:x="urn:schemas-microsoft-com:office:excel">\r\n` +
+                                      `<head>\r\n<meta charset="utf-8">\r\n<xml>\r\n` +
+                                      `  <x:ExcelWorkbook>\r\n` +
+                                      `    <x:ExcelWorksheets>\r\n`;
+                                      
+                let sheetsHtml = '';
+                
+                for (let i = 0; i < selectedCats.length; i++) {
+                    const catKey = selectedCats[i];
+                    const catDef = taskDefinitions[catKey];
+                    // Clean sheet name (Excel limits to 31 chars, no special chars)
+                    const sheetName = catDef.name.substring(0, 31).replace(/[\\/\*\?\[\]\:]/g, ''); 
+                    
+                    excelFileString += `      <x:ExcelWorksheet>\r\n` +
+                                       `        <x:Name>${sheetName}</x:Name>\r\n` +
+                                       `        <x:WorksheetSource HRef="sheet${i}.htm"/>\r\n` +
+                                       `      </x:ExcelWorksheet>\r\n`;
+                                       
+                    // Briefly switch view to render the table correctly
+                    currentView = 'residential';
+                    currentCategory = catKey;
+                    renderTable();
+                    
+                    // Allow DOM to update
+                    await new Promise(r => setTimeout(r, 100));
+                    
+                    const originalTable = document.getElementById('main-table');
+                    const clonedTable = originalTable ? originalTable.cloneNode(true) : document.createElement('table');
+                    
+                    if (originalTable) {
+                        const originalCells = originalTable.querySelectorAll('th, td, div, span, p');
+                        const clonedCells = clonedTable.querySelectorAll('th, td, div, span, p');
+                        for (let j = 0; j < originalCells.length; j++) {
+                            const orig = originalCells[j];
+                            const cln = clonedCells[j];
+                            const computed = window.getComputedStyle(orig);
+                            
+                            cln.style.backgroundColor = computed.backgroundColor;
+                            cln.style.color = computed.color;
+                            cln.style.textAlign = computed.textAlign;
+                            cln.style.fontWeight = computed.fontWeight;
+                            cln.style.fontSize = computed.fontSize;
+                            
+                            if (orig.tagName === 'TH' || orig.tagName === 'TD') {
+                                cln.style.border = '1px solid #cbd5e1';
+                                cln.style.verticalAlign = computed.verticalAlign;
+                            }
+                            if (orig.tagName === 'BUTTON' || orig.tagName === 'INPUT' || orig.classList.contains('lucide') || orig.tagName === 'SVG' || orig.closest('button')) {
+                                cln.remove();
+                            }
+                        }
+                    }
+                    
+                    let reportTitle = 'รายงานความก้าวหน้าโครงการ Vay Rama 9';
+                    const statusTitleEl = document.getElementById('status-title');
+                    if (statusTitleEl && statusTitleEl.textContent) {
+                        reportTitle += ' - ' + statusTitleEl.textContent;
+                    }
+                    
+                    let updateDateText = '';
+                    const updateDateEl = document.getElementById('update-date');
+                    if (updateDateEl && updateDateEl.textContent) {
+                        updateDateText = 'วันที่รายงาน: ' + updateDateEl.textContent;
+                    }
+                    
+                    let legendText = '';
+                    const legendEl = document.getElementById('legend');
+                    if (legendEl && legendEl.style.display !== 'none') {
+                        const spans = Array.from(legendEl.querySelectorAll('span'));
+                        if (spans.length > 0) {
+                            legendText = 'ขั้นตอน: ' + spans.map(s => s.textContent.trim()).filter(t => t).join(' ➔ ');
+                        }
+                    }
+                    
+                    const sheetHtmlStr = `
+                        <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+                        <head>
+                            <meta charset="utf-8">
+                            <style>
+                                table { border-collapse: collapse; min-width: 100%; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+                                td, th { border: 1px solid #cbd5e1; padding: 6px; white-space: nowrap; } 
+                            </style>
+                        </head>
+                        <body>
+                            <table style="border: none;">
+                                <tr><td colspan="10" style="font-size: 18px; font-weight: bold; border: none;">${reportTitle}</td></tr>
+                                <tr><td colspan="10" style="font-size: 14px; border: none; padding-bottom: ${legendText ? '5px' : '15px'};">${updateDateText}</td></tr>
+                                ${legendText ? `<tr><td colspan="10" style="font-size: 13px; font-weight: bold; border: none; padding-bottom: 15px; color: #475569;">${legendText}</td></tr>` : ''}
+                            </table>
+                            ${clonedTable.outerHTML}
+                        </body>
+                        </html>
+                    `;
+                    
+                    sheetsHtml += `------BOUNDARY\r\n` +
+                                  `Content-Location: file:///C:/sheet${i}.htm\r\n` +
+                                  `Content-Type: text/html; charset=utf-8\r\n\r\n` +
+                                  sheetHtmlStr + `\r\n\r\n`;
+                }
+                
+                excelFileString += `    </x:ExcelWorksheets>\r\n` +
+                                   `  </x:ExcelWorkbook>\r\n` +
+                                   `</xml>\r\n</head>\r\n<body></body>\r\n</html>\r\n\r\n` +
+                                   sheetsHtml + `------BOUNDARY--\r\n`;
+                                   
+                // Restore view
+                currentView = previousView;
+                currentCategory = previousCategory;
+                if (currentView === 'summaryReport' || currentView === 'schedule' || currentView === 'qcHandover' || currentView === 'common' || currentView === 'qcSummary') {
+                     // Fast restore by just reloading is easiest for specialized non-task views, but usually they are fast
+                     if(currentView === 'common') enterAppView('common');
+                     else if (currentView === 'qcSummary') enterAppView('qcSummary');
+                     else if (currentView === 'summaryReport') enterAppView('summaryReport');
+                     else if (currentView === 'schedule') enterAppView('schedule');
+                     else if (currentView === 'qcHandover') enterAppView('qcHandover');
+                     else location.reload();
+                     renderTable();
+                } else {
+                     enterAppView('residential');
+                     renderTable();
+                }
+                
+                const blob = new Blob([excelFileString], { type: 'multipart/related' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `report_multi_sheet_${new Date().toISOString().slice(0, 10)}.xls`;
+                a.click();
+                URL.revokeObjectURL(url);
+                
+                showToast('ส่งออก Excel สำเร็จ', 'success');
+            });
+
             function exportData() {
                 try {
                     const dataStr = JSON.stringify(projectData, null, 2);
@@ -6680,11 +7031,12 @@
                     const finalWidth = captureArea.scrollWidth;
                     const finalHeight = captureArea.scrollHeight;
 
-                    // Use optimal scale explicitly for chat apps like LINE
-                    const captureScale = 2;
+                    // Use optimal scale explicitly for chat apps like LINE. High pixel ratio + JPEG prevents LINE's harsh PNG resizing artifacts.
+                    const captureScale = 3;
 
                     // Use html-to-image which handles SVGs and scaling much better
-                    htmlToImage.toPng(captureArea, {
+                    htmlToImage.toJpeg(captureArea, {
+                        quality: 1.0,
                         backgroundColor: '#ffffff',
                         pixelRatio: captureScale,
                         width: finalWidth,
@@ -6693,7 +7045,7 @@
                             transformOrigin: 'top left'
                         }
                     }).then(dataUrl => {
-                        const filename = `line-update-new-${Date.now()}.png`;
+                        const filename = `line-update-new-${Date.now()}.jpg`;
 
                         function fallbackDownload() {
                             const link = document.createElement('a');
@@ -6710,7 +7062,7 @@
                                 fetch(dataUrl)
                                     .then(res => res.blob())
                                     .then(blob => {
-                                        const file = new File([blob], filename, { type: 'image/png' });
+                                        const file = new File([blob], filename, { type: 'image/jpeg' });
                                         if (navigator.canShare({ files: [file] })) {
                                             navigator.share({
                                                 files: [file],
@@ -8295,6 +8647,8 @@
                 });
 
                 document.getElementById('exportDataBtn').addEventListener('click', exportData);
+                document.getElementById('exportExcelBtn').addEventListener('click', exportToExcel);
+                document.getElementById('exportMultiExcelBtn').addEventListener('click', openMultiSheetExcelModal);
                 document.getElementById('import-file').addEventListener('change', importData);
                 
                 // Summary Plan Modal Event Listeners

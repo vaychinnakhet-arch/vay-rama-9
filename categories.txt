@@ -1,0 +1,138 @@
+933:                    <div id="task-category-buttons" class="flex flex-col gap-3 min-w-max">
+1607:                    if (task.category === 'wetwork' && !globalScheduleFilters.showWetWork) return false;
+1608:                    if (task.category === 'endproduct' && !globalScheduleFilters.showEndProduct) return false;
+2149:                                // A simple progress from 0-100 for the entire task category
+2238:            const categoryIcons = {
+2374:                        const iconData = categoryIcons[catKey] || { bg: 'bg-slate-100', color: 'text-slate-600', svg: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>' };
+2502:                    const categoryDef = taskDefinitions[currentCategory];
+2503:                    const isMultiProgress = categoryDef && categoryDef.type === 'multi-progress';
+2932:                { name: 'ตีไลน์ (3วัน)', subName: 'U1', color: 'bg-[#e2efda]', duration: 3, category: 'wetwork' },
+2933:                { name: 'ตั้งเสาเอ็น/เขิบห้องน้ำ+ทางเดิน+ระเบียง (7วัน)', subName: 'U2', color: 'bg-[#e2efda]', duration: 7, category: 'wetwork' },
+2934:                { name: 'งานระบบตีเส้น SPK,M&E ตรวจสอบตำแหน่งท่อฝังพื้น ,เดินระบบ SPK+SLEEVE ท่อผ่านผนัง+ท่อในชาร์ป (SN ,ท่อแอร์ /ท่อลม/ติดดวงโคม) (10วัน)', subName: 'U3-U5', color: 'bg-[#d9d2e9]', duration: 10, category: 'wetwork' },
+2935:                { name: 'ยิงซิลิโคน PC/ เก๊าท์ผนัง PC (7วัน)', subName: 'U6', color: 'bg-[#e2efda]', duration: 7, category: 'wetwork' },
+2936:                { name: 'ติดตั้งแผ่นTexca wall , เก็บอุดรอยต่อแผ่น Texca wall (10วัน)', subName: 'U7-U8', color: 'bg-[#e2efda]', duration: 10, category: 'wetwork' },
+2937:                { name: 'M&E WORK (เดินท่อในผนัง) ติดตั้งเอ้าท์เลท /เบิ้ลผนัง/เทสปั๊มน้ำ , Test Pressure ท่อน้ำ+SPK (10วัน) ,ร้อยสายไฟ/ พ่นดวงโคม/พัดลม', subName: 'U9-U11', color: 'bg-[#d9d2e9]', duration: 10, category: 'wetwork' },
+2938:                { name: 'เทเสาเอ็น/เก๊าท์ท่อฝังผนังครัว /เก๊าท์ ท่อแอร์ , งานฉาบเสาโครงสร้าง / ฉาบผนังรอยต่อ (7วัน)', subName: 'U12-U13', color: 'bg-[#a9d08e]', duration: 7, category: 'wetwork' },
+2939:                { name: 'งานเทท็อปปิ้งพื้นห้องพัก /ห้องน้ำ/ระเบียง , งานติดตั้งราวกันตก ระเบียง(7วัน)', subName: 'U14-U15', color: 'bg-[#a9d08e]', duration: 7, category: 'wetwork' },
+2940:                { name: 'งานกันซึมห้องน้ำ / ระเบียง , งานปูกระเบื้อง (พื้นห้องน้ำ,ผนังห้องน้ำ,ระเบียง,ผนังครัว,พื้นครัว) (14วัน)', subName: 'U16-U17', color: 'bg-[#a9d08e]', duration: 14, category: 'wetwork' },
+2941:                { name: 'งานติดตั้งโครงฝ้า , ปิดแผ่นฝ้า ,ฉาบฝ้าห้องพักห้องน้ำ (10วัน)', subName: 'U18,U20-U21', color: 'bg-[#a9d08e]', duration: 10, category: 'wetwork' },
+2942:                { name: 'งานเทสไฟ/เซอร์กิต เหนือฝ้า(7วัน)', subName: 'U19', color: 'bg-[#d9d2e9]', duration: 7, category: 'wetwork' },
+2943:                { name: 'งานสกิมผนัง,งานขัด+ทาสีรองพื้น 1 รอบ ,เจาะฝ้าดาวน์ไลท์ (10วัน)', subName: 'U22-U23', color: 'bg-[#a9d08e]', duration: 10, category: 'wetwork' },
+2944:                { name: 'ส่ง CM ตรวจ Wet Work ส่ง QC ตรวจ Wet Work(10 วัน)', subName: 'U24-U26', color: 'bg-[#f4b084]', duration: 10, category: 'wetwork' },
+2946:                { name: 'เก็บดีเฟค QC WW 1(สีจริงเที่ยวแรก) (7 วัน)', subName: 'U27', color: 'bg-[#cfe2f3]', duration: 7, category: 'endproduct' },
+2947:                { name: 'งานอะลูมิเนียมติดตั้งกรอบเฟรมบานเลื่อน-อุปกรณ์ แล้วเสร็จ 100% ติดตั้งกระจกระเบียง(7 วัน)', subName: 'U28', color: 'bg-[#cfe2f3]', duration: 7, category: 'endproduct' },
+2948:                { name: 'งานติดตั้งประตูห้องพัก /ห้องน้ำ/ห้องนอน /ประตูชาร์ป แล้วเสร็จ 100%(7วัน)', subName: 'U29', color: 'bg-[#cfe2f3]', duration: 7, category: 'endproduct' },
+2949:                { name: 'ติดตั้งอุปกรณ์ดวงโคม+Consumer+Gill+Air(พร้อมTest) (7วัน)', subName: 'U30', color: 'bg-[#ead1dc]', duration: 7, category: 'endproduct' },
+2950:                { name: 'ติดตั้งสุขภัณฑ์ + อุปกรณ์ในห้องน้ำ (7 วัน)', subName: 'U31', color: 'bg-[#ead1dc]', duration: 7, category: 'endproduct' },
+2951:                { name: 'ปูพื้นไม้ลามิเนต (7วัน)', subName: 'U32', color: 'bg-[#cfe2f3]', duration: 7, category: 'endproduct' },
+2952:                { name: 'ติดตั้ง Shower Screen (7วัน)', subName: 'U33', color: 'bg-[#cfe2f3]', duration: 7, category: 'endproduct' },
+2953:                { name: 'งานเฟอร์นิเจอร์ (SB) 1.ติดตั้งชุดครัว 2.เคาน์เตอร์ห้องน้ำ 3.ติดตั้งกระจกเงา แล้วเสร็จ 100% (7วัน)', subName: 'U34', color: 'bg-[#cfe2f3]', duration: 7, category: 'endproduct' },
+2954:                { name: 'งานสีเที่ยวสุดท้าย แล้วเสร็จ 100%(10วัน)+ติดตั้งปลั๊ก+หน้ากากปลั๊ก', subName: 'U35-U36', color: 'bg-[#cfe2f3]', duration: 10, category: 'endproduct' },
+2955:                { name: 'ส่ง Cm Endproduct เก็บงาน CM End-Product(7วัน)', subName: 'U37', color: 'bg-[#cfe2f3]', duration: 7, category: 'endproduct' },
+2956:                { name: 'ส่ง QC End Product(14 วัน)', subName: 'U38', color: 'bg-[#cfe2f3]', duration: 14, category: 'endproduct' }
+2985:                        if (task.category === 'wetwork' && !globalScheduleFilters.showWetWork) return false;
+2986:                        if (task.category === 'endproduct' && !globalScheduleFilters.showEndProduct) return false;
+3297:                const wetWorkTasks = globalScheduleTasks.filter(t => t.category === 'wetwork');
+3298:                const endProductTasks = globalScheduleTasks.filter(t => t.category === 'endproduct');
+3432:                    if ((task.category === 'wetwork' && !globalScheduleFilters.showWetWork) ||
+3433:                        (task.category === 'endproduct' && !globalScheduleFilters.showEndProduct)) {
+3462:            window.updateScheduleFilterCategory = function(category, isChecked) {
+3463:                if (category === 'wetwork') {
+3465:                } else if (category === 'endproduct') {
+3490:                    .filter(t => t.task.category === 'wetwork');
+3492:                    .filter(t => t.task.category === 'endproduct');
+4110:                    if (task.category === 'wetwork' && !globalScheduleFilters.showWetWork) return false;
+4111:                    if (task.category === 'endproduct' && !globalScheduleFilters.showEndProduct) return false;
+4437:                const categoryDef = taskDefinitions[currentCategory];
+4438:                const categoryTasks = categoryDef.tasks;
+4439:                const isInspection = categoryDef.type === 'inspection';
+4440:                const isMultiProgress = categoryDef.type === 'multi-progress';
+4471:                        <th class="border p-2 ${headerColor}" colspan="${isInspection ? 3 : categoryTasks.length}"><span>${isInspection ? 'สรุปผลตรวจ' : 'จำนวน'}</span></th>
+4485:                        categoryTasks.forEach(task => {
+4496:                const totals = isDetailedView ? {} : Array(isInspection ? 3 : categoryTasks.length).fill(0);
+4502:                        const detailedTasks = categoryDef.tasks;
+4659:                                 categoryDef.tasks.forEach(task => {
+4676:                                  if (categoryTasks[currentTaskIndex]) {
+4677:                                      const currentTask = categoryTasks[currentTaskIndex];
+4678:                                      const isFinalTask = currentTaskIndex === categoryTasks.length - 1;
+4751:                             const floorCounts = Array(categoryTasks.length).fill(0);
+4755:                                 categoryDef.tasks.forEach((task, index) => {
+4771:                            const floorCounts = Array(categoryTasks.length).fill(0);
+4781:                                if ((unitData.taskIndex || 0) === categoryTasks.length - 1 && unitData.progress >= 100) floorCompleted++;
+4826:                    const detailedTasks = categoryDef.tasks;
+4975:                const container = document.getElementById('task-category-buttons');
+5084:                const categoryDef = taskDefinitions[currentCategory];
+5136:                    title = categoryDef ? (categoryDef.title || `STATUS ${categoryDef.name}`) : '';
+5276:                const categoryDef = taskDefinitions[currentCategory];
+5277:                if (!categoryDef) return;
+5279:                if (categoryDef.type === 'inspection') {
+5284:                } else if (categoryDef.type === 'multi-progress') {
+5291:                    categoryDef.tasks.forEach((task, index) => {
+5294:                    content.innerHTML += createStep('bg-emerald-500', 'เสร็จสมบูรณ์', categoryDef.tasks.length + 1, true);
+5423:                let category = taskDefinitions[taskKey] ? taskKey : (taskKey === 'paintOnly' ? 'paintOnly' : (taskKey === 'skimOnly' ? 'skimOnly' : (taskKey === 'kitchenOnly' ? 'kitchenOnly' : null)));
+5456:                if (category && !isMultiSelect) {
+5457:                    if (category === 'paintOnly') {
+5464:                    } else if (category === 'skimOnly') {
+5473:                    } else if (category === 'kitchenOnly') {
+5483:                        const unitData = projectData[category]?.[floor]?.[room] || {};
+5484:                        if (taskDefinitions[category].type === 'progress') {
+5486:                        } else if (taskDefinitions[category].type === 'multi-progress') {
+5487:                            const subTasks = taskDefinitions[category].tasks || [];
+5506:                        } else if (taskDefinitions[category].type === 'inspection') {
+5808:                        let category = taskDefinitions[taskKey] ? taskKey : (taskKey === 'paintOnly' ? 'paintOnly' : (taskKey === 'skimOnly' ? 'skimOnly' : (taskKey === 'kitchenOnly' ? 'kitchenOnly' : null)));
+5809:                        if (category) {
+5810:                            if (category === 'paintOnly') {
+5818:                            } else if (category === 'skimOnly') {
+5833:                            } else if (category === 'kitchenOnly') {
+5849:                                if (!projectData[category]) projectData[category] = {};
+5850:                                if (!projectData[category][floor]) projectData[category][floor] = {};
+5851:                                if (!projectData[category][floor][room]) projectData[category][floor][room] = {};
+5853:                                const unitData = projectData[category][floor][room];
+5855:                                if (taskDefinitions[category].type === 'multi-progress') {
+5857:                                        const subTasks = taskDefinitions[category].tasks || [];
+5866:                                } else if (taskDefinitions[category].type === 'progress') {
+5869:                                        unitData.taskIndex = (taskDefinitions[category].tasks || []).length - 1;
+5873:                                        unitData.taskIndex = Math.max(0, Math.min(unitData.taskIndex || 0, (taskDefinitions[category].tasks || []).length - 1));
+5932:                const categoryDef = taskDefinitions[currentCategory];
+5942:                if (categoryDef.type === 'inspection') {
+5980:                } else if (categoryDef.type === 'multi-progress') {
+5990:                            categoryDef.tasks.forEach(t => tasksToShow.add(t.key));
+5994:                    categoryDef.tasks.forEach(task => {
+6016:                    const categoryTasks = categoryDef.tasks;
+6025:                        categoryTasks.forEach((task, index) => {
+6071:                        if (progressToShow >= 100 && taskToShowIndex < categoryTasks.length - 1) {
+6074:                            while (taskToShowIndex < categoryTasks.length - 1 && 
+6075:                                   categoryTasks[taskToShowIndex].condition && 
+6076:                                   !categoryTasks[taskToShowIndex].condition(parseInt(floor), parseInt(room))) {
+6169:                const categoryDef = taskDefinitions[currentCategory];
+6170:                if (categoryDef.type === 'inspection') {
+6213:                } else if (categoryDef.type === 'multi-progress') {
+6229:                                    const task = categoryDef.tasks.find(t => t.key === inputTaskKey);
+6449:                    // Logic to update other sub-tasks in the same category
+6900:                // Render Tables for each category
+6905:                    const categoryTitle = `
+6912:                    pdfContainer.innerHTML += categoryTitle;
+7040:                            // For each selected subtask in this category
+7492:            function calculateMultiProgressOverallStatus(categoryKey, floorsToCalc, selectedSubTaskIndexes) {
+7494:                const catDef = taskDefinitions[categoryKey];
+7507:                        const unitData = projectData[categoryKey][floor][room];
+7524:            function calculateMultiProgressOverallPercentage(categoryKey, floorsToCalc, selectedSubTaskIndexes) {
+7526:                const catDef = taskDefinitions[categoryKey];
+7540:                        let roomTotalProgress = relevantTaskKeys.reduce((sum, taskKey) => sum + (projectData[categoryKey][floor][room][`progress_${taskKey}`] || 0), 0);
+7548:            function calculateSubTaskProgress(categoryKey, subTaskIndex, floorsToCalc) {
+7550:                const catDef = taskDefinitions[categoryKey];
+7563:                        const unitData = projectData[categoryKey][floor][room];
+7577:            function calculateSubTaskStatusCounts(categoryKey, subTaskIndex, floorsToCalc) {
+7579:                const catDef = taskDefinitions[categoryKey];
+7592:                        const unitData = projectData[categoryKey][floor][room];
+7609:            function calculateInspectionStats(categoryKey, stage, floorsToCalc) {
+7618:                        const unitData = projectData[categoryKey][floor][room];
+7814:                    let categorySection = `\n${stripHTML(catDef.reportEmoji)} ${catDef.reportName}\n`;
+7840:                        categorySection += `  ภาพรวม (${totalRooms} ห้อง):\n`;
+7841:                        categorySection += `     • ส่งตรวจแล้ว: ${submittedCount} ห้อง\n`;
+7843:                             categorySection += `     • ผ่าน: ${passedCount} ห้อง\n`;
+7844:                             categorySection += `     • ไม่ผ่าน: ${failedCount} ห้อง\n`;
+7889:                        categorySection += line + '\n';
+7901:                            categorySection += line + '\n';
+7904:                    return categorySection;
+8290:                const groups = document.querySelectorAll('#task-category-buttons > div');
