@@ -673,7 +673,7 @@
 <link rel="stylesheet" href="/index.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>
 </head>
-<body class="p-0 md:p-4 bg-slate-50">
+<body class="p-0 md:p-4 bg-slate-50 antialiased font-sans">
 
     <!-- Splash Screen -->
     <div id="splash-screen" class="min-h-screen flex items-center justify-center p-4">
@@ -828,6 +828,10 @@
                         <button id="captureNewBtn" class="action-btn px-3 py-1.5 bg-indigo-600 text-white rounded-lg shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1 text-xs font-medium inline-flex items-center gap-1.5 transition-all">
                             <i data-lucide="camera" class="w-3.5 h-3.5"></i>
                             <span class="hidden sm:inline">แคปเจอร์</span>
+                        </button>
+                        <button id="captureHighResBtn" class="action-btn px-3 py-1.5 bg-purple-600 text-white rounded-lg shadow-sm hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-1 text-xs font-medium inline-flex items-center gap-1.5 transition-all" title="แคปเจอร์แบบความละเอียดสูง (PNG ชัดมาก)">
+                            <i data-lucide="image" class="w-3.5 h-3.5"></i>
+                            <span class="hidden sm:inline">แคปเจอร์(ชัดมาก)</span>
                         </button>
                         <button id="toggleCaptureModeBtn" class="action-btn px-3 py-1.5 bg-white border border-indigo-200 text-indigo-700 rounded-lg shadow-sm hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1 text-xs font-medium inline-flex items-center gap-1.5 transition-all" title="ดูแบบแคปเจอร์">
                             <i data-lucide="maximize" class="w-3.5 h-3.5"></i>
@@ -6916,22 +6920,19 @@
                     const finalWidth = captureArea.scrollWidth;
                     const finalHeight = captureArea.scrollHeight;
 
-                    // Use optimal scale explicitly for chat apps like LINE. Too high (3-4) causes aggressive compression and blurry text.
-                    const captureScale = 2;
+                    // Use optimal scale explicitly for chat apps like LINE.
+                    const captureScale = 3; // Use 3 for sharp text
 
-                    html2canvas(captureArea, {
-                        scale: captureScale,
-                        useCORS: true,
+                    htmlToImage.toPng(captureArea, {
                         backgroundColor: '#ffffff',
+                        pixelRatio: captureScale,
                         width: finalWidth,
                         height: finalHeight,
-                        windowWidth: finalWidth,
-                        windowHeight: finalHeight,
-                        scrollX: 0,
-                        scrollY: 0
-                    }).then(canvas => {
+                        style: {
+                            transformOrigin: 'top left'
+                        }
+                    }).then(dataUrl => {
                         const filename = `line-update-${Date.now()}.png`;
-                        const dataUrl = canvas.toDataURL('image/png');
 
                         function fallbackDownload() {
                             const link = document.createElement('a');
@@ -6945,26 +6946,25 @@
                         if (mode === 'share') {
                             // Try to use Web Share API if available (great for mobile)
                             if (navigator.share && navigator.canShare) {
-                                canvas.toBlob(blob => {
-                                    if (!blob) {
-                                        fallbackDownload();
-                                        return;
-                                    }
-                                    const file = new File([blob], filename, { type: 'image/png' });
-                                    if (navigator.canShare({ files: [file] })) {
-                                        navigator.share({
-                                            files: [file],
-                                            title: 'รายงานความคืบหน้า'
-                                        }).catch(err => {
-                                            console.error('Share failed:', err);
-                                            if (err.name !== 'AbortError') {
-                                                fallbackDownload();
-                                            }
-                                        });
-                                    } else {
-                                        fallbackDownload();
-                                    }
-                                }, 'image/png');
+                                // fetch dataUrl to blob
+                                fetch(dataUrl)
+                                    .then(res => res.blob())
+                                    .then(blob => {
+                                        const file = new File([blob], filename, { type: 'image/png' });
+                                        if (navigator.canShare({ files: [file] })) {
+                                            navigator.share({
+                                                files: [file],
+                                                title: 'รายงานความคืบหน้า'
+                                            }).catch(err => {
+                                                console.error('Share failed:', err);
+                                                if (err.name !== 'AbortError') {
+                                                    fallbackDownload();
+                                                }
+                                            });
+                                        } else {
+                                            fallbackDownload();
+                                        }
+                                    });
                             } else {
                                 fallbackDownload();
                             }
@@ -6992,7 +6992,7 @@
                 }, 500); // Increased timeout to ensure rendering
             }
 
-            function captureForLineNew(mode = 'download', btnId = 'captureNewBtn') {
+            function captureForLineNew(mode = 'download', btnId = 'captureNewBtn', customScale = 3) {
                 const captureArea = document.getElementById('capture-area');
                 const captureBtn = document.getElementById(btnId);
                 const originalBtnHTML = captureBtn.innerHTML;
@@ -7031,21 +7031,23 @@
                     const finalWidth = captureArea.scrollWidth;
                     const finalHeight = captureArea.scrollHeight;
 
-                    // Use optimal scale explicitly for chat apps like LINE. High pixel ratio + JPEG prevents LINE's harsh PNG resizing artifacts.
-                    const captureScale = 3;
+                    // Use optimal scale explicitly for chat apps like LINE.
+                    const captureScale = customScale; // 3 Gives very sharp text in JPEG, 5 for ultra clear
 
-                    // Use html-to-image which handles SVGs and scaling much better
-                    htmlToImage.toJpeg(captureArea, {
-                        quality: 1.0,
+                    html2canvas(captureArea, {
+                        scale: captureScale,
+                        useCORS: true,
                         backgroundColor: '#ffffff',
-                        pixelRatio: captureScale,
                         width: finalWidth,
                         height: finalHeight,
-                        style: {
-                            transformOrigin: 'top left'
-                        }
-                    }).then(dataUrl => {
-                        const filename = `line-update-new-${Date.now()}.jpg`;
+                        windowWidth: finalWidth,
+                        windowHeight: finalHeight,
+                        scrollX: 0,
+                        scrollY: 0
+                    }).then(canvas => {
+                        const isHighRes = mode === 'highres';
+                        const filename = isHighRes ? `summary-highres-${Date.now()}.png` : `line-update-${Date.now()}.jpg`;
+                        const dataUrl = isHighRes ? canvas.toDataURL('image/png') : canvas.toDataURL('image/jpeg', 0.95);
 
                         function fallbackDownload() {
                             const link = document.createElement('a');
@@ -7062,7 +7064,8 @@
                                 fetch(dataUrl)
                                     .then(res => res.blob())
                                     .then(blob => {
-                                        const file = new File([blob], filename, { type: 'image/jpeg' });
+                                        const mimeType = isHighRes ? 'image/png' : 'image/jpeg';
+                                        const file = new File([blob], filename, { type: mimeType });
                                         if (navigator.canShare({ files: [file] })) {
                                             navigator.share({
                                                 files: [file],
@@ -8662,7 +8665,18 @@
 
                 document.getElementById('captureDownloadBtn').addEventListener('click', () => captureForLine('download', 'captureDownloadBtn'));
                 document.getElementById('captureShareBtn').addEventListener('click', () => captureForLine('share', 'captureShareBtn'));
-                document.getElementById('captureNewBtn').addEventListener('click', () => captureForLineNew('download', 'captureNewBtn'));
+                document.getElementById('captureNewBtn').addEventListener('click', () => captureForLineNew('download', 'captureNewBtn', 3));
+                document.getElementById('captureHighResBtn').addEventListener('click', (e) => {
+                    showConfirmModal(
+                        'แจ้งเตือนการแคปเจอร์ความละเอียดสูง',
+                        'ภาพนี้มีความคมชัดสูงมาก ซึ่งไม่เหมาะสำหรับส่งในไลน์ (LINE จะบีบอัดจนภาพเบลอ ไม่ชัด) แต่เหมาะสำหรับนำไปใช้งานด้านอื่น ต้องการดำเนินการต่อหรือไม่?',
+                        () => {
+                            closeModal('confirmModal');
+                            captureForLineNew('highres', 'captureHighResBtn', 6);
+                        },
+                        e.currentTarget
+                    );
+                });
                 
                 document.getElementById('toggleExecutiveSummaryBtn').addEventListener('click', () => {
                     showExecutiveSummary = !showExecutiveSummary;
