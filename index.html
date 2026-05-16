@@ -6923,7 +6923,8 @@
                     // Use optimal scale explicitly for chat apps like LINE.
                     const captureScale = 3; // Use 3 for sharp text
 
-                    htmlToImage.toPng(captureArea, {
+                    htmlToImage.toJpeg(captureArea, {
+                        quality: 0.95,
                         backgroundColor: '#ffffff',
                         pixelRatio: captureScale,
                         width: finalWidth,
@@ -6932,7 +6933,7 @@
                             transformOrigin: 'top left'
                         }
                     }).then(dataUrl => {
-                        const filename = `line-update-${Date.now()}.png`;
+                        const filename = `line-update-${Date.now()}.jpg`;
 
                         function fallbackDownload() {
                             const link = document.createElement('a');
@@ -6950,7 +6951,7 @@
                                 fetch(dataUrl)
                                     .then(res => res.blob())
                                     .then(blob => {
-                                        const file = new File([blob], filename, { type: 'image/png' });
+                                        const file = new File([blob], filename, { type: 'image/jpeg' });
                                         if (navigator.canShare({ files: [file] })) {
                                             navigator.share({
                                                 files: [file],
@@ -7034,20 +7035,18 @@
                     // Use optimal scale explicitly for chat apps like LINE.
                     const captureScale = customScale; // 3 Gives very sharp text in JPEG, 5 for ultra clear
 
-                    html2canvas(captureArea, {
-                        scale: captureScale,
-                        useCORS: true,
+                    htmlToImage.toJpeg(captureArea, {
+                        quality: 0.95,
                         backgroundColor: '#ffffff',
+                        pixelRatio: captureScale,
                         width: finalWidth,
                         height: finalHeight,
-                        windowWidth: finalWidth,
-                        windowHeight: finalHeight,
-                        scrollX: 0,
-                        scrollY: 0
-                    }).then(canvas => {
+                        style: {
+                            transformOrigin: 'top left'
+                        }
+                    }).then(dataUrl => {
                         const isHighRes = mode === 'highres';
-                        const filename = isHighRes ? `summary-highres-${Date.now()}.png` : `line-update-${Date.now()}.jpg`;
-                        const dataUrl = isHighRes ? canvas.toDataURL('image/png') : canvas.toDataURL('image/jpeg', 0.95);
+                        const filename = isHighRes ? `summary-highres-${Date.now()}.jpg` : `line-update-${Date.now()}.jpg`;
 
                         function fallbackDownload() {
                             const link = document.createElement('a');
@@ -7064,8 +7063,7 @@
                                 fetch(dataUrl)
                                     .then(res => res.blob())
                                     .then(blob => {
-                                        const mimeType = isHighRes ? 'image/png' : 'image/jpeg';
-                                        const file = new File([blob], filename, { type: mimeType });
+                                        const file = new File([blob], filename, { type: 'image/jpeg' });
                                         if (navigator.canShare({ files: [file] })) {
                                             navigator.share({
                                                 files: [file],
@@ -8672,7 +8670,10 @@
                         'ภาพนี้มีความคมชัดสูงมาก ซึ่งไม่เหมาะสำหรับส่งในไลน์ (LINE จะบีบอัดจนภาพเบลอ ไม่ชัด) แต่เหมาะสำหรับนำไปใช้งานด้านอื่น ต้องการดำเนินการต่อหรือไม่?',
                         () => {
                             closeModal('confirmModal');
-                            captureForLineNew('highres', 'captureHighResBtn', 6);
+                            // Delay capture to let the modal close completely
+                            setTimeout(() => {
+                                captureForLineNew('highres', 'captureHighResBtn', 6);
+                            }, 100);
                         },
                         e.currentTarget
                     );
