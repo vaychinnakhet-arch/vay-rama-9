@@ -6999,10 +6999,19 @@
                 document.documentElement.classList.add('is-line-capturing');
                 document.body.classList.add('is-line-capturing');
                 
-                const table = document.getElementById('main-table');
-                const fullWidth = (table && !table.classList.contains('hidden')) 
-                    ? Math.max(table.scrollWidth, table.offsetWidth, 1200) 
-                    : Math.max(captureArea.scrollWidth, 1200);
+                let fullWidth = 1200;
+                const elementsToCheck = [
+                    document.getElementById('report-header'),
+                    document.getElementById('executive-summary-dashboard'),
+                    document.getElementById('main-table'),
+                    document.getElementById('legend'),
+                    captureArea
+                ];
+                elementsToCheck.forEach(el => {
+                    if (el && el.style.display !== 'none' && !el.classList.contains('hidden') && el.offsetWidth > 0) {
+                        fullWidth = Math.max(fullWidth, el.scrollWidth);
+                    }
+                });
                 
                 // Force inline widths to prevent clipping
                 const originalCaptureAreaWidth = captureArea.style.width;
@@ -7111,10 +7120,19 @@
                 document.documentElement.classList.add('is-line-capturing');
                 document.body.classList.add('is-line-capturing');
                 
-                const table = document.getElementById('main-table');
-                const fullWidth = (table && !table.classList.contains('hidden')) 
-                    ? Math.max(table.scrollWidth, table.offsetWidth, 1200) 
-                    : Math.max(captureArea.scrollWidth, 1200);
+                let fullWidth = 1200;
+                const elementsToCheck = [
+                    document.getElementById('report-header'),
+                    document.getElementById('executive-summary-dashboard'),
+                    document.getElementById('main-table'),
+                    document.getElementById('legend'),
+                    captureArea
+                ];
+                elementsToCheck.forEach(el => {
+                    if (el && el.style.display !== 'none' && !el.classList.contains('hidden') && el.offsetWidth > 0) {
+                        fullWidth = Math.max(fullWidth, el.scrollWidth);
+                    }
+                });
                 
                 // Force inline widths to prevent clipping
                 const originalCaptureAreaWidth = captureArea.style.width;
@@ -8763,7 +8781,7 @@
 
                 document.getElementById('captureDownloadBtn').addEventListener('click', () => captureForLine('download', 'captureDownloadBtn'));
                 document.getElementById('captureShareBtn').addEventListener('click', () => captureForLine('share', 'captureShareBtn'));
-                document.getElementById('captureNewBtn').addEventListener('click', () => captureForLineNew('download', 'captureNewBtn', 3));
+                document.getElementById('captureNewBtn').addEventListener('click', () => captureForLineNew('download', 'captureNewBtn', 2));
                 document.getElementById('captureHighResBtn').addEventListener('click', (e) => {
                     showConfirmModal(
                         'แจ้งเตือนการแคปเจอร์ความละเอียดสูง',
