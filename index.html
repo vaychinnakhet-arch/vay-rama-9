@@ -1550,20 +1550,24 @@
                              }, 2000);
                         }
                         if (status === 'CHANNEL_ERROR') {
-                             console.error('Realtime channel error:', err);
+                             let errorStr = '';
+                             try {
+                                 errorStr = (err && typeof err === 'object') ? JSON.stringify(err) : String(err);
+                             } catch(e) { }
                              
-                             // Suppress modal for 1006 (Abnormal Close) which usually means weak connection / auto-reconnecting
-                             const is1006Error = err && (
+                             // Suppress error log and modal for 1006 (Abnormal Close) which usually means weak connection / auto-reconnecting
+                             const is1006Error = errorStr.includes('1006') || (err && (
                                 (typeof err === 'string' && err.includes('1006')) || 
-                                (err.message && err.message.includes('1006')) ||
+                                (err.message && String(err.message).includes('1006')) ||
                                 (err.code === 1006)
-                             );
+                             ));
                              
                              if (!is1006Error) {
+                                console.error('Realtime channel error:', err);
                                 showNotificationModal("Connection Error", "การเชื่อมต่อ Real-time ล้มเหลว กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ตของคุณ");
                                 splashLoadingText.textContent = "การเชื่อมต่อ Real-time ขัดข้อง";
                              } else {
-                                console.log("Socket closed (1006), waiting for auto-reconnect...");
+                                console.log("Realtime socket closed (1006), waiting for auto-reconnect...");
                              }
                         }
                     });
@@ -6545,7 +6549,7 @@
                 }
             }
             
-            function exportToExcel() {
+            async function exportToExcel() {
                 const tableId = currentView === 'summaryReport' ? 'summary-report-table' : 'main-table';
                 const originalTable = document.getElementById(tableId);
                 
@@ -6554,6 +6558,11 @@
                     return;
                 }
                 
+                const exportBtn = document.getElementById('exportExcelBtn');
+                const originalBtnText = exportBtn.innerHTML;
+                exportBtn.innerHTML = 'กำลังเตรียม...';
+                exportBtn.disabled = true;
+
                 // clone table
                 const clonedTable = originalTable.cloneNode(true);
                 
@@ -6577,6 +6586,15 @@
                     if (orig.tagName === 'TH' || orig.tagName === 'TD') {
                         cln.style.border = '1px solid #cbd5e1';
                         cln.style.verticalAlign = computed.verticalAlign;
+                        if (computed.backgroundColor === 'rgba(0, 0, 0, 0)' || computed.backgroundColor === 'transparent') {
+                             const child = orig.firstElementChild;
+                             if (child) {
+                                 const childComputed = window.getComputedStyle(child);
+                                 if (childComputed.backgroundColor !== 'rgba(0, 0, 0, 0)' && childComputed.backgroundColor !== 'transparent') {
+                                     cln.style.backgroundColor = childComputed.backgroundColor;
+                                 }
+                             }
+                        }
                     }
                     
                     // Remove interactive elements like buttons, checkboxes
@@ -6597,48 +6615,87 @@
                     updateDateText = 'วันที่รายงาน: ' + updateDateEl.textContent;
                 }
                 
-                let legendText = '';
+                let legendImageBase64 = null;
                 const legendEl = document.getElementById('legend');
                 if (legendEl && legendEl.style.display !== 'none') {
+                    try {
+                        const dataUrl = await htmlToImage.toPng(legendEl, { 
+                            backgroundColor: '#ffffff', 
+                            pixelRatio: 2,
+                            style: { 
+                                margin: '0',
+                                padding: '10px'
+                            } 
+                        });
+                        legendImageBase64 = dataUrl.split(',')[1];
+                    } catch (e) {
+                         console.error("Failed to capture legend image: ", e);
+                    }
+                }
+                
+                let legendHtml = '';
+                if (legendImageBase64) {
+                    legendHtml = `<br><table style="border: none;"><tr><td style="border: none;"><img src="file:///C:/legend.png" /></td></tr></table><br>`;
+                } else if (legendEl && legendEl.style.display !== 'none') {
                     const spans = Array.from(legendEl.querySelectorAll('span'));
                     if (spans.length > 0) {
-                        legendText = 'ขั้นตอน: ' + spans.map(s => s.textContent.trim()).filter(t => t).join(' ➔ ');
+                        const legendText = 'ขั้นตอน: ' + spans.map(s => s.textContent.trim()).filter(t => t).join(' ➔ ');
+                        legendHtml = `<br><table style="border: none;"><tr><td colspan="10" style="font-size: 13px; font-weight: bold; border: none; padding-top: 15px; color: #475569;">${legendText}</td></tr></table>`;
                     }
                 }
                 
                 // Create HTML structure for excel
-                const htmlTemplate = `
+                const sheetHtmlStr = `
                     <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
                     <head>
                         <meta charset="utf-8">
                         <style>
                             table { border-collapse: collapse; min-width: 100%; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
                             td, th { border: 1px solid #cbd5e1; padding: 6px; white-space: nowrap; } 
-                            /* Force number format to be text except if we want it to be numbers. Actually letting Excel decide is better for numbers, but Thai text sometimes needs it. \\@ forces text */
                         </style>
                     </head>
                     <body>
                         <table style="border: none;">
                             <tr><td colspan="10" style="font-size: 18px; font-weight: bold; border: none;">${reportTitle}</td></tr>
-                            <tr><td colspan="10" style="font-size: 14px; border: none; padding-bottom: ${legendText ? '5px' : '15px'};">${updateDateText}</td></tr>
-                            ${legendText ? `<tr><td colspan="10" style="font-size: 13px; font-weight: bold; border: none; padding-bottom: 15px; color: #475569;">${legendText}</td></tr>` : ''}
+                            <tr><td colspan="10" style="font-size: 14px; border: none; padding-bottom: 15px;">${updateDateText}</td></tr>
                         </table>
                         ${clonedTable.outerHTML}
+                        ${legendHtml}
                     </body>
                     </html>
                 `;
                 
+                let mhtml = `MIME-Version: 1.0\r\n` +
+                            `Content-Type: multipart/related; boundary="----BOUNDARY"\r\n\r\n` +
+                            `------BOUNDARY\r\n` +
+                            `Content-Location: file:///C:/workbook.htm\r\n` +
+                            `Content-Type: text/html; charset=utf-8\r\n\r\n` +
+                            sheetHtmlStr + `\r\n\r\n`;
+
+                if (legendImageBase64) {
+                    mhtml += `------BOUNDARY\r\n` +
+                             `Content-Location: file:///C:/legend.png\r\n` +
+                             `Content-Type: image/png\r\n` +
+                             `Content-Transfer-Encoding: base64\r\n\r\n` +
+                             legendImageBase64 + `\r\n\r\n`;
+                }
+
+                mhtml += `------BOUNDARY--\r\n`;
+                
                 // create a Blob
-                const blob = new Blob(['\uFEFF', htmlTemplate], { type: 'application/vnd.ms-excel' });
+                const blob = new Blob([mhtml], { type: 'multipart/related' });
                 const url = URL.createObjectURL(blob);
                 const link = document.createElement('a');
                 link.href = url;
-                link.download = `Vay-Chinnakhet-Report-${Date.now()}.xls`;
+                link.download = `Vay-Rama9-Report-${Date.now()}.xls`;
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
                 URL.revokeObjectURL(url);
                 showToast('ส่งออก Excel สำเร็จ', 'success');
+                
+                exportBtn.innerHTML = originalBtnText;
+                exportBtn.disabled = false;
             }
 
             function openMultiSheetExcelModal() {
@@ -6696,6 +6753,30 @@
                                       
                 let sheetsHtml = '';
                 
+                let legendImageBase64 = null;
+                const legendEl = document.getElementById('legend');
+                if (legendEl && legendEl.style.display !== 'none') {
+                    // Need to briefly show residential to render legend properly if not already shown
+                    const tempView = currentView;
+                    currentView = 'residential';
+                    updateLegend();
+                    currentView = tempView;
+                    
+                    try {
+                        const dataUrl = await htmlToImage.toPng(legendEl, { 
+                            backgroundColor: '#ffffff', 
+                            pixelRatio: 2,
+                            style: { 
+                                margin: '0',
+                                padding: '10px'
+                            } 
+                        });
+                        legendImageBase64 = dataUrl.split(',')[1];
+                    } catch (e) {
+                         console.error("Failed to capture legend image: ", e);
+                    }
+                }
+                
                 for (let i = 0; i < selectedCats.length; i++) {
                     const catKey = selectedCats[i];
                     const catDef = taskDefinitions[catKey];
@@ -6735,6 +6816,15 @@
                             if (orig.tagName === 'TH' || orig.tagName === 'TD') {
                                 cln.style.border = '1px solid #cbd5e1';
                                 cln.style.verticalAlign = computed.verticalAlign;
+                                if (computed.backgroundColor === 'rgba(0, 0, 0, 0)' || computed.backgroundColor === 'transparent') {
+                                     const child = orig.firstElementChild;
+                                     if (child) {
+                                         const childComputed = window.getComputedStyle(child);
+                                         if (childComputed.backgroundColor !== 'rgba(0, 0, 0, 0)' && childComputed.backgroundColor !== 'transparent') {
+                                             cln.style.backgroundColor = childComputed.backgroundColor;
+                                         }
+                                     }
+                                }
                             }
                             if (orig.tagName === 'BUTTON' || orig.tagName === 'INPUT' || orig.classList.contains('lucide') || orig.tagName === 'SVG' || orig.closest('button')) {
                                 cln.remove();
@@ -6754,12 +6844,14 @@
                         updateDateText = 'วันที่รายงาน: ' + updateDateEl.textContent;
                     }
                     
-                    let legendText = '';
-                    const legendEl = document.getElementById('legend');
-                    if (legendEl && legendEl.style.display !== 'none') {
+                    let legendHtml = '';
+                    if (legendImageBase64) {
+                        legendHtml = `<br><table style="border: none;"><tr><td style="border: none;"><img src="file:///C:/legend.png" /></td></tr></table><br>`;
+                    } else if (legendEl && legendEl.style.display !== 'none') {
                         const spans = Array.from(legendEl.querySelectorAll('span'));
                         if (spans.length > 0) {
-                            legendText = 'ขั้นตอน: ' + spans.map(s => s.textContent.trim()).filter(t => t).join(' ➔ ');
+                            const legendText = 'ขั้นตอน: ' + spans.map(s => s.textContent.trim()).filter(t => t).join(' ➔ ');
+                            legendHtml = `<br><table style="border: none;"><tr><td colspan="10" style="font-size: 13px; font-weight: bold; border: none; padding-top: 15px; color: #475569;">${legendText}</td></tr></table>`;
                         }
                     }
                     
@@ -6775,10 +6867,10 @@
                         <body>
                             <table style="border: none;">
                                 <tr><td colspan="10" style="font-size: 18px; font-weight: bold; border: none;">${reportTitle}</td></tr>
-                                <tr><td colspan="10" style="font-size: 14px; border: none; padding-bottom: ${legendText ? '5px' : '15px'};">${updateDateText}</td></tr>
-                                ${legendText ? `<tr><td colspan="10" style="font-size: 13px; font-weight: bold; border: none; padding-bottom: 15px; color: #475569;">${legendText}</td></tr>` : ''}
+                                <tr><td colspan="10" style="font-size: 14px; border: none; padding-bottom: 15px;">${updateDateText}</td></tr>
                             </table>
                             ${clonedTable.outerHTML}
+                            ${legendHtml}
                         </body>
                         </html>
                     `;
@@ -6789,6 +6881,14 @@
                                   sheetHtmlStr + `\r\n\r\n`;
                 }
                 
+                if (legendImageBase64) {
+                    sheetsHtml += `------BOUNDARY\r\n` +
+                                  `Content-Location: file:///C:/legend.png\r\n` +
+                                  `Content-Type: image/png\r\n` +
+                                  `Content-Transfer-Encoding: base64\r\n\r\n` +
+                                  legendImageBase64 + `\r\n\r\n`;
+                }
+
                 excelFileString += `    </x:ExcelWorksheets>\r\n` +
                                    `  </x:ExcelWorkbook>\r\n` +
                                    `</xml>\r\n</head>\r\n<body></body>\r\n</html>\r\n\r\n` +
